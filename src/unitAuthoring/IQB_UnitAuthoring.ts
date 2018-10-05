@@ -8,27 +8,27 @@ v 0.7.2 - 05.10.2018
 // 2018
 // license: MIT
 
-import {Unit} from './unit/Unit.js';
-import {UnitElement} from './unit/UnitElement.js';
-import {UnitPage} from './unit/UnitPage.js';
-import {Property} from './unit/Properties.js';
-import {PropertiesToolbox} from './authoringFeatures/PropertiesToolbox.js';
-import {PopupMenu} from './authoringFeatures/PopupMenu.js';
-import {ObjectWithProperties} from './unit/ObjectWithProperties.js';
-import {DockingFeatures} from './authoringFeatures/DockingFeatures.js';
+import {Unit} from '../typescriptCommonFiles/unit/Unit.js';
+import {UnitElement} from '../typescriptCommonFiles/unit/UnitElement.js';
+import {UnitPage} from '../typescriptCommonFiles/unit/UnitPage.js';
+import {Property} from '../typescriptCommonFiles/unit/Properties.js';
+import {PropertiesToolbox} from '../typescriptCommonFiles/authoringFeatures/PropertiesToolbox.js';
+import {PopupMenu} from '../typescriptCommonFiles/authoringFeatures/PopupMenu.js';
+import {ObjectWithProperties} from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
+import {DockingFeatures} from '../typescriptCommonFiles/authoringFeatures/DockingFeatures.js';
 
-import {AudioElement} from './unit/elementTypes/AudioElement.js';
-import {CheckboxElement} from './unit/elementTypes/CheckboxElement.js';
-import {DropdownElement} from './unit/elementTypes/DropdownElement.js';
-import {HtmlUnitElement} from './unit/elementTypes/HtmlElement.js';
-import {ImageElement} from './unit/elementTypes/ImageElement.js';
-import {MultipleChoiceElement} from './unit/elementTypes/MultipleChoiceElement.js';
-import {TableCell, TableElement} from './unit/elementTypes/TableElement.js';
-import {TextboxElement} from './unit/elementTypes/TextboxElement.js';
-import {TextElement} from './unit/elementTypes/TextElement.js';
-import {VideoElement} from './unit/elementTypes/VideoElement.js';
-import { ObjectWithSpatialProperties } from './unit/ObjectWithSpatialProperties.js';
-import { OpenCBA } from './OpenCBA/OpenCBA.js';
+import {AudioElement} from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
+import {CheckboxElement} from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
+import {DropdownElement} from '../typescriptCommonFiles/unit/elementTypes/DropdownElement.js';
+import {HtmlUnitElement} from '../typescriptCommonFiles/unit/elementTypes/HtmlElement.js';
+import {ImageElement} from '../typescriptCommonFiles/unit/elementTypes/ImageElement.js';
+import {MultipleChoiceElement} from '../typescriptCommonFiles/unit/elementTypes/MultipleChoiceElement.js';
+import {TableCell, TableElement} from '../typescriptCommonFiles/unit/elementTypes/TableElement.js';
+import {TextboxElement} from '../typescriptCommonFiles/unit/elementTypes/TextboxElement.js';
+import {TextElement} from '../typescriptCommonFiles/unit/elementTypes/TextElement.js';
+import {VideoElement} from '../typescriptCommonFiles/unit/elementTypes/VideoElement.js';
+import { ObjectWithSpatialProperties } from '../typescriptCommonFiles/unit/ObjectWithSpatialProperties.js';
+import { OpenCBA } from '../typescriptCommonFiles/OpenCBA/OpenCBA.js';
 
 const OpenCBA_UnitAuthoringInterface =
 {

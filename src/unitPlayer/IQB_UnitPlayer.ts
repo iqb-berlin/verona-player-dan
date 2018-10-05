@@ -8,14 +8,14 @@ v 0.7.2 - 05.10.2018
 // 2018
 // license: MIT
 
-import {OpenCBA} from './OpenCBA/OpenCBA.js';
+import {OpenCBA} from '../typescriptCommonFiles/OpenCBA/OpenCBA.js';
 
-import {Unit} from './unit/Unit.js';
-import {UnitElement} from './unit/UnitElement.js';
-import {UnitPage} from './unit/UnitPage.js';
-import {Property} from './unit/Properties.js';
-import {ObjectWithProperties} from './unit/ObjectWithProperties.js';
-import { CheckboxElement } from './unit/elementTypes/CheckboxElement.js';
+import {Unit} from '../typescriptCommonFiles/unit/Unit.js';
+import {UnitElement} from '../typescriptCommonFiles/unit/UnitElement.js';
+import {UnitPage} from '../typescriptCommonFiles/unit/UnitPage.js';
+import {Property} from '../typescriptCommonFiles/unit/Properties.js';
+import {ObjectWithProperties} from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
+import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
 
 /*     IQB specific implementation of the item player       */
 
@@ -141,7 +141,7 @@ class IQB_ItemPlayer {
                         if (element.getElementType() === 'audio') {
                             if (element.properties.hasProperty('playOnlyOnce'))
                             {
-                                if (element.getPropertyValue('playOnlyOnce') === 'true') {
+                                if (element.getPropertyValue('playOnlyOnce') === 'true') 
                                 {
                                     // if there are audio elements, mark them as initally not played yet
                                     thereArePlayOnlyOnceAudioElements = true;

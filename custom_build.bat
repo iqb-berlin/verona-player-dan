@@ -1,5 +1,8 @@
 mkdir "compilation"
 mkdir "compilation\typescript_compiled_files"
+mkdir "compilation\typescript_compiled_files\typescriptCommonFiles"
+mkdir "compilation\typescript_compiled_files\unitAuthoring"
+mkdir "compilation\typescript_compiled_files\unitPlayer"
 mkdir "compilation\typescript_compiled_files_bundled"
 mkdir "build"
 mkdir "build\unitAuthoring"
@@ -9,9 +12,11 @@ mkdir "build\unitAuthoring\includes"
 mkdir "build\unitAuthoring\testControllerExample"
 mkdir "build\unitPlayer"
 rem call command based on idea from https://stackoverflow.com/a/4036937
+rem stackoverflow post by: https://stackoverflow.com/users/390278/jeff-mercado
+rem stackoverflow license: cc by-sa 3.0
 call tsc
-call webpack "compilation\typescript_compiled_files\IQB_unitAuthoring.js" -o "compilation\typescript_compiled_files_bundled\IQB_unitAuthoring_Bundled.js" --mode development
-call webpack "compilation\typescript_compiled_files\IQB_unitPlayer.js" -o "compilation\typescript_compiled_files_bundled\IQB_unitPlayer_Bundled.js" --mode development
+call webpack "compilation\typescript_compiled_files\unitAuthoring\IQB_unitAuthoring.js" -o "compilation\typescript_compiled_files_bundled\IQB_unitAuthoring_Bundled.js" --mode development
+call webpack "compilation\typescript_compiled_files\unitPlayer\IQB_unitPlayer.js" -o "compilation\typescript_compiled_files_bundled\IQB_unitPlayer_Bundled.js" --mode development
 copy "compilation\typescript_compiled_files_bundled\IQB_unitAuthoring_Bundled.js" "build\unitAuthoring\js"
 xcopy "src\unitAuthoring\html" "build\unitAuthoring" /E /Y
 xcopy "src\unitAuthoring\css" "build\unitAuthoring\css" /E /Y
