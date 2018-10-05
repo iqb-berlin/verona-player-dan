@@ -13,3 +13,14 @@ To build the project, if you are using Windows, use "custom_build.bat" or "npm r
 # Release
 
 You can also use one of our previous releases directly, which are located in the "releases" folder.
+
+# License
+
+MIT License
+
+www.IQB.hu-berlin.de
+
+Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+
+2018
+
