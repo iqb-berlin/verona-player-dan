@@ -8,7 +8,11 @@ The IQB Unit Authoring Tool and the IQB Unit Player share most of their code wit
 
 # Build
 
-To build the project, if you are using Windows, use "custom_build.bat" or "npm run-script build". This will create a "build" folder with the current build and a "compilation" folder with intermediary files needed in order to create the build.
+Currently the build process is only set up to work on Windows.
+
+To build the project, you will need the Typescript Compiler and the Webpack CLI (see package.json for the the versions currently used to make the build). If these are available on your system, you can use "custom_build.bat" to build the project. This will create a "build" folder with the current build and a "compilation" folder with the intermediary files that are needed in order to create the build.
+
+Alternatively, you can also do the whole build process by using the Node Package Manager (first "npm install" and then "npm run-script build").
 
 # Release
 
@@ -23,4 +27,3 @@ www.IQB.hu-berlin.de
 Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
 
 2018
-
