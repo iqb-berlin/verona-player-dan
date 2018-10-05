@@ -4,7 +4,7 @@ This repository contains the IQB Unit Authoring Tool and the IQB Unit Player.
 
 # Tech
 
-The IQB Unit Authoring Tool and the IQB Unit Player share most of their code with each other. They are both programmed in Typescript, with a bit of HTML and CSS added to package everything neatly. The entry point for the IQB Unit Authoring Tool bundle is "src/typescriptCommonFiles/IQB_UnitAuthoring.ts" and for the IQB Unit Player bundle is "src/typescriptCommonFiles/IQB_UnitPlayer.ts". The .js bundles are generated using Webpack. Additional files needed for the build are located in "src/unitAuthoring" (for the Unit Authoring Tool) and in "src/unitPlayer" (for the Unit Player).
+The IQB Unit Authoring Tool and the IQB Unit Player share most of their code with each other. They are both programmed in Typescript, with a bit of HTML and CSS added to package everything neatly. The entry point for the IQB Unit Authoring Tool bundle is "src/unitAuthoring/IQB_UnitAuthoring.ts". For the IQB Unit Player bundle, the entry point is "src/unitPlayer/IQB_UnitPlayer.ts". The .js bundles are generated using Webpack. Additional files needed for the build are located in "src/unitAuthoring" (for the Unit Authoring Tool), in "src/unitPlayer" (for the Unit Player) and in "src/typescriptCommonFiles" (source files used by both the Unit Authoring Tool and by the Unit Player).
 
 # Build
 
