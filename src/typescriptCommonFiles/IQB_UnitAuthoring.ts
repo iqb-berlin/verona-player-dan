@@ -3,6 +3,11 @@ IQB Unit Authoring Entry Point
 v 0.7.2 - 05.10.2018
 */
 
+// www.IQB.hu-berlin.de
+// Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+// 2018
+// license: MIT
+
 import {Unit} from './unit/Unit.js';
 import {UnitElement} from './unit/UnitElement.js';
 import {UnitPage} from './unit/UnitPage.js';

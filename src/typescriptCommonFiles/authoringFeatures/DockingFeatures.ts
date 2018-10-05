@@ -1,3 +1,8 @@
+// www.IQB.hu-berlin.de
+// Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+// 2018
+// license: MIT
+
 import {ObjectWithSpatialProperties} from '../unit/ObjectWithSpatialProperties.js';
 import {UnitElement} from '../unit/UnitElement.js';
 import {TableCell, TableElement} from '../unit/elementTypes/TableElement.js';

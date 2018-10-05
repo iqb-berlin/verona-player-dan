@@ -3,6 +3,11 @@
 This module describes common characteristics that all OpenCBA compatible item players share
 */
 
+// www.IQB.hu-berlin.de
+// Martin Mechtel, Dan Bărbulescu, Andrei Stroescu
+// 2018
+// license: MIT
+
 export namespace OpenCBA {
 
     // Unit Authoring

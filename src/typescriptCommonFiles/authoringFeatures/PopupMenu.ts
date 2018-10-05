@@ -1,3 +1,8 @@
+// www.IQB.hu-berlin.de
+// Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+// 2018
+// license: MIT
+
 import {UnitElement} from '../unit/UnitElement.js';
 import {UnitPage} from '../unit/UnitPage.js';
 import {Unit} from '../unit/Unit.js';

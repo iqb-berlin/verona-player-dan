@@ -1,4 +1,9 @@
-import { Properties, PropertyRenderersLibrary} from './Properties.js';
+// www.IQB.hu-berlin.de
+// Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+// 2018
+// license: MIT
+
+import {Properties, PropertyRenderersLibrary} from './Properties.js';
 import {ObjectWithProperties} from './ObjectWithProperties.js';
 import {ObjectWithSpatialProperties} from './ObjectWithSpatialProperties.js';
 import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../models/Data.js';

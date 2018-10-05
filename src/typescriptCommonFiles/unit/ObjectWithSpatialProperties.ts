@@ -1,3 +1,8 @@
+// www.IQB.hu-berlin.de
+// Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+// 2018
+// license: MIT
+
 import {Property, Properties} from './Properties.js';
 import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../models/Data.js';
 import {ObjectWithProperties} from './ObjectWithProperties.js'

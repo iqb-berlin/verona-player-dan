@@ -1,3 +1,8 @@
+// www.IQB.hu-berlin.de
+// Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+// 2018
+// license: MIT
+
 export interface PropertiesValue {
     [propertyName: string]: any;
 }

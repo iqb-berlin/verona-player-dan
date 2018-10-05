@@ -3,6 +3,11 @@ IQB Unit Player Entry Point
 v 0.7.2 - 05.10.2018
 */
 
+// www.IQB.hu-berlin.de
+// Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+// 2018
+// license: MIT
+
 import {OpenCBA} from './OpenCBA/OpenCBA.js';
 
 import {Unit} from './unit/Unit.js';
