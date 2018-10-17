@@ -28,6 +28,6 @@ rem finishing up unitPlayer
 copy "src\unitPlayer\misc\firstPart.html" + "src\unitPlayer\misc\scriptStart.txt" + "src\unitPlayer\includes\jquery.js" + "src\unitPlayer\misc\scriptEnd.txt" + "src\unitPlayer\misc\scriptStart.txt" + "compilation\typescript_compiled_files_bundled\IQB_unitPlayer_Bundled.js" + "src\unitPlayer\misc\scriptEnd.txt" + "src\unitPlayer\misc\secondPart.html" "build\unitPlayer\unitPlayer.html"
 rem finishing up unitTestControllerExample
 xcopy "src\unitTestControllerExample" "build\unitTestControllerExample" /E /Y
-copy "build\unitPlayer\unitPlayer.html" "build\unitTestControllerExample\unitPlayer.html"
+copy "build\unitPlayer\unitPlayer.html" "build\unitTestControllerExample\includes\unitPlayer.html"
 rem renaming the unitPlayer to the current release
 move /Y "build\unitPlayer\unitPlayer.html" "build\unitPlayer\IQBUnitPlayerV7.html"

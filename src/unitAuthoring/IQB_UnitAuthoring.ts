@@ -1,6 +1,6 @@
 /*
 IQB Unit Authoring Entry Point
-v 0.7.2 - 05.10.2018
+v 0.7.3 - 17.10.2018
 */
 
 // www.IQB.hu-berlin.de
