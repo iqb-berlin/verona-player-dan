@@ -1,6 +1,6 @@
 /*
 IQB Unit Player Entry Point
-v 0.7.2 - 05.10.2018
+v 0.7.3 - 17.10.2018
 */
 
 // www.IQB.hu-berlin.de
@@ -383,7 +383,7 @@ class IQB_ItemPlayer {
             const elementType = element.getElementType();
             if (elementType === 'checkbox') {
 
-                const checkboxHTMLElement = document.getElementById(elementID) as HTMLInputElement;
+                const checkboxHTMLElement = document.getElementById(elementID + "_checkbox") as HTMLInputElement;
 
                 checkboxHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
@@ -392,13 +392,13 @@ class IQB_ItemPlayer {
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
                         responseType: this.responseType,
-                        logEntries: ['The checkbox ' + checkboxHTMLElement.id + ' is now ' + checkboxHTMLElement.checked]
+                        logEntries: ['The checkbox ' + elementID + ' is now ' + checkboxHTMLElement.checked]
                     });
                 });
             }
 
             if (elementType === 'multipleChoice') {
-                const multipleChoiceHTMLElement = document.getElementById(elementID) as HTMLInputElement;
+                const multipleChoiceHTMLElement = document.getElementById(elementID + "_multipleChoice") as HTMLInputElement;
 
                 multipleChoiceHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
@@ -407,13 +407,13 @@ class IQB_ItemPlayer {
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
                         responseType: this.responseType,
-                        logEntries: ['New choice selected: ' + multipleChoiceHTMLElement.id]
+                        logEntries: ['New multiple choice selected: ' + elementID]
                     });
                 });
             }
 
             if (elementType === 'dropdown') {
-                const dropdownHTMLElement = document.getElementById(elementID) as HTMLSelectElement;
+                const dropdownHTMLElement = document.getElementById(elementID + "_select") as HTMLSelectElement;
 
                 dropdownHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
@@ -422,13 +422,13 @@ class IQB_ItemPlayer {
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
                         responseType: this.responseType,
-                        logEntries: ['The dropdown ' + dropdownHTMLElement.id + ' is now ' + dropdownHTMLElement.value]
+                        logEntries: ['The dropdown ' + elementID + ' is now ' + dropdownHTMLElement.value]
                     });
                 });
             }
 
             if (elementType === 'textbox') {
-                const textboxHTMLElement = document.getElementById(elementID) as HTMLSelectElement;
+                const textboxHTMLElement = document.getElementById(elementID + "_textbox") as HTMLInputElement;
 
                 textboxHTMLElement.addEventListener('keyup',  (e) => {
                     this.sendMessageToParent({
@@ -437,7 +437,7 @@ class IQB_ItemPlayer {
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
                         responseType: this.responseType,
-                        logEntries: ['New text typed: ' + textboxHTMLElement.value]
+                        logEntries: ['New text value for ' +  elementID  + ': ' + textboxHTMLElement.value]
                     });
                 });
             }
@@ -549,6 +549,12 @@ class IQB_ItemPlayer {
                     }
 
                     if (elementType === 'multipleChoice') {
+                        if ((variableName in responses) === false)
+                        {
+                            // the default value for a multiple choice response (if no answer is selected)
+                            // is ''
+                            responses[variableName] = '';
+                        }
                         if (element.getPropertyValue('checked') === 'true') {
                             responses[variableName] = element.getPropertyValue('text');
                         }
