@@ -1,6 +1,6 @@
 /*
 IQB Unit Player Entry Point
-v 0.7.3 - 17.10.2018
+v 0.8.0 - 18.10.2018
 */
 
 // www.IQB.hu-berlin.de
@@ -39,7 +39,7 @@ interface ResponsesObject
 
 class IQB_ItemPlayer {
     // the main class that implements the IQB ItemPlayer functionality
-    private responseType = 'IQBUnitPlayerV7';
+    private responseType = 'IQBUnitPlayerV8';
 
     private currentUnit: Unit;
 
@@ -310,12 +310,15 @@ class IQB_ItemPlayer {
                     'canLeaveMessage': this.canLeaveMessage
                 });
 
-                // send the first restore point, to mark that the unit has been played
-                this.sendMessageToParent({
-                    type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
-                    sessionId: this.sessionId,
-                    restorePoint: this.getRestorePoint()
-                });
+                if (thereArePlayOnlyOnceAudioElements) {
+                    // if there are play once audio elements
+                    // send the first restore point, to mark that the unit has been played
+                    this.sendMessageToParent({
+                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        sessionId: this.sessionId,
+                        restorePoint: this.getRestorePoint()
+                    });
+                }
            }
            else
            {
@@ -542,30 +545,23 @@ class IQB_ItemPlayer {
                 const elementID = element.getElementID();
                 const elementType = element.getElementType();
 
-                if (element.properties.hasProperty('variableName')) {
-                    const variableName = element.getPropertyValue('variableName');
+                if ((elementType === 'checkbox') || (elementType === 'multipleChoice') ||
+                    (elementType === 'dropdown') || (elementType === 'textbox'))
+                {
                     if (elementType === 'checkbox') {
-                        responses[variableName] = element.getPropertyValue('checked');
+                        responses[elementID] = element.getPropertyValue('checked');
                     }
 
                     if (elementType === 'multipleChoice') {
-                        if ((variableName in responses) === false)
-                        {
-                            // the default value for a multiple choice response (if no answer is selected)
-                            // is ''
-                            responses[variableName] = '';
-                        }
-                        if (element.getPropertyValue('checked') === 'true') {
-                            responses[variableName] = element.getPropertyValue('text');
-                        }
+                        responses[elementID] = element.getPropertyValue('checked');
                     }
 
                     if (elementType === 'dropdown') {
-                        responses[variableName] = element.getPropertyValue('selectedOption');
+                        responses[elementID] = element.getPropertyValue('selectedOption');
                     }
 
                     if (elementType === 'textbox') {
-                        responses[variableName] = element.getPropertyValue('text');
+                        responses[elementID] = element.getPropertyValue('text');
                     }
                 }
         });

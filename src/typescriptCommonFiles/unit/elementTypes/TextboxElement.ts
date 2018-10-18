@@ -34,11 +34,12 @@ export class TextboxElement extends UnitElement {
             tooltip: 'Der Text, der angezeigt wird, falls der Textboxinhalt leer ist, bis etwas eingetippt wird.'
         });
 
+        // the variableName property is currently deprecated, therefore it is set as hidden
         this.properties.addProperty('variableName', {
             value: this.elementID + '_data',
             userAdjustable: true,
             propertyType: 'text',
-            hidden: false,
+            hidden: true,
             caption: 'Variablename',
             tooltip: 'Der Name, der zusammen mit dem eingegeben Wert in den Testergebnissen gespeichert wird'
         });
