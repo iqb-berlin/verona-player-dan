@@ -48,7 +48,7 @@ class IQB_ItemPlayer {
     private validPageIDs: string[] = [];
 
     private canLeave: 'yes' | 'warning' | 'no';
-    private canLeaveMessage;
+    private canLeaveMessage: string;
     private environmentVariables: {[environmentVariableName: string]: string} = {};
 
     constructor (initData: OpenCBA.ToItemPlayer_DataTransfer)    {
@@ -123,7 +123,7 @@ class IQB_ItemPlayer {
                     if (typeof initData.environment !== 'undefined') {
                         this.environmentVariables = initData.environment;
                         if ('volume' in this.environmentVariables) {
-                            // if a volume is given as an environment variable, 
+                            // if a volume is given as an environment variable,
                             // set it as the default volume for all audio and video elements
                             this.currentUnit.mapToElements((element: UnitElement) => {
                                 if ((element.getElementType() === 'audio') || (element.getElementType() === 'video')) {
@@ -141,7 +141,7 @@ class IQB_ItemPlayer {
                         if (element.getElementType() === 'audio') {
                             if (element.properties.hasProperty('playOnlyOnce'))
                             {
-                                if (element.getPropertyValue('playOnlyOnce') === 'true') 
+                                if (element.getPropertyValue('playOnlyOnce') === 'true')
                                 {
                                     // if there are audio elements, mark them as initally not played yet
                                     thereArePlayOnlyOnceAudioElements = true;
@@ -160,7 +160,8 @@ class IQB_ItemPlayer {
                         // if there are audio elements, rather than just not being able to leave, show a warning until they play out
                         if (this.canLeave === 'no') {
                             this.canLeave = 'warning';
-                            this.canLeaveMessage = 'Warnung: Die Audiodatei ist noch nicht komplett gespielt. Wenn sie weiterblättern, können Sie die Datei nicht wieder hören';
+                            this.canLeaveMessage = 'Warnung: Die Audiodatei ist noch nicht komplett gespielt.';
+                            this.canLeaveMessage +=  ' Wenn sie weiterblättern, können Sie die Datei nicht wieder hören';
                         }
                     }
                 // end of figuring out the default can leave status
@@ -386,7 +387,7 @@ class IQB_ItemPlayer {
             const elementType = element.getElementType();
             if (elementType === 'checkbox') {
 
-                const checkboxHTMLElement = document.getElementById(elementID + "_checkbox") as HTMLInputElement;
+                const checkboxHTMLElement = document.getElementById(elementID + '_checkbox') as HTMLInputElement;
 
                 checkboxHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
@@ -401,7 +402,7 @@ class IQB_ItemPlayer {
             }
 
             if (elementType === 'multipleChoice') {
-                const multipleChoiceHTMLElement = document.getElementById(elementID + "_multipleChoice") as HTMLInputElement;
+                const multipleChoiceHTMLElement = document.getElementById(elementID + '_multipleChoice') as HTMLInputElement;
 
                 multipleChoiceHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
@@ -416,7 +417,7 @@ class IQB_ItemPlayer {
             }
 
             if (elementType === 'dropdown') {
-                const dropdownHTMLElement = document.getElementById(elementID + "_select") as HTMLSelectElement;
+                const dropdownHTMLElement = document.getElementById(elementID + '_select') as HTMLSelectElement;
 
                 dropdownHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
@@ -431,7 +432,7 @@ class IQB_ItemPlayer {
             }
 
             if (elementType === 'textbox') {
-                const textboxHTMLElement = document.getElementById(elementID + "_textbox") as HTMLInputElement;
+                const textboxHTMLElement = document.getElementById(elementID + '_textbox') as HTMLInputElement;
 
                 textboxHTMLElement.addEventListener('keyup',  (e) => {
                     this.sendMessageToParent({

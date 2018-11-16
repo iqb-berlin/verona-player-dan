@@ -37,7 +37,7 @@ const OpenCBA_UnitAuthoringInterface =
     checkOrigin: false,
     acceptedOrigin: '*',
     sessionId: ''
-}
+};
 
 class IQB_UnitAuthoringTool
 {
@@ -197,7 +197,7 @@ class IQB_UnitAuthoringTool
         pagesMap.forEach((page: UnitPage, pageName: string) => {
             updatePropertiesWithPagesAsDropdownOptions(page.getPropertiesMap(), pagesObject, page); // update page properties
 
-            page.getElementsMap().forEach( (element:UnitElement, elementName: string) => {
+            page.getElementsMap().forEach( (element: UnitElement, elementName: string) => {
                 // update element properties
                 updatePropertiesWithPagesAsDropdownOptions(element.getPropertiesMap(), pagesObject, element);
             });
@@ -762,7 +762,7 @@ class IQB_UnitAuthoringTool
             if ((obj.getObjectType() === 'UnitElement') || (obj.getObjectType() === 'TableCell'))
             {
                 (document.getElementById(obj.getID()) as HTMLElement).classList.add('selected');
-            } 
+            }
         }
 
         // select desired object
@@ -866,7 +866,7 @@ class IQB_UnitAuthoringTool
             }
             else if (this.selectedObjectWithProperties.getObjectType() === 'UnitPage')
             {
-                alert('Cannot delete a page.')
+                alert('Cannot delete a page.');
             }
         }
         else
@@ -886,7 +886,7 @@ class IQB_UnitAuthoringTool
                 popupMenu.removeDockingPopupMenuItems();
 
                 const element = this.currentUnit.element(elementID);
-                if (typeof element !== 'undefined') 
+                if (typeof element !== 'undefined')
                 {
                     if (element.dockedToObjectWithID !== '')
                     {
@@ -897,7 +897,7 @@ class IQB_UnitAuthoringTool
 
                             const popupMenuItemID = popupMenu.addPopupMenuItem({
                                 'triggerOnMouseOverElementID': elementID,
-                                'containerElementID': containerElementID, 
+                                'containerElementID': containerElementID,
                                 'innerHTML': 'abdocken von Tabellenzelle',
                                 'tooltip': 'Abdocken von ' + containerElementID,
                                 'position': 'beforeend',
@@ -957,7 +957,7 @@ class IQB_UnitAuthoringTool
         }); // end of function that is executed for each popupmenu
     }
 
-    public saveUnitToFile():void {
+    public saveUnitToFile(): void {
         // estimate file size
         const estimatedFileSizeHTMLElement = (document.getElementById('spanEstimatedItemFileSize') as HTMLSpanElement);
         const estimatedFileSize = this.currentUnit.exportDataToJSON().length.toLocaleString('DE');
@@ -974,9 +974,9 @@ class IQB_UnitAuthoringTool
                 text: 'OK',
                 click: () => {
                 jQuery('#saveItemDialog').dialog('close');
-                const saveFileName:string = (document.getElementById('saveFileName') as HTMLInputElement).value;
+                const saveFileName: string = (document.getElementById('saveFileName') as HTMLInputElement).value;
 
-                const saveFileContent:string = this.currentUnit.exportDataToJSON();
+                const saveFileContent: string = this.currentUnit.exportDataToJSON();
                 // console.log(saveFileContent);
                 const saveFile =  new File([saveFileContent], saveFileName + '.unitDefinition',
                                             {type: 'text/plain;charset=utf-8'});
@@ -984,7 +984,7 @@ class IQB_UnitAuthoringTool
                 }
             }
             ]
-        }); 
+        });
     }
 
     public saveUnitToJson(): string
@@ -1053,7 +1053,7 @@ class IQB_UnitAuthoringTool
 
     }
 
-    public AddFile(title = 'Datei hinzufügen', callback:Function, dataType = 'url')
+    public AddFile(title = 'Datei hinzufügen', callback: Function, dataType = 'url')
     {
         jQuery('#fileDialog').dialog({
             width: 600,
@@ -1076,13 +1076,15 @@ class IQB_UnitAuthoringTool
                             const uploadedFileContent = e.target.result;
                             // console.log(e);
                             callback(uploadedFileContent);
-                        }
+                        };
+
                         if (dataType === 'text') {
                             myReader.readAsText(uploadedFile);
                         }
                         else {
                             myReader.readAsDataURL(uploadedFile);
                         }
+
                     }
                   }
                 }
@@ -1163,7 +1165,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
                             // console.log('IQB Authoring Tool: I have sent the following message to the host');
                             // console.log(changedDataTransferMessage);
 
-                            OpenCBA_UnitAuthoringInterface.containerWindow.postMessage(changedDataTransferMessage, 
+                            OpenCBA_UnitAuthoringInterface.containerWindow.postMessage(changedDataTransferMessage,
                                                                                     OpenCBA_UnitAuthoringInterface.acceptedOrigin);
                         }
                         else {
