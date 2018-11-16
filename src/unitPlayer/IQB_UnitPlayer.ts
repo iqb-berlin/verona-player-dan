@@ -1,6 +1,6 @@
 /*
 IQB Unit Player Entry Point
-v 0.8.0 - 18.10.2018
+v 0.8.1 - 16.11.2018
 */
 
 // www.IQB.hu-berlin.de
