@@ -1,6 +1,6 @@
 /*
 IQB Unit Authoring Entry Point
-v 0.8.1 - 16.11.2018
+v 0.8.2 - 16.11.2018
 */
 
 // www.IQB.hu-berlin.de
@@ -406,6 +406,7 @@ class IQB_UnitAuthoringTool
             this.AddFile('Aufgabe importieren', (uploadedFileContent: string) =>
             {
                 this.loadUnitFromJson(uploadedFileContent);
+                this.dispatchUnitHasChangedEvent();
             }, 'text');
         });
 
