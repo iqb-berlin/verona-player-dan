@@ -117,6 +117,20 @@ export class AudioElement extends UnitElement {
         this.properties.addPropertyRenderer('playOnlyOnce', 'audioRenderer', (propertyValue: string) => {
         });
 
+        this.properties.addProperty('currentTime', {
+            value: 0,
+            userAdjustable: false,
+            propertyType: 'number',
+            hidden: true,
+            caption: 'currentTime',
+            tooltip: ''
+        });
+
+        this.properties.addPropertyRenderer('currentTime', 'audioRenderer', (propertyValue: string) => {
+            this.setCurrentTime(parseFloat(propertyValue));
+            this.showAudioLocation();
+        });
+
         this.properties.addProperty('alreadyPlayed', {
             value: 'false',
             userAdjustable: false,
@@ -127,15 +141,24 @@ export class AudioElement extends UnitElement {
         });
 
         this.properties.addPropertyRenderer('alreadyPlayed', 'audioRenderer', (propertyValue: string) => {
+            // console.log('Rendering alreadyPlayed property for ' + this.getElementID());
+            // console.log('Property value: ' + propertyValue);
+
             if (propertyValue === 'true') {
+                                
                 const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
                 const audioElementVisualLocation = document.getElementById(this.elementID + '_audio_visualLocation') as HTMLAudioElement;
                 const audioElementTextLocation = document.getElementById(this.elementID + '_audio_textLocation') as HTMLAudioElement;
 
+                audioElement.src = '';
+
+                const audioControls = document.getElementById(this.elementID + '_audio_controls') as HTMLSpanElement;
+                audioControls.style.display = 'none';
+
                 audioElementVisualLocation.setAttribute('max', '100');
                 audioElementVisualLocation.setAttribute('value', '100');
 
-                audioElementTextLocation.innerHTML = 'Audio wurde gespielt.';
+                audioElementTextLocation.innerHTML = '<br />Audio wurde gespielt.';
             }
         });
 
@@ -155,9 +178,14 @@ export class AudioElement extends UnitElement {
         // Edited by: https://stackoverflow.com/users/399908/martin-hennings , https://stackoverflow.com/users/1317805/james-donnelly
         // License: cc by-sa 3.0
 
+        let srcToDraw = '';
+        if (this.getPropertyValue('alreadyPlayed') !== 'true') {
+            srcToDraw = this.properties.getPropertyValue('src');
+        }
+
         const elementHTML = `
                     <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}; overflow: hidden;">
-                            <audio src="${this.properties.getPropertyValue('src')}"
+                            <audio src="${srcToDraw}"
                                    id="${this.elementID}_audio"
                                    style="width: 100%; display: none;"
                                    tabindex="-1"
@@ -200,37 +228,18 @@ export class AudioElement extends UnitElement {
         const audioElementVisualLocation = document.getElementById(this.elementID + '_audio_visualLocation') as HTMLAudioElement;
         const audioElementTextLocation = document.getElementById(this.elementID + '_audio_textLocation') as HTMLAudioElement;
 
+        const audioControls = document.getElementById(this.elementID + '_audio_controls') as HTMLSpanElement;
         const playButton = document.getElementById(this.elementID + '_audio_btnPlay') as HTMLImageElement;
         const pauseButton = document.getElementById(this.elementID + '_audio_btnPause') as HTMLImageElement;
 
-        const showAudioLocation = () => {
-            if (audioElement.duration > 0) {
-                audioElementVisualLocation.setAttribute('value', audioElement.currentTime.toString());
-
-                const currentLocationMinutesAsInt: number = Math.floor(audioElement.currentTime / 60);
-                let currentLocationMinutesAsString: string = currentLocationMinutesAsInt.toString();
-                // if (currentLocationMinutesAsInt < 10) { currentLocationMinutesAsString = '0' + currentLocationMinutesAsString; }
-
-                const currentLocationSecondsAsInt = Math.floor(audioElement.currentTime % 60);
-                let currentLocationSecondsAsString: string = currentLocationSecondsAsInt.toString();
-                if (currentLocationSecondsAsInt < 10) { currentLocationSecondsAsString = '0' + currentLocationSecondsAsString; }
-
-                const totalDurationMinutesAsInt: number = Math.floor(audioElement.duration / 60);
-                let totalDurationMinutesAsString: string = totalDurationMinutesAsInt.toString();
-                // if (totalDurationMinutesAsInt < 10) { totalDurationMinutesAsString = '0' + totalDurationMinutesAsString; }
-
-                const totalDurationSecondsAsInt = Math.floor(audioElement.duration % 60);
-                let totalDurationSecondsAsString: string = totalDurationSecondsAsInt.toString();
-                if (totalDurationSecondsAsInt < 10) { totalDurationSecondsAsString = '0' + totalDurationSecondsAsString; }
-
-                const textLocation =  currentLocationMinutesAsString + ':' + currentLocationSecondsAsString + ' / ' +
-                                        totalDurationMinutesAsString + ':' + totalDurationSecondsAsString;
-
-                audioElementTextLocation.innerHTML =  textLocation;
-            }
-        };
+        // using oncanplay instead of dataloaded idea inspired by https://stackoverflow.com/a/37044134
+        // license: cc by-sa 3.0 
+        // posted by user: https://stackoverflow.com/users/877819/mp-de-la-vega
 
         audioElement.onloadeddata = () => {
+
+            console.log('Setting ' + this.elementID + 'currentTime to its detected value of ' + this.getPropertyValue('currentTime'));
+            audioElement.currentTime = this.getPropertyValue('currentTime');;
 
             playButton.style.display = 'initial';
             pauseButton.style.display = 'none';
@@ -257,23 +266,42 @@ export class AudioElement extends UnitElement {
 
             if (this.getPropertyValue('autoplay') === 'true')
             {
-                audioElement.play();
+                if (this.getPropertyValue('alreadyPlayed') !== 'true') {
+                    playButton.style.display = 'none';
+                    pauseButton.style.display = 'initial';
 
-                window.dispatchEvent(new CustomEvent('IQB.unit.audioElementStarted', {
-                    detail: {'elementID': this.getElementID()}
-                }));
+                    audioElement.play();
+
+                    window.dispatchEvent(new CustomEvent('IQB.unit.audioElementStarted', {
+                        detail: {'elementID': this.getElementID()}
+                    }));
+                }
             }
 
-            showAudioLocation();
+            this.showAudioLocation();
         };
 
         audioElement.addEventListener('timeupdate', () => {
-            showAudioLocation();
+            this.setPropertyValue('currentTime', audioElement.currentTime);
+
+            this.showAudioLocation();
+
+            window.dispatchEvent(new CustomEvent('IQB.unit.audioElementTick', {
+                detail: {'elementID': this.getElementID()}
+            }));
         });
 
         audioElement.onended = () => {
             playButton.style.display = 'initial';
             pauseButton.style.display = 'none';
+
+            if (this.getPropertyValue('playOnlyOnce') === 'true') {
+                // if it can be played only once, mark it as already played, and wipe its contents
+                this.setPropertyValue('alreadyPlayed', 'true');
+
+                // then render it again
+                this.render();
+            }
 
             window.dispatchEvent(new CustomEvent('IQB.unit.audioElementEnded', {
                 detail: {'elementID': this.getElementID()}
@@ -312,4 +340,51 @@ export class AudioElement extends UnitElement {
        }
     }
 
+    play(): void {
+        
+    }
+
+    getCurrentTime(): number {
+        const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
+        return audioElement.currentTime;
+    }
+
+    setCurrentTime(newCurrentTime: number): void {
+        const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
+        audioElement.currentTime = newCurrentTime;
+        console.log('Set current time of ' + this.getElementID() + ' as ' + newCurrentTime);
+    }
+    
+    showAudioLocation()
+    {
+        const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
+        const audioElementVisualLocation = document.getElementById(this.elementID + '_audio_visualLocation') as HTMLAudioElement;
+        const audioElementTextLocation = document.getElementById(this.elementID + '_audio_textLocation') as HTMLAudioElement;
+
+        if (audioElement.duration > 0) {
+            console.log('Retrieved current time of ' + this.getElementID() + ' as ' + audioElement.currentTime);
+            audioElementVisualLocation.setAttribute('value', audioElement.currentTime.toString());
+
+            const currentLocationMinutesAsInt: number = Math.floor(audioElement.currentTime / 60);
+            let currentLocationMinutesAsString: string = currentLocationMinutesAsInt.toString();
+            // if (currentLocationMinutesAsInt < 10) { currentLocationMinutesAsString = '0' + currentLocationMinutesAsString; }
+
+            const currentLocationSecondsAsInt = Math.floor(audioElement.currentTime % 60);
+            let currentLocationSecondsAsString: string = currentLocationSecondsAsInt.toString();
+            if (currentLocationSecondsAsInt < 10) { currentLocationSecondsAsString = '0' + currentLocationSecondsAsString; }
+
+            const totalDurationMinutesAsInt: number = Math.floor(audioElement.duration / 60);
+            let totalDurationMinutesAsString: string = totalDurationMinutesAsInt.toString();
+            // if (totalDurationMinutesAsInt < 10) { totalDurationMinutesAsString = '0' + totalDurationMinutesAsString; }
+
+            const totalDurationSecondsAsInt = Math.floor(audioElement.duration % 60);
+            let totalDurationSecondsAsString: string = totalDurationSecondsAsInt.toString();
+            if (totalDurationSecondsAsInt < 10) { totalDurationSecondsAsString = '0' + totalDurationSecondsAsString; }
+
+            const textLocation =  currentLocationMinutesAsString + ':' + currentLocationSecondsAsString + ' / ' +
+                                    totalDurationMinutesAsString + ':' + totalDurationSecondsAsString;
+
+            audioElementTextLocation.innerHTML =  textLocation;
+        }
+    }
 }

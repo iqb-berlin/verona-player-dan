@@ -319,7 +319,7 @@ export class Unit extends ObjectWithProperties {
 
     public renderAlwaysOnPage(): void
     {
-        console.log('### Unit -> rendering always on page (if there is one)...');
+        // console.log('### Unit -> Checking if there is an always on page to render...');
 
         if (typeof this.alwaysOnPageDivID !== 'undefined') {
 
@@ -345,6 +345,7 @@ export class Unit extends ObjectWithProperties {
                 console.log('Obtained the following always on page:');
                 console.log(alwaysOnPage);
 
+                console.log('Rendering alwaysOn page: ');
                 alwaysOnPage.render();
             }
         }

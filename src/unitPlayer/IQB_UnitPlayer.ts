@@ -16,6 +16,7 @@ import {UnitPage} from '../typescriptCommonFiles/unit/UnitPage.js';
 import {Property} from '../typescriptCommonFiles/unit/Properties.js';
 import {ObjectWithProperties} from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
 import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
+import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
 
 /*     IQB specific implementation of the item player       */
 
@@ -68,7 +69,16 @@ class IQB_ItemPlayer {
 
                 window.addEventListener('IQB.unit.audioElementEnded', (e) => {
                     // when the audio ends, the user can leave the unit without receiving a warning
-                    this.allOnlyOncePlayableAudiosPlayed();
+                    this.checkIfAllOnlyOnceAudiosArePlayed();
+                });
+
+                window.addEventListener('IQB.unit.audioElementTick', (e) => {
+                    // update restore point data, to save the current location of the audios
+                    this.sendMessageToParent({
+                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        sessionId: this.sessionId,
+                        restorePoint: this.getRestorePoint()
+                    });
                 });
 
                 // prepare response input events for when a page will be drawn
@@ -332,40 +342,32 @@ class IQB_ItemPlayer {
         }
     }
 
-    private allOnlyOncePlayableAudiosPlayed()
+    private checkIfAllOnlyOnceAudiosArePlayed()
     {
-        this.canLeave = 'yes';
-
-        // if the unit has already played, then make sure no audio plays again
+        let allAudioElementsPlayed = true;
         this.currentUnit.mapToElements((element) => {
             if (element.getElementType() === 'audio') {
-                if (element.properties.hasProperty('playOnlyOnce'))
-                {
-                    if (element.getPropertyValue('playOnlyOnce') === 'true')
+                if (element.getPropertyValue('playOnlyOnce') === 'true') {
+                    if (element.getPropertyValue('alreadyPlayed') !== 'true')
                     {
-                        element.setPropertyValue('src', '');
-                        element.setPropertyValue('alreadyPlayed', 'true');
-
-                        let elementNode: HTMLElement | null;
-                        elementNode = document.getElementById(element.getElementID() + '_audio');
-                        if (elementNode !== null) {
-                            const elementAudioNode = elementNode as HTMLAudioElement;
-                            elementAudioNode.src = '';
-                        }
-
-                        element.render();
+                        allAudioElementsPlayed = false;
                     }
                 }
             }
         });
 
-        // and then send the signal to the parent that the unit can be left at anytime
-        this.sendMessageToParent({
-            type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
-            sessionId: this.sessionId,
-            canLeave: this.canLeave,
-            canLeaveMessage: ''
-        });
+        if (allAudioElementsPlayed) {
+            this.canLeave = 'yes';
+
+            // send the signal to the parent that the unit can be left at anytime
+            this.sendMessageToParent({
+                type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                sessionId: this.sessionId,
+                canLeave: this.canLeave,
+                canLeaveMessage: ''
+            });
+
+        }
     }
 
     private sendMessageToParent(message: OpenCBA.ItemPlayerMessageData)
@@ -452,50 +454,59 @@ class IQB_ItemPlayer {
     getRestorePoint(): string {
         // this function computes the restore point at a certain moment for the item, in the form of a javascript object
         // it then stringifies the object into JSON and returns the JSON string
-        const itemStatus: any = {};
+        const unitStatus: any = {};
 
-        itemStatus['canLeave'] = 'yes'; // if the item is loaded again, then assume that all the only once playable audios have been played
+        unitStatus['canLeave'] = 'yes'; // if the item is loaded again, then assume that all the only once playable audios have been played
 
         this.currentUnit.mapToElements((element: UnitElement) => {
                 const elementID = element.getElementID();
                 const elementType = element.getElementType();
 
                 if (elementType === 'checkbox') {
-                    itemStatus[elementID] = element.getPropertyValue('checked');
+                    unitStatus[elementID] = element.getPropertyValue('checked');
                 }
 
                 if (elementType === 'multipleChoice') {
-                    itemStatus[elementID] = element.getPropertyValue('checked');
+                    unitStatus[elementID] = element.getPropertyValue('checked');
                 }
 
                 if (elementType === 'dropdown') {
-                    itemStatus[elementID] = element.getPropertyValue('selectedOption');
+                    unitStatus[elementID] = element.getPropertyValue('selectedOption');
                 }
 
                 if (elementType === 'textbox') {
-                    itemStatus[elementID] = element.getPropertyValue('text');
+                    unitStatus[elementID] = element.getPropertyValue('text');
+                }
+
+                if (elementType === 'audio') {
+                    // if the element is of the audio type, save its current currentTime property
+                    const audioElement = element as AudioElement;
+                    if (audioElement.getPropertyValue('alreadyPlayed') === 'true') {
+                        unitStatus[elementID] = -1;
+                    }
+                    else {
+                        unitStatus[elementID] = audioElement.getCurrentTime();
+                    }
                 }
         });
 
-        return JSON.stringify(itemStatus);
+        return JSON.stringify(unitStatus);
     }
 
     private loadRestorePoint(restorePoint: string): boolean
     {
         //  loads the restore point contents into the item
         //  receives as input a restorePoint JSON string
+        console.log('Unit Player: loading restore point...');
+        console.log(restorePoint);
         try
         {
             if (restorePoint !== null) {
                 if (restorePoint.length > 0) {
-                    const itemStatus: any = JSON.parse(restorePoint);
+                    const unitStatus: any = JSON.parse(restorePoint);
 
-                    if ('canLeave' in itemStatus) {
-                        this.canLeave = itemStatus['canLeave'];
-                        if (this.canLeave === 'yes') {
-                            // if the status of canLeave is 'yes', then assume that all the only once playable audios have been played
-                            this.allOnlyOncePlayableAudiosPlayed();
-                        }
+                    if ('canLeave' in unitStatus) {
+                        this.canLeave = unitStatus['canLeave'];
                     }
 
                     // update each HTML Input Element with the value available in its status
@@ -503,29 +514,45 @@ class IQB_ItemPlayer {
                             const elementID = element.getElementID();
                             const elementType = element.getElementType();
 
-                            // console.log('Loading restore point data into ' + elementID +
-                            //             ' (of type ' + elementType + '): ' + itemStatus[elementID]);
+                            if (elementID in unitStatus)
+                            {
+                                // console.log('Loading restore point data into ' + elementID +
+                                //             ' (of type ' + elementType + '): ' + unitStatus[elementID]);
 
-                            if (elementType === 'checkbox') {
-                                element.setPropertyValue('checked', itemStatus[elementID]);
+                                if (elementType === 'checkbox') {
+                                    element.setPropertyValue('checked', unitStatus[elementID]);
+                                }
+
+                                if (elementType === 'multipleChoice') {
+                                    element.setPropertyValue('checked', unitStatus[elementID]);
+                                }
+
+                                if (elementType === 'dropdown') {
+                                    element.setPropertyValue('selectedOption', unitStatus[elementID]);
+                                }
+
+                                if (elementType === 'textbox') {
+                                    element.setPropertyValue('text', unitStatus[elementID]);
+                                }
+
+                                if (elementType === 'audio') {
+                                    const audioElement = element as AudioElement;
+                                    if (unitStatus[elementID] === -1)
+                                    {
+                                        audioElement.setPropertyValue('alreadyPlayed', 'true');
+                                    }
+                                    else 
+                                    {
+                                        audioElement.setPropertyValue('currentTime', unitStatus[elementID]);
+                                    }
+                                }
+
+                                if (element.getIsDrawn()) {
+                                    // if the element is currently drawn on the screen, also re-render it with the updated properties
+                                    element.render();
+                                }
                             }
 
-                            if (elementType === 'multipleChoice') {
-                                element.setPropertyValue('checked', itemStatus[elementID]);
-                            }
-
-                            if (elementType === 'dropdown') {
-                                element.setPropertyValue('selectedOption', itemStatus[elementID]);
-                            }
-
-                            if (elementType === 'textbox') {
-                                element.setPropertyValue('text', itemStatus[elementID]);
-                            }
-
-                            if (element.getIsDrawn()) {
-                                // if the element is currently drawn on the screen, also re-render it with the updated properties
-                                element.render();
-                            }
                         });
                 }
             }
