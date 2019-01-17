@@ -22,8 +22,10 @@ export class AudioElement extends UnitElement {
     /* --------------------------------------------------------------- */
 
     constructor(public elementID: string, public pageHTMLElementID: string, src: string)
-    {
+    {        
         super(elementID, pageHTMLElementID);
+
+        // console.log('Creating audio element with src ' + src);
 
         this.properties.addProperty('type', {
             value: 'audio',
@@ -41,6 +43,18 @@ export class AudioElement extends UnitElement {
             hidden: true,
             caption: 'Source'
         });
+
+        /*
+        this.properties.addPropertyRenderer('src', 'audioRenderer', (propertyValue: string) => {
+
+            const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
+
+            if (this.getPropertyValue('alreadyPlayed') !== 'true') {
+                audioElement.src = propertyValue;
+            }
+
+        });
+        */
 
         this.properties.addProperty('autoplay', {
             value: 'false',
@@ -150,6 +164,7 @@ export class AudioElement extends UnitElement {
                 const audioElementVisualLocation = document.getElementById(this.elementID + '_audio_visualLocation') as HTMLAudioElement;
                 const audioElementTextLocation = document.getElementById(this.elementID + '_audio_textLocation') as HTMLAudioElement;
 
+                console.log('Alreadyplayed property detected as true for ' + this.elementID + '. Thus, removing audio.');
                 audioElement.src = '';
 
                 const audioControls = document.getElementById(this.elementID + '_audio_controls') as HTMLSpanElement;
@@ -341,7 +356,7 @@ export class AudioElement extends UnitElement {
     }
 
     play(): void {
-        
+
     }
 
     getCurrentTime(): number {
@@ -354,7 +369,7 @@ export class AudioElement extends UnitElement {
         audioElement.currentTime = newCurrentTime;
         console.log('Set current time of ' + this.getElementID() + ' as ' + newCurrentTime);
     }
-    
+
     showAudioLocation()
     {
         const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;

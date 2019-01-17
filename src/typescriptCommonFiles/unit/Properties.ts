@@ -200,6 +200,7 @@ export class Properties
 
     public addPropertyRenderer(propertyName: string, rendererName: string, renderer: PropertyRendererFunction)
     {
+        // todo: propertyRenderers should be ordered
         if (propertyName in this.propertyRenderers === false) {
             this.propertyRenderers[propertyName] = [];
         }

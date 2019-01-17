@@ -62,17 +62,16 @@ export class MultipleChoiceElement extends UnitElement {
             this.dispatchRefreshCheckedPropertyForAllElementsEvent();
         });
 
-        // the variableName property is currently deprecated, therefore it is set as hidden
-        this.properties.addProperty('variableName', {
-                value: this.elementID + '_data',
+        this.properties.addProperty('groupName', {
+                value: 'default multiple choice group',
                 userAdjustable: true,
                 propertyType: 'text',
-                hidden: true,
-                caption: 'Variablename',
-                tooltip: 'Der Name, der zusammen mit dem eingegeben Wert in den Testergebnissen gespeichert wird'
+                hidden: false,
+                caption: 'Gruppename',
+                tooltip: 'Der Name von der Multiple Choice Antwort Gruppe, wozu dieses Multiple Choice gehört'
             });
 
-        this.properties.addPropertyRenderer('variableName', 'multipleChoiceRenderer', (propertyValue: string) => {
+        this.properties.addPropertyRenderer('groupName', 'multipleChoiceRenderer', (propertyValue: string) => {
             document.querySelectorAll('.' + this.elementID + '_variableHolder').forEach( (element) => {
                 element.setAttribute('name', propertyValue);
             });
@@ -144,7 +143,7 @@ export class MultipleChoiceElement extends UnitElement {
         </div>`;
 
         const pageHTMLElement = this.getPageHTMLElement();
-        if (pageHTMLElement !== null)  
+        if (pageHTMLElement !== null)
         {
          pageHTMLElement.insertAdjacentHTML('beforeend', elementHTML);
 

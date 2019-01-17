@@ -85,18 +85,19 @@ export class Unit extends ObjectWithProperties {
 
     public loadData(unitData: UnitData)
     {
-        console.log('##################Loading new unit ################');
+        console.log('################## Loading new unit ################');
         // console.log('Unit data: ');
         // console.log(unitData);
 
         // before loading a new unit, first, clear this one
+        console.log('Clearing up the old unit...')
         this.pages.forEach((page: UnitPage, pageID: string) => {
             console.log('Deleting page ' + pageID);
             this.deletePage(pageID);
         });
 
         // then load the new unit
-        console.log('Loading new unit...');
+        console.log('Loading the new unit...');
         this.properties.loadData(unitData.properties);
 
         this.pages = new Map();
@@ -107,16 +108,18 @@ export class Unit extends ObjectWithProperties {
                 const newPage = this.newPage(pageID);
                 newPage.loadData(unitData.pages[pageID]);
 
-                if (currentPageIDInitialized === false) {
-                    this.currentPageID = pageID;
-                    currentPageIDInitialized = true;
+                if (newPage.getPropertyValue('alwaysOn') === 'no') {
+                    if (currentPageIDInitialized === false) {
+                        this.currentPageID = pageID;
+                        currentPageIDInitialized = true;
+                    }
                 }
             }
         }
 
         console.log('Loaded unit.');
-        // console.log('It now looks like this:');
-        // console.log(this);
+        console.log('It now looks like this:');
+        console.log(this);
         this.render();
     }
 
@@ -332,6 +335,7 @@ export class Unit extends ObjectWithProperties {
             });
 
             if (typeof alwaysOnPageBasis !== 'undefined') {
+                console.log('Decided that an alwaysOn page is also to be shown');
                 console.log('Using as basis for always on page...');
                 console.log(alwaysOnPageBasis);
 
@@ -345,7 +349,7 @@ export class Unit extends ObjectWithProperties {
                 console.log('Obtained the following always on page:');
                 console.log(alwaysOnPage);
 
-                console.log('Rendering alwaysOn page: ');
+                console.log('Rendering alwaysOn page.');
                 alwaysOnPage.render();
             }
         }

@@ -142,12 +142,16 @@ export class UnitPage extends ObjectWithProperties {
 
         for (const elementID in unitPageData.elements)
         {
-            const elementType = unitPageData.elements[elementID].properties.type as SupportedUnitElementType;
-            let elementContent = "";
-            if ('src' in unitPageData.elements[elementID].properties) elementContent = unitPageData.elements[elementID].properties.src;
-
-            let newElement =  this.newElement(elementID, elementType, elementContent);
-            newElement.loadData(unitPageData.elements[elementID]);
+            if (elementID in unitPageData.elements) {
+                const elementType = unitPageData.elements[elementID].properties.type as SupportedUnitElementType;
+                let elementContent = '';
+                if ('src' in unitPageData.elements[elementID].properties) {
+                    console.log('src found for ' + elementID + ' when loading its data.');
+                    elementContent = unitPageData.elements[elementID].properties.src;
+                }
+                const newElement =  this.newElement(elementID, elementType, elementContent);
+                newElement.loadData(unitPageData.elements[elementID]);
+            }
         }
     }
 
@@ -248,7 +252,8 @@ export class UnitPage extends ObjectWithProperties {
             if ((element.getElementType() === 'audio') || (element.getElementType() === 'video')) {
                 // if the element is an audio or video, empty it's contents before removing it from the DOM
                console.log('emptying source for ' + element.getElementID());
-               element.setPropertyValue('src', '');
+
+               // element.setPropertyValue('src', '');
 
                let elementNode: HTMLElement | null;
                elementNode = document.getElementById(element.getElementID() + '_audio');
@@ -288,6 +293,8 @@ export class UnitPage extends ObjectWithProperties {
         this.elements.forEach((element) => {
             element.render();
         });
+        console.log('Render of page ' + this.pageID + ' complete.');
+        console.log('----------------------------------------------------------------------------');
     }
 
      public renderElementProperties()
