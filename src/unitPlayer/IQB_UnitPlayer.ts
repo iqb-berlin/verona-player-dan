@@ -1,6 +1,6 @@
 /*
 IQB Unit Player Entry Point
-v 0.8.2 - 16.11.2018
+v 0.9.0 - 18.01.2019
 */
 
 // www.IQB.hu-berlin.de
@@ -40,7 +40,7 @@ interface ResponsesObject
 
 class IQB_ItemPlayer {
     // the main class that implements the IQB ItemPlayer functionality
-    private responseType = 'IQBUnitPlayerV8';
+    private responseType = 'IQBUnitPlayerV9';
 
     private currentUnit: Unit;
 

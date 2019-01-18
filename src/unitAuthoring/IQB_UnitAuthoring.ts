@@ -1,6 +1,6 @@
 /*
 IQB Unit Authoring Entry Point
-v 0.8.2 - 16.11.2018
+v 0.9.0 - 18.01.2019
 */
 
 // www.IQB.hu-berlin.de
@@ -32,7 +32,7 @@ import { OpenCBA } from '../typescriptCommonFiles/OpenCBA/OpenCBA.js';
 
 const OpenCBA_UnitAuthoringInterface =
 {
-    unitDefinitionType: 'IQBUnitPlayerV8',
+    unitDefinitionType: 'IQBUnitPlayerV9',
     containerWindow: window.parent,
     checkOrigin: false,
     acceptedOrigin: '*',
