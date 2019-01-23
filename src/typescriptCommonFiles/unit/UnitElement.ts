@@ -85,7 +85,7 @@ export class UnitElement extends ObjectWithSpatialProperties {
 
         // add the 'font-size' property, use fontSizeObject as the selectable options for that property
         this.properties.addProperty('font-size', {
-            value: '14px',
+            value: '20px',
             userAdjustable: true,
             propertyType: 'dropdown',
             propertyData: fontSizeObject,

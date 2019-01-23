@@ -206,6 +206,7 @@ class IQB_UnitAuthoringTool
 
     public dispatchUnitHasChangedEvent()
     {
+        // console.log('IQB Unit Authoring Tool: IQB.unit.hasChanged event has been dispatched.');
         window.dispatchEvent(new CustomEvent('IQB.unit.hasChanged', {
             detail: {}
         }));
@@ -282,6 +283,60 @@ class IQB_UnitAuthoringTool
                             this.shownPropertiesNeedToBeRefreshed = true;
             }
         }
+
+        // enforce page padding
+        const currentPage = this.currentUnit.getCurrentPage();
+        if (typeof currentPage !== 'undefined') {
+            const padding = parseInt(currentPage.getPropertyValue('padding'), 10);
+            const pageWidth = parseInt(currentPage.getPropertyValue('width'), 10);
+            const pageHeight = parseInt(currentPage.getPropertyValue('height'), 10);
+
+            currentPage.getElementsMap().forEach((element: UnitElement) => {
+                if (element.left < padding) {
+                    element.left = padding;
+
+                    // check if element is too big to fit into padding; if so make it smaller;
+                    if (element.left + element.width > pageWidth - padding) {
+                        element.width = pageWidth - 2 * padding - 10;
+                    }
+
+                    element.render();
+                }
+                if (element.left + element.width > pageWidth - padding) {
+                    element.left = pageWidth - padding - element.width;
+
+                    // check if element is too big to fit into padding; if so make it smaller;
+                    if (element.left < padding) {
+                        element.width = pageWidth - 2 * padding - 10;
+                        element.left = padding;
+                    }
+
+                    element.render();
+                }
+                if (element.top < padding) {
+                    element.top = padding;
+
+                    // check if element is too big to fit into padding; if so make it smaller;
+                    if (element.top + element.height > pageHeight - padding) {
+                        element.height = pageHeight - 2 * padding - 10;
+                    }
+
+                    element.render();
+                }
+                if (element.top + element.height > pageHeight - padding) {
+                    element.top = pageHeight - padding - element.height;
+
+                    // check if element is too big to fit into padding; if so make it smaller;
+                    if (element.top < 0) {
+                        element.height = pageHeight - 2 * padding - 10;
+                        element.top = padding;
+                    }
+ 
+                    element.render();
+                }
+            });
+        }
+        // end of enforcing page padding
 
         if (propertyOwnerType === 'TableCell') {
             const tableCell = propertyOwner as TableCell;
@@ -435,7 +490,7 @@ class IQB_UnitAuthoringTool
          });
 
         (document.getElementById('btnAddPage') as HTMLButtonElement).addEventListener('click', (e) => {
-           const newPageID:string = this.currentUnit.newPage().getID();
+           const newPageID: string = this.currentUnit.newPage().getID();
            this.currentUnit.navigateToPage(newPageID);
 
            this.updateCurrentPageSelect();

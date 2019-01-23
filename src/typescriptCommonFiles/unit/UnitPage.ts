@@ -95,6 +95,7 @@ export class UnitPage extends ObjectWithProperties {
                 caption: 'Höhe',
                 tooltip: 'Die vertikale Größe der Seite.'
             });
+
             this.properties.addProperty('alwaysOn', {
                 value: 'no',
                 userAdjustable: true,
@@ -107,6 +108,46 @@ export class UnitPage extends ObjectWithProperties {
                 caption: 'Immer angezeigt',
                 tooltip: 'Falls diese Seite immer angezeigt werden soll, wo soll die angezeigt werden'
             });
+
+            this.properties.addProperty('font-family', {
+                value: 'Arial, sans-serif',
+                userAdjustable: true,
+                propertyType: 'dropdown',
+                propertyData: {'Times New Roman': `'Times New Roman', serif`,
+                               'Arial': 'Arial, sans-serif',
+                               'Lucida Console': `'Lucida Console', monospace`,
+                               'serif': 'serif',
+                               'sans-serif': 'sans-serif',
+                               'monospace': 'monospace',
+                               'cursive': 'cursive',
+                               'fantasy': 'fantasy'
+                              },
+                hidden: false,
+                caption: 'Schriftart',
+                tooltip: 'Was die Schriftart des Texts in dem Element ist'
+            });
+
+            this.properties.addProperty('padding', {
+                value: '0',
+                userAdjustable: true,
+                propertyType: 'dropdown',
+                propertyData: {'0px': '0',
+                '10px': '10',
+                '20px': '20',
+                '30px': '30',
+                '40px': '40',
+                '50px': '50',
+                '60px': '60',
+                '70px': '70',
+                '80px': '80',
+                '90px': '90',
+                '100px': '100'
+                },
+                hidden: false,
+                caption: 'Padding',
+                tooltip: 'Wie viel Platz am Rand der Seite frei gelassen wird.'
+            });
+
 
         }
         else

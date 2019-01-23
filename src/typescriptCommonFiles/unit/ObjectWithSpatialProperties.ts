@@ -13,7 +13,7 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
         super(id, type);
 
         this.properties.addProperty('left', {
-            value: 50,
+            value: 30,
             userAdjustable: true,
             propertyType: 'number',
             hidden: false,
@@ -43,7 +43,7 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
         });
 
         this.properties.addProperty('top', {
-            value: 50,
+            value: 30,
             userAdjustable: true,
             propertyType: 'number',
             hidden: false,

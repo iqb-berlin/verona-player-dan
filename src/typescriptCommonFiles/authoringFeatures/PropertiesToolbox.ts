@@ -233,13 +233,18 @@ export class PropertiesToolbox
 
         if (objectWithProperties.getObjectType() === 'TableCell')
         {
-            const tableCell = <UnitPage>objectWithProperties;
+            const tableCell = <TableCell>objectWithProperties;
 
             propertiesHTML += `<hr />`;
+            propertiesHTML += `<p style="text-align:center">Tabellestruktur ändern</p>`;
             propertiesHTML += `<p style="text-align:center"><button id="btnAddRow")">Zeile hinzufügen</button></p>`;
             propertiesHTML += `<p style="text-align:center"><button id="btnDeleteRow")">Zeile löschen</button></p>`;
             propertiesHTML += `<p style="text-align:center"><button id="btnAddColumn")">Spalte hinzufügen</button></p>`;
             propertiesHTML += `<p style="text-align:center"><button id="btnDeleteColumn")">Spalte löschen</button></p>`;
+            propertiesHTML += `<hr />`;
+            propertiesHTML += `<p style="text-align:center">Zellen ausgleichen</p>`;
+            propertiesHTML += `<p style="text-align:center"><button id="btnEvenOutRow")">Alle anderen Zellen der Zeile die selbe Breite geben</button></p>`;
+            propertiesHTML += `<p style="text-align:center"><button id="btnEvenOutColumn")">Alle anderen Zellen der Spalte die selbe Höhe geben</button></p>`;
             propertiesHTML += `<hr />`;
 
             (document.getElementById(this.elementPropertiesTitleDivID) as HTMLElement).innerHTML = `Eigenschaften von ${id}`;
@@ -250,9 +255,9 @@ export class PropertiesToolbox
                 this.applyNewProperties(tableCell);
             }
 
-            let tableElementID = tableCell.parentTable.getID();
-            let atTableRow = tableCell.getPropertyValue('rowNumber');
-            let atTableColumn = tableCell.getPropertyValue('columnNumber');
+            const tableElementID = tableCell.parentTable.getID();
+            const atTableRow = tableCell.getPropertyValue('rowNumber');
+            const atTableColumn = tableCell.getPropertyValue('columnNumber');
 
             (document.getElementById('btnAddRow') as HTMLElement).onclick = () => {
                 tableCell.parentTable.alterTable('addRow', atTableRow, atTableColumn);
@@ -268,6 +273,26 @@ export class PropertiesToolbox
 
             (document.getElementById('btnDeleteColumn') as HTMLElement).onclick = () => {
                 tableCell.parentTable.alterTable('deleteColumn', atTableRow, atTableColumn);
+            };
+
+            (document.getElementById('btnEvenOutRow') as HTMLElement).onclick = () => {
+                const newWidth = tableCell.width;
+                tableCell.parentTable.mapToTableCells((tableCellToConsider: TableCell, rowNumber: number, columnNumber: number) => {
+                    if (rowNumber === tableCell.rowNumber) {
+                        tableCellToConsider.resize(newWidth, tableCellToConsider.height);
+                    }
+                });
+                tableCell.parentTable.render();
+            };
+
+            (document.getElementById('btnEvenOutColumn') as HTMLElement).onclick = () => {
+                const newHeight = tableCell.height;
+                tableCell.parentTable.mapToTableCells((tableCellToConsider: TableCell, rowNumber: number, columnNumber: number) => {
+                    if (columnNumber === tableCell.columnNumber) {
+                        tableCellToConsider.resize(tableCellToConsider.width, newHeight);
+                    }
+                });
+                tableCell.parentTable.render();
             };
         }
 

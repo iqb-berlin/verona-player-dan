@@ -96,6 +96,8 @@ export class Unit extends ObjectWithProperties {
             this.deletePage(pageID);
         });
 
+        this.currentPageID  = '';
+
         // then load the new unit
         console.log('Loading the new unit...');
         this.properties.loadData(unitData.properties);
@@ -115,6 +117,12 @@ export class Unit extends ObjectWithProperties {
                     }
                 }
             }
+        }
+
+        if (this.currentPageID === '') {
+            // if there is no main page to show, create an empty one;
+            const newPageID: string = this.newPage().getID();
+            this.currentPageID = newPageID;
         }
 
         console.log('Loaded unit.');
