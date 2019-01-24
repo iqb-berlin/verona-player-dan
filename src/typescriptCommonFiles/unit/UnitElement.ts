@@ -10,6 +10,7 @@ import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../model
 
 import {TableElement} from './elementTypes/TableElement.js';
 import {colorsObject} from '../models/Colors.js';
+import { SupportedUnitElementType } from './UnitPage.js';
 
 export class UnitElement extends ObjectWithSpatialProperties {
 
@@ -203,7 +204,7 @@ export class UnitElement extends ObjectWithSpatialProperties {
         this.isDrawn = false;
     }
 
-    public getElementType(): string
+    public getElementType(): SupportedUnitElementType
     {
         return this.properties.getPropertyValue('type');
     }

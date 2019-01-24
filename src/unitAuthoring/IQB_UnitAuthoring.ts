@@ -1,6 +1,6 @@
 /*
 IQB Unit Authoring Entry Point
-v 0.9.0 - 18.01.2019
+v 0.9.1 - 24.01.2019
 */
 
 // www.IQB.hu-berlin.de
@@ -10,7 +10,7 @@ v 0.9.0 - 18.01.2019
 
 import {Unit} from '../typescriptCommonFiles/unit/Unit.js';
 import {UnitElement} from '../typescriptCommonFiles/unit/UnitElement.js';
-import {UnitPage} from '../typescriptCommonFiles/unit/UnitPage.js';
+import {UnitPage, SupportedUnitElementType} from '../typescriptCommonFiles/unit/UnitPage.js';
 import {Property} from '../typescriptCommonFiles/unit/Properties.js';
 import {PropertiesToolbox} from '../typescriptCommonFiles/authoringFeatures/PropertiesToolbox.js';
 import {PopupMenu} from '../typescriptCommonFiles/authoringFeatures/PopupMenu.js';
@@ -29,6 +29,7 @@ import {TextElement} from '../typescriptCommonFiles/unit/elementTypes/TextElemen
 import {VideoElement} from '../typescriptCommonFiles/unit/elementTypes/VideoElement.js';
 import { ObjectWithSpatialProperties } from '../typescriptCommonFiles/unit/ObjectWithSpatialProperties.js';
 import { OpenCBA } from '../typescriptCommonFiles/OpenCBA/OpenCBA.js';
+import { UnitElementData } from '../typescriptCommonFiles/models/Data.js';
 
 const OpenCBA_UnitAuthoringInterface =
 {
@@ -871,12 +872,67 @@ class IQB_UnitAuthoringTool
         if (obj.getObjectType() === 'UnitElement')
         {
             (document.getElementById('btnSpreadFont') as HTMLButtonElement).style.color = 'black';
+            (document.getElementById('btnCopyElement') as HTMLButtonElement).style.color = 'black';
         }
         else
         {
             (document.getElementById('btnSpreadFont') as HTMLButtonElement).style.color = 'lightgray';
+            (document.getElementById('btnCopyElement') as HTMLButtonElement).style.color = 'lightgray';
         }
     }
+
+    private getCurrentlySelectedElementJSON(): string | undefined
+    {
+        // work in progress
+
+        /*
+        if (typeof this.selectedObjectWithProperties !== 'undefined')
+        {
+            // if an object is selected
+            if (this.selectedObjectWithProperties.getObjectType() === 'UnitElement') {
+                // if the object is an element
+                const selectedElement = this.selectedObjectWithProperties as UnitElement;
+                return JSON.stringify({
+                    elementData: selectedElement.getData(),
+                    elementType: selectedElement.getElementType(),
+                    thisIs: 'UnitElementJSON'
+                });
+            }
+            else {
+                alert('Error: Only elements can be copied');
+                return undefined;
+            }
+        }
+        else {
+            alert('Error: nothing currently selected');
+            return undefined;
+        }
+        */
+
+        return undefined;
+    }
+
+    private newElementBasedOnElementJSON(elementJSON: string): void {
+
+        // work in progress
+
+        /*
+        if (elementJSON.indexOf('UnitElementJSON') !== -1) {
+            const elementData = (JSON.parse(elementJSON).elementData) as UnitElementData;
+            const elementType = (JSON.parse(elementJSON).elementType) as SupportedUnitElementType;
+
+            const currentPage = this.currentUnit.getCurrentPage();
+            if (typeof currentPage !== 'undefined') {
+                const newElement = this.currentUnit.newElement(elementType);
+                if (typeof newElement !== 'undefined') {
+                    newElement.loadData(elementData);
+                }
+            }
+        }
+        */
+
+    }
+
 
     private cloneCurrentlySelectedObject()
     {

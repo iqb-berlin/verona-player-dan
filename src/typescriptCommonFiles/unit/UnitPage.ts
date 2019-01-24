@@ -146,7 +146,7 @@ export class UnitPage extends ObjectWithProperties {
                 '100px': '100'
                 },
                 hidden: false,
-                caption: 'Padding',
+                caption: 'Seitenrand',
                 tooltip: 'Wie viel Platz am Rand der Seite frei gelassen wird.'
             });
 
