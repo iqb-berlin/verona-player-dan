@@ -145,10 +145,12 @@ export class TextElement extends UnitElement {
     {
         const elementHTML = `
                             <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
-                                <div id="${this.elementID}_divContainer" style="width: 100%; height: 100%; text-align: left; overflow: hidden;">
-                                        <span id="${this.elementID}_style">
-                                            <span id="${this.elementID}_text" style="white-space: pre-wrap;"></span>
-                                    </span>
+                                <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                                    <div id="${this.elementID}_divContainer" style="width: 100%; height: 100%; text-align: left; overflow: hidden;">
+                                            <span id="${this.elementID}_style">
+                                                <span id="${this.elementID}_text" style="white-space: pre-wrap;"></span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>`;
 

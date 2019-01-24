@@ -285,56 +285,58 @@ class IQB_UnitAuthoringTool
         }
 
         // enforce page padding
-        const currentPage = this.currentUnit.getCurrentPage();
-        if (typeof currentPage !== 'undefined') {
-            const padding = parseInt(currentPage.getPropertyValue('padding'), 10);
-            const pageWidth = parseInt(currentPage.getPropertyValue('width'), 10);
-            const pageHeight = parseInt(currentPage.getPropertyValue('height'), 10);
+        if (typeof this.currentUnit !== 'undefined') {
+            const currentPage = this.currentUnit.getCurrentPage();
+            if (typeof currentPage !== 'undefined') {
+                const padding = parseInt(currentPage.getPropertyValue('padding'), 10);
+                const pageWidth = parseInt(currentPage.getPropertyValue('width'), 10);
+                const pageHeight = parseInt(currentPage.getPropertyValue('height'), 10);
 
-            currentPage.getElementsMap().forEach((element: UnitElement) => {
-                if (element.left < padding) {
-                    element.left = padding;
-
-                    // check if element is too big to fit into padding; if so make it smaller;
-                    if (element.left + element.width > pageWidth - padding) {
-                        element.width = pageWidth - 2 * padding - 10;
-                    }
-
-                    element.render();
-                }
-                if (element.left + element.width > pageWidth - padding) {
-                    element.left = pageWidth - padding - element.width;
-
-                    // check if element is too big to fit into padding; if so make it smaller;
+                currentPage.getElementsMap().forEach((element: UnitElement) => {
                     if (element.left < padding) {
-                        element.width = pageWidth - 2 * padding - 10;
                         element.left = padding;
+
+                        // check if element is too big to fit into padding; if so make it smaller;
+                        if (element.left + element.width > pageWidth - padding) {
+                            element.width = pageWidth - 2 * padding - 10;
+                        }
+
+                        element.render();
                     }
+                    if (element.left + element.width > pageWidth - padding) {
+                        element.left = pageWidth - padding - element.width;
 
-                    element.render();
-                }
-                if (element.top < padding) {
-                    element.top = padding;
+                        // check if element is too big to fit into padding; if so make it smaller;
+                        if (element.left < padding) {
+                            element.width = pageWidth - 2 * padding - 10;
+                            element.left = padding;
+                        }
 
-                    // check if element is too big to fit into padding; if so make it smaller;
-                    if (element.top + element.height > pageHeight - padding) {
-                        element.height = pageHeight - 2 * padding - 10;
+                        element.render();
                     }
-
-                    element.render();
-                }
-                if (element.top + element.height > pageHeight - padding) {
-                    element.top = pageHeight - padding - element.height;
-
-                    // check if element is too big to fit into padding; if so make it smaller;
-                    if (element.top < 0) {
-                        element.height = pageHeight - 2 * padding - 10;
+                    if (element.top < padding) {
                         element.top = padding;
+
+                        // check if element is too big to fit into padding; if so make it smaller;
+                        if (element.top + element.height > pageHeight - padding) {
+                            element.height = pageHeight - 2 * padding - 10;
+                        }
+
+                        element.render();
                     }
- 
-                    element.render();
-                }
-            });
+                    if (element.top + element.height > pageHeight - padding) {
+                        element.top = pageHeight - padding - element.height;
+
+                        // check if element is too big to fit into padding; if so make it smaller;
+                        if (element.top < 0) {
+                            element.height = pageHeight - 2 * padding - 10;
+                            element.top = padding;
+                        }
+    
+                        element.render();
+                    }
+                });
+            }
         }
         // end of enforcing page padding
 
@@ -428,8 +430,28 @@ class IQB_UnitAuthoringTool
             this.currentUnit.newElement('html');
         });
 
+        (document.getElementById('btnSpreadFont') as HTMLButtonElement).addEventListener('click', (e) => {
+            if (typeof this.selectedObjectWithProperties !== 'undefined') {
+                const selectedObject = this.selectedObjectWithProperties;
+                const currentPage = this.currentUnit.getCurrentPage();
+                if (typeof currentPage !== 'undefined') {
+                    currentPage.getElementsMap().forEach((element: UnitElement) => {
 
+                        if (selectedObject.properties.hasProperty('font-family') && element.properties.hasProperty('font-family')) {
+                            element.setPropertyValue('font-family', selectedObject.getPropertyValue('font-family'));
+                        }
+                        if (selectedObject.properties.hasProperty('font-size') && element.properties.hasProperty('font-size')) {
+                            element.setPropertyValue('font-size', selectedObject.getPropertyValue('font-size'));
+                        }
+                        if (selectedObject.properties.hasProperty('color') && element.properties.hasProperty('color')) {
+                            element.setPropertyValue('color', selectedObject.getPropertyValue('color'));
+                        }
+                        element.render();
 
+                    });
+                }
+            }
+        });
 
         (document.getElementById('btnMoveUp') as HTMLButtonElement).addEventListener('click', (e) => {
             this.moveAllPageElements(0, -10);
@@ -810,14 +832,17 @@ class IQB_UnitAuthoringTool
             // if any item is currently showing as selected, don't show it anymore as selected
 
             // unmark all objects
-            this.currentUnit.getCurrentPageHTMLElement().querySelectorAll('.selected').forEach( (element: Element) => {
+
+            (document.getElementById(this.containerDivID) as HTMLElement).querySelectorAll('.selected').forEach( (element: Element) => {
                 element.classList.remove('selected');
             });
 
-            // mark desired object visually
-            if ((obj.getObjectType() === 'UnitElement') || (obj.getObjectType() === 'TableCell'))
-            {
-                (document.getElementById(obj.getID()) as HTMLElement).classList.add('selected');
+            // mark desired object visually as selected
+            if ((obj.getObjectType() === 'UnitPage') || (obj.getObjectType() === 'UnitElement') || (obj.getObjectType() === 'TableCell')) {
+                const selectedHTMLElement = document.getElementById(obj.getID());
+                if (selectedHTMLElement !== null) {
+                    selectedHTMLElement.classList.add('selected');
+                }
             }
         }
 
@@ -839,6 +864,17 @@ class IQB_UnitAuthoringTool
             {
                 popupMenu.showPopupMenu();
             }
+        }
+
+        // enable or disable the spread font button
+        // currently, only a visual effect
+        if (obj.getObjectType() === 'UnitElement')
+        {
+            (document.getElementById('btnSpreadFont') as HTMLButtonElement).style.color = 'black';
+        }
+        else
+        {
+            (document.getElementById('btnSpreadFont') as HTMLButtonElement).style.color = 'lightgray';
         }
     }
 

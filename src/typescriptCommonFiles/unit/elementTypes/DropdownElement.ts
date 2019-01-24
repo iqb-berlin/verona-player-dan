@@ -167,10 +167,12 @@ export class DropdownElement extends UnitElement {
     {
         const elementHTML = `
         <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
-            <span id="${this.elementID}_style">
-                <select id="${this.elementID}_select" class="${this.elementID}_variableHolder" style="height:100%; width: 100%">
-                </select>
-            </span>
+            <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                <span id="${this.elementID}_style">
+                    <select id="${this.elementID}_select" class="${this.elementID}_variableHolder" style="height:100%; width: 100%">
+                    </select>
+                </span>
+            </div>
         </div>`;
 
         const pageHTMLElement = this.getPageHTMLElement();

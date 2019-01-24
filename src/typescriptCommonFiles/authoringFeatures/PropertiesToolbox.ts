@@ -226,6 +226,10 @@ export class PropertiesToolbox
             (document.getElementById(this.elementPropertiesDivID) as HTMLDivElement).innerHTML = propertiesHTML;
             (document.getElementById(this.elementPropertiesDivID) as HTMLDivElement).style.display = 'inline-block';
 
+            (document.getElementById('btnSpreadFont') as HTMLElement).onclick = () => {
+
+            };
+
             (document.getElementById('btnApplyProperties') as HTMLElement).onclick = () => {
                 this.applyNewProperties(element);
             };

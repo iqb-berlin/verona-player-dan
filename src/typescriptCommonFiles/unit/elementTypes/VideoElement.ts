@@ -56,12 +56,14 @@ export class VideoElement extends UnitElement {
     {
         const elementHTML = `
         <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
-            <span id="${this.elementID}_style">
-                <video src="${this.properties.getPropertyValue('src')}" id="${this.elementID}_video"
-                       style="width: 100%; height: 100%;"
-                       controls controlsList="nodownload">
-                </video>
-            </span>
+            <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                <span id="${this.elementID}_style">
+                    <video src="${this.properties.getPropertyValue('src')}" id="${this.elementID}_video"
+                        style="width: 100%; height: 100%;"
+                        controls controlsList="nodownload">
+                    </video>
+                </span>
+            </div>
         </div>`;
 
         const pageHTMLElement = this.getPageHTMLElement();

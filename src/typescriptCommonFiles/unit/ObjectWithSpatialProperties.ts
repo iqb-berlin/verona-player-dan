@@ -71,7 +71,7 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
         });
 
         this.properties.addProperty('width', {
-            value: 200,
+            value: 250,
             userAdjustable: true,
             propertyType: 'number',
             hidden: false,

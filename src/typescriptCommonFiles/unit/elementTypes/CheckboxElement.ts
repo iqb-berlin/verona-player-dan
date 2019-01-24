@@ -126,12 +126,14 @@ export class CheckboxElement extends UnitElement {
     {
         const elementHTML = `
         <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
-            <span id="${this.elementID}_style">
-                <input id="${this.elementID}_checkbox" class="${this.elementID}_variableHolder" name="${this.elementID}" type="checkbox">
-                <span id="${this.elementID}_text" style="word-break:break-all;">
-                    ${this.properties.getPropertyValue('text')}
+            <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                <span id="${this.elementID}_style">
+                    <input id="${this.elementID}_checkbox" class="${this.elementID}_variableHolder" name="${this.elementID}" type="checkbox">
+                    <span id="${this.elementID}_text" style="word-break:break-all;">
+                        ${this.properties.getPropertyValue('text')}
+                    </span>
                 </span>
-            </span>
+            </div>
         </div>`;
 
         const pageHTMLElement = this.getPageHTMLElement();

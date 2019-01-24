@@ -211,16 +211,7 @@ body
     background-color: white;
     border: 1px solid black;
     z-index: 1000000 !important;
-}
-
-.selected
-{
-    border: 1px solid blue !important;
-}
-
-.highlighted
-{
-    border: 2px solid red !important;
+    visibility: hidden;
 }
 
 .ui-resizable-helper
@@ -229,36 +220,49 @@ body
     color: black;
     border: 1px dotted black;
 }
+
+.highlighted
+{
+    border: 2px solid red !important;
+}
+
 .popupMenu
 {
-    display: inline-block; 
-    min-width: 200px; 
-    width: 80%; 
-    display: none; 
-    text-align: center;
-    z-index: 90000; 
-    position: relative; 
+    width: 100vw; 
+    z-index: 90000 !important; 
+    position: absolute; 
     background-color: transparent; 
-    margin-left: auto; 
-    margin-right: auto; 
-    margin-top: 6px;
+    top: -30px;
+    font-size: 16px;
 }
 
 .popupMenuItem 
 {
     border: 1px solid black; 
     display: inline-block; 
-    margin-top: 6px; 
-    margin-bottom: 12px;
-    margin-left: 5%; 
-    margin-right: 5%;
-    text-align: center; 
-    z-index: 99999;
+    z-index: 99999 !important;
     position: relative; 
     background-color: #F0F0F0 !important; 
     color: black !important;
+    font-size: 16px;
+    margin-right: 12px;
 }
 
 .itemElement {
     display: inline-block !important;
+}
+
+.unitElementZIndexContainer {
+    height: 100%;
+    width: 100%;
+}
+
+.selected > .unitElementZIndexContainer
+{
+    border: 1px solid blue !important;
+}
+
+.selected > .ui-icon-gripsmall-diagonal-se
+{
+    visibility: visible;
 }

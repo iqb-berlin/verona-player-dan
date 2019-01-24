@@ -140,7 +140,8 @@ export class UnitElement extends ObjectWithSpatialProperties {
         });
 
         this.properties.addPropertyRenderer('z-index', 'basicRenderer', (propertyValue: any) => {
-            (document.getElementById(this.elementID) as HTMLElement).style.zIndex = propertyValue;
+            (document.getElementById(this.elementID + '_zIndexContainer') as HTMLElement).style.zIndex = propertyValue;
+            (document.getElementById(this.elementID + '_zIndexContainer') as HTMLElement).style.position = 'relative';
         });
 
         this.properties.addPropertyRenderer('visible', 'basicRenderer', (propertyValue: any) => {

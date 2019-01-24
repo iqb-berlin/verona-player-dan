@@ -119,9 +119,11 @@ export class TextboxElement extends UnitElement {
     drawElement()
     {
         const elementHTML = `<div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
-                            <span id="${this.elementID}_style">
-                                <input id="${this.elementID}_textbox" type="text" style="width: 100%; height: 100%;" />
-                            </span>
+                                <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer" style="border: none !important">
+                                    <span id="${this.elementID}_style">
+                                        <input id="${this.elementID}_textbox" type="text" style="width: 100%; height: 100%;" />
+                                    </span>
+                                </div>
                         </div>`;
 
         const pageHTMLElement = this.getPageHTMLElement();

@@ -200,19 +200,21 @@ export class AudioElement extends UnitElement {
 
         const elementHTML = `
                     <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}; overflow: hidden;">
-                            <audio src="${srcToDraw}"
-                                   id="${this.elementID}_audio"
-                                   style="width: 100%; display: none;"
-                                   tabindex="-1"
-                                   controls controlsList="nodownload">
-                            </audio>
-                            <div id="${this.elementID}_customAudio">
-                                <span id="${this.elementID}_audio_controls" style="display: none">
-                                <img id="${this.elementID}_audio_btnPlay" src="${this.playIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
-                                <img id="${this.elementID}_audio_btnPause" src="${this.pauseIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
-                                </span>
-                                <meter id="${this.elementID}_audio_visualLocation" min="0" max="100" value="0" style="width: 60%"></meter>
-                                <span id="${this.elementID}_audio_textLocation" style="width: 20%"></span>
+                            <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                                <audio src="${srcToDraw}"
+                                    id="${this.elementID}_audio"
+                                    style="width: 100%; display: none;"
+                                    tabindex="-1"
+                                    controls controlsList="nodownload">
+                                </audio>
+                                <div id="${this.elementID}_customAudio">
+                                    <span id="${this.elementID}_audio_controls" style="display: none">
+                                    <img id="${this.elementID}_audio_btnPlay" src="${this.playIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                    <img id="${this.elementID}_audio_btnPause" src="${this.pauseIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                    </span>
+                                    <meter id="${this.elementID}_audio_visualLocation" min="0" max="100" value="0" style="width: 60%"></meter>
+                                    <span id="${this.elementID}_audio_textLocation" style="width: 20%"></span>
+                                </div>
                             </div>
                     </div>`;
 

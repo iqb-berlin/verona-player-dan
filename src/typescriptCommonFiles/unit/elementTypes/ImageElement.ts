@@ -55,11 +55,13 @@ export class ImageElement extends UnitElement {
         // console.log('Drawing image element ' + this.getElementID());
         const elementHTML = `
                                 <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
-                                    <span id="${this.elementID}_style">
-                                        <img src="${this.properties.getPropertyValue('src')}"
-                                        id="${this.elementID}_image"
-                                        style="width: 100%; height: 100%;" />
-                                    </span>
+                                    <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                                        <span id="${this.elementID}_style">
+                                            <img src="${this.properties.getPropertyValue('src')}"
+                                            id="${this.elementID}_image"
+                                            style="width: 100%; height: 100%;" />
+                                        </span>
+                                    </div>
                                 </div>`;
 
         const pageHTMLElement = this.getPageHTMLElement();

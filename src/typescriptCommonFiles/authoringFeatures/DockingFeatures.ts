@@ -16,7 +16,8 @@ export class DockingFeatures
 
     }
 
-    public doesSpatialObjectContainAnotherSpatialObject(containerObject: ObjectWithSpatialProperties, containedObject: ObjectWithSpatialProperties):boolean
+    public doesSpatialObjectContainAnotherSpatialObject(containerObject: ObjectWithSpatialProperties,
+                                                        containedObject: ObjectWithSpatialProperties): boolean
         {
             const containerStartsAtX: number = containerObject.left;
             const containerEndsAtX: number =  containerObject.left + containerObject.width;
@@ -75,7 +76,7 @@ export class DockingFeatures
 
     public getAllContainedElements(containerObject: ObjectWithSpatialProperties): UnitElement[]
         {
-            let containedElements: UnitElement[] = [];
+            const containedElements: UnitElement[] = [];
             const currentPage = this.currentUnit.getCurrentPage();
             if (typeof currentPage !== 'undefined') {
                 currentPage.getElementsMap().forEach((candidateContainedElement: UnitElement, candidateContainedElementID: string) => {
@@ -104,7 +105,7 @@ export class DockingFeatures
         return dockedElements;
     }
 
-    public getContainerObjectWithID(containerObjectID: string) : ObjectWithSpatialProperties | undefined
+    public getContainerObjectWithID(containerObjectID: string): ObjectWithSpatialProperties | undefined
     {
         const currentPage = this.currentUnit.getCurrentPage();
         if (typeof currentPage !== 'undefined') {
@@ -115,9 +116,9 @@ export class DockingFeatures
         }
     }
 
-    public getContainerOf(dockedElement: UnitElement) : ObjectWithSpatialProperties | undefined
+    public getContainerOf(dockedElement: UnitElement): ObjectWithSpatialProperties | undefined
     {
-       return this.getContainerObjectWithID(dockedElement.dockedToObjectWithID) 
+       return this.getContainerObjectWithID(dockedElement.dockedToObjectWithID);
     }
 
     public enforceElementDockingPosition(dockedElement: UnitElement, newDockingPosition: boolean = false) {
@@ -125,7 +126,7 @@ export class DockingFeatures
         // console.log(dockedElement);
 
         const containerObject = this.getContainerOf(dockedElement);
-        
+
         if (typeof containerObject !== 'undefined') {
             // console.log('Container element identified as:');
             // console.log(containerObject);
@@ -203,50 +204,58 @@ export class DockingFeatures
         {
             // console.log('Enforcing docking rules for: ');
             // console.log(dockedElement);
-    
+
             const containerObjectID = dockedElement.dockedToObjectWithID;
             // console.log('Container element ID' + containerObjectID);
             if (containerObjectID !== '')
             {
                 const containerObject = this.currentUnit.getCurrentPage().getTableCell(containerObjectID);
-                
+
                 if (typeof containerObject !== 'undefined') {
                     // console.log('Container element identified as:');
                     // console.log(containerObject);
-    
+
                     // make sure that the docked element fits inside its container
 
                     let newWidth = dockedElement.width;
                     let newHeight = dockedElement.height;
-    
+
                     // console.log('Container object:');
                     // console.log(containerObject);
-    
+
                     // console.log('Initial size was ' + newWidth + " " + newHeight);
-    
+
                     const leftInsideContainer = dockedElement.left - containerObject.left;
                     const topInsideContainer = dockedElement.top - containerObject.top;
-    
+
                     // console.log('leftInsideContainer: ' + leftInsideContainer);
                     // console.log('topInsideContainer: ' + topInsideContainer);
-    
+
                     // console.log('Horizontal: ' + (leftInsideContainer + dockedElement.width) + ' vs ' + containerObject.width + '(' + containerObject.getPropertyValue('width') +  ')');
                     // console.log('Vertical: ' + (topInsideContainer + dockedElement.height) + ' vs ' + containerObject.height);
-                    
-                    if (leftInsideContainer + dockedElement.width > containerObject.width) newWidth = containerObject.width - leftInsideContainer;
-                    if (topInsideContainer + dockedElement.height > containerObject.height) newHeight = containerObject.height - topInsideContainer;
-    
-                    if (newWidth < 5) newWidth = 5;
-                    if (newHeight < 5) newHeight = 5;
-    
+
+                    if (leftInsideContainer + dockedElement.width > containerObject.width) {
+                        newWidth = containerObject.width - leftInsideContainer;
+                    }
+                    if (topInsideContainer + dockedElement.height > containerObject.height) {
+                        newHeight = containerObject.height - topInsideContainer;
+                    }
+
+                    if (newWidth < 5) {
+                        newWidth = 5;
+                    }
+                    if (newHeight < 5) {
+                        newHeight = 5;
+                    }
+
                     dockedElement.width = newWidth;
                     dockedElement.height = newHeight;
-    
+
                     // console.log('New size is' + newWidth + " " + newHeight);
-    
+
                     dockedElement.render();
-                };
-            }        
+                }
+            }
         }
     }
 
@@ -261,20 +270,20 @@ export class DockingFeatures
 
            // if it is a table, then also the elements that are docked to its cells
            // console.log(containerObject);
-           if (containerObject.properties.hasProperty("type"))
+           if (containerObject.properties.hasProperty('type'))
             {
                 // console.log('Container object type: ' + containerObject.getPropertyValue("type") );
-                if (containerObject.getPropertyValue("type") == 'table')
+                if (containerObject.getPropertyValue('type') === 'table')
                 {
                     // console.log('Container object is confirmed to be a table.');
                     const tableContainerElement = containerObject as TableElement;
                     tableContainerElement.mapToTableCells((tableCell: TableCell) => {
-                        this.getAllDockedElements(tableCell).forEach((dockedElement:UnitElement) => {
+                        this.getAllDockedElements(tableCell).forEach((dockedElement: UnitElement) => {
                             dockedElement.left = tableCell.left + dockedElement.dockedToLeft;
                             dockedElement.top = tableCell.top + dockedElement.dockedToTop;
-                            dockedElement.render();                     
+                            dockedElement.render();
                         });
-                    })
+                    });
                 }
             }
 

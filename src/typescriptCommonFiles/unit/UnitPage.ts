@@ -109,6 +109,7 @@ export class UnitPage extends ObjectWithProperties {
                 tooltip: 'Falls diese Seite immer angezeigt werden soll, wo soll die angezeigt werden'
             });
 
+            /*
             this.properties.addProperty('font-family', {
                 value: 'Arial, sans-serif',
                 userAdjustable: true,
@@ -126,6 +127,7 @@ export class UnitPage extends ObjectWithProperties {
                 caption: 'Schriftart',
                 tooltip: 'Was die Schriftart des Texts in dem Element ist'
             });
+            */
 
             this.properties.addProperty('padding', {
                 value: '0',
@@ -168,14 +170,14 @@ export class UnitPage extends ObjectWithProperties {
             elements: {}
         }
 
-        this.elements.forEach((element:UnitElement, elementName: string) => {
+        this.elements.forEach((element: UnitElement, elementName: string) => {
             unitPageData.elements[elementName] = element.getData();
         });
 
         return unitPageData;
     }
 
-    public loadData(unitPageData:UnitPageData): void
+    public loadData(unitPageData: UnitPageData): void
     {
         this.properties.loadData(unitPageData.properties);
 

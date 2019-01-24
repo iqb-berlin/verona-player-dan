@@ -33,8 +33,8 @@ export class PopupMenu
     this.elementID = attachedToElement.getElementID();
     this.elementDiv = (document.getElementById(this.elementID) as HTMLDivElement);
 
-    this.elementDiv.insertAdjacentHTML('beforeend', `<div id="${this.elementID + '_popupmenu'}"
-                                                     class="popupMenu"></div>`);
+    this.elementDiv.insertAdjacentHTML('afterbegin', `<div id="${this.elementID + '_popupmenu'}"
+                                                     class="popupMenu" style="display: none"></div>`);
 
     this.popupMenuDivID = this.elementID + '_popupmenu';
     this.popupMenuDiv = document.getElementById(this.popupMenuDivID) as HTMLDivElement;
@@ -174,7 +174,7 @@ export class PopupMenu
 
           const timeoutID = setTimeout(() => {
                                                 this.hidePopupMenu();
-                                              }, 1500);
+                                              }, 2500);
 
            this.hideMenuItemTimeoutIDs.push(timeoutID);
    }

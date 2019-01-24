@@ -55,9 +55,11 @@ export class HtmlUnitElement extends UnitElement {
     drawElement()
     {
         const elementHTML = `<div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
-        <span id="${this.elementID}_style">
-            <span id="${this.elementID}_html"></span>
-        </span>
+        <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+            <span id="${this.elementID}_style">
+                <span id="${this.elementID}_html"></span>
+            </span>
+        </div>
         </div>`;
 
         const pageHTMLElement = this.getPageHTMLElement();
