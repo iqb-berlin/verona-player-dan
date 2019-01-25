@@ -479,14 +479,8 @@ class IQB_ItemPlayer {
                 }
 
                 if (elementType === 'audio') {
-                    // if the element is of the audio type, save its current currentTime property
-                    const audioElement = element as AudioElement;
-                    if (audioElement.getPropertyValue('alreadyPlayed') === 'true') {
-                        unitStatus[elementID] = -1;
-                    }
-                    else {
-                        unitStatus[elementID] = audioElement.getCurrentTime();
-                    }
+                    // if the element is of the audio type, mark it as already played
+                    unitStatus[elementID] = -1;
                 }
         });
 
@@ -516,8 +510,8 @@ class IQB_ItemPlayer {
 
                             if (elementID in unitStatus)
                             {
-                                // console.log('Loading restore point data into ' + elementID +
-                                //             ' (of type ' + elementType + '): ' + unitStatus[elementID]);
+                                console.log('Loading restore point data into ' + elementID +
+                                            ' (of type ' + elementType + '): ' + unitStatus[elementID]);
 
                                 if (elementType === 'checkbox') {
                                     element.setPropertyValue('checked', unitStatus[elementID]);
@@ -540,14 +534,14 @@ class IQB_ItemPlayer {
                                     if (unitStatus[elementID] === -1)
                                     {
                                         audioElement.setPropertyValue('alreadyPlayed', 'true');
-                                    }
-                                    else 
-                                    {
-                                        audioElement.setPropertyValue('currentTime', unitStatus[elementID]);
+                                        console.log('Set alreadyPlayed property to true for element ' + elementID);
                                     }
                                 }
 
+                                console.log(elementID + ' is drawn? : ' + element.getIsDrawn());
+
                                 if (element.getIsDrawn()) {
+                                    console.log(elementID + ' detected as drawn during restore point load; re-rendering it...');
                                     // if the element is currently drawn on the screen, also re-render it with the updated properties
                                     element.render();
                                 }

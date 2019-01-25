@@ -189,7 +189,7 @@ export class UnitPage extends ObjectWithProperties {
                 const elementType = unitPageData.elements[elementID].properties.type as SupportedUnitElementType;
                 let elementContent = '';
                 if ('src' in unitPageData.elements[elementID].properties) {
-                    console.log('src found for ' + elementID + ' when loading its data.');
+                    // console.log('src found for ' + elementID + ' when loading its data.');
                     elementContent = unitPageData.elements[elementID].properties.src;
                 }
                 const newElement =  this.newElement(elementID, elementType, elementContent);

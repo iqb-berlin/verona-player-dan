@@ -126,10 +126,12 @@ export class DropdownElement extends UnitElement {
             if (propertyValue === 'true')
             {
                 (document.getElementById(elementToBeDisabledID) as HTMLInputElement).setAttribute('disabled', 'true');
+                (document.getElementById(elementID + '_selectableDiv') as HTMLInputElement).style.display = 'inline-block';
             }
             else
             {
                 (document.getElementById(elementToBeDisabledID) as HTMLInputElement).removeAttribute('disabled');
+                (document.getElementById(elementID + '_selectableDiv') as HTMLInputElement).style.display = 'none';
             }
         });
 
@@ -168,6 +170,7 @@ export class DropdownElement extends UnitElement {
         const elementHTML = `
         <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
             <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                <div id="${this.elementID}_selectableDiv" style="height: 100%; width: 100%; background-color: transparent; display: none; position: absolute;"></div>
                 <span id="${this.elementID}_style">
                     <select id="${this.elementID}_select" class="${this.elementID}_variableHolder" style="height:100%; width: 100%">
                     </select>

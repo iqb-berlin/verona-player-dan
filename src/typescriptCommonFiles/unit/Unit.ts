@@ -107,10 +107,11 @@ export class Unit extends ObjectWithProperties {
         for (const pageID in unitData.pages)
         {
             if (pageID in unitData.pages) {
-                const newPage = this.newPage(pageID);
+                const alwaysOnPagePropertyValue = unitData.pages[pageID].properties['alwaysOn'];
+                const newPage = this.newPage(pageID, alwaysOnPagePropertyValue);
                 newPage.loadData(unitData.pages[pageID]);
 
-                if (newPage.getPropertyValue('alwaysOn') === 'no') {
+                if (alwaysOnPagePropertyValue === 'no') {
                     if (currentPageIDInitialized === false) {
                         this.currentPageID = pageID;
                         currentPageIDInitialized = true;
@@ -143,7 +144,7 @@ export class Unit extends ObjectWithProperties {
         return JSON.stringify(this.getData());
     }
 
-    public newPage(pageID?: string): UnitPage
+    public newPage(pageID?: string, alwaysOn: 'no' | 'top' | 'left' = 'no'): UnitPage
     {
         let newPageID = '';
 
@@ -158,7 +159,17 @@ export class Unit extends ObjectWithProperties {
             newPageID = pageID;
         }
 
-        const newPage = new UnitPage(newPageID, this.containerDivID);
+        let pageContainerDivID = this.containerDivID;
+        if (alwaysOn !== 'no') {
+            if (typeof this.alwaysOnPageDivID !== 'undefined') {
+                pageContainerDivID = this.alwaysOnPageDivID;
+            }
+            else {
+                pageContainerDivID = '';
+            }
+        }
+
+        const newPage = new UnitPage(newPageID, pageContainerDivID);
         this.pages.set(newPageID, newPage);
         return newPage;
     }
@@ -334,30 +345,20 @@ export class Unit extends ObjectWithProperties {
 
         if (typeof this.alwaysOnPageDivID !== 'undefined') {
 
-            let alwaysOnPageBasis: UnitPage | undefined;
+            let alwaysOnPage: UnitPage | undefined;
 
             this.getPagesMap().forEach((page) => {
                 if (page.getPropertyValue('alwaysOn') !== 'no') {
-                    alwaysOnPageBasis = page;
+                    alwaysOnPage = page;
                 }
             });
 
-            if (typeof alwaysOnPageBasis !== 'undefined') {
+            if (typeof alwaysOnPage !== 'undefined') {
+
                 console.log('Decided that an alwaysOn page is also to be shown');
-                console.log('Using as basis for always on page...');
-                console.log(alwaysOnPageBasis);
-
-                console.log('Summarized in the following data...');
-                const alwaysOnPageData = alwaysOnPageBasis.getData();
-                console.log(alwaysOnPageBasis.getData());
-
-                const alwaysOnPage = new UnitPage(alwaysOnPageBasis.getID(), this.alwaysOnPageDivID);
-                alwaysOnPage.loadData(alwaysOnPageData);
-
-                console.log('Obtained the following always on page:');
+                console.log('Using as always on page...');
                 console.log(alwaysOnPage);
 
-                console.log('Rendering alwaysOn page.');
                 alwaysOnPage.render();
             }
         }

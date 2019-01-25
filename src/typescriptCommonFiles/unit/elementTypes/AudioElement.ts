@@ -22,7 +22,7 @@ export class AudioElement extends UnitElement {
     /* --------------------------------------------------------------- */
 
     constructor(public elementID: string, public pageHTMLElementID: string, src: string)
-    {        
+    {
         super(elementID, pageHTMLElementID);
 
         // console.log('Creating audio element with src ' + src);
@@ -141,8 +141,8 @@ export class AudioElement extends UnitElement {
         });
 
         this.properties.addPropertyRenderer('currentTime', 'audioRenderer', (propertyValue: string) => {
-            this.setCurrentTime(parseFloat(propertyValue));
-            this.showAudioLocation();
+            // this.setCurrentTime(parseFloat(propertyValue));
+            // this.showAudioLocation();
         });
 
         this.properties.addProperty('alreadyPlayed', {
@@ -155,11 +155,10 @@ export class AudioElement extends UnitElement {
         });
 
         this.properties.addPropertyRenderer('alreadyPlayed', 'audioRenderer', (propertyValue: string) => {
-            // console.log('Rendering alreadyPlayed property for ' + this.getElementID());
-            // console.log('Property value: ' + propertyValue);
+            console.log('Rendering alreadyPlayed property for ' + this.getElementID());
+            console.log('Property value: ' + propertyValue);
 
             if (propertyValue === 'true') {
-                                
                 const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
                 const audioElementVisualLocation = document.getElementById(this.elementID + '_audio_visualLocation') as HTMLAudioElement;
                 const audioElementTextLocation = document.getElementById(this.elementID + '_audio_textLocation') as HTMLAudioElement;
@@ -199,7 +198,7 @@ export class AudioElement extends UnitElement {
         }
 
         const elementHTML = `
-                    <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}; overflow: hidden;">
+                    <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}; overflow: visible;">
                             <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
                                 <audio src="${srcToDraw}"
                                     id="${this.elementID}_audio"
@@ -209,8 +208,8 @@ export class AudioElement extends UnitElement {
                                 </audio>
                                 <div id="${this.elementID}_customAudio">
                                     <span id="${this.elementID}_audio_controls" style="display: none">
-                                    <img id="${this.elementID}_audio_btnPlay" src="${this.playIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
-                                    <img id="${this.elementID}_audio_btnPause" src="${this.pauseIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                        <img id="${this.elementID}_audio_btnPlay" src="${this.playIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                        <img id="${this.elementID}_audio_btnPause" src="${this.pauseIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
                                     </span>
                                     <meter id="${this.elementID}_audio_visualLocation" min="0" max="100" value="0" style="width: 60%"></meter>
                                     <span id="${this.elementID}_audio_textLocation" style="width: 20%"></span>
@@ -255,8 +254,8 @@ export class AudioElement extends UnitElement {
 
         audioElement.onloadeddata = () => {
 
-            console.log('Setting ' + this.elementID + 'currentTime to its detected value of ' + this.getPropertyValue('currentTime'));
-            audioElement.currentTime = this.getPropertyValue('currentTime');;
+            // console.log('Setting ' + this.elementID + 'currentTime to its detected value of ' + this.getPropertyValue('currentTime'));
+            // audioElement.currentTime = this.getPropertyValue('currentTime');
 
             playButton.style.display = 'initial';
             pauseButton.style.display = 'none';
@@ -303,9 +302,11 @@ export class AudioElement extends UnitElement {
 
             this.showAudioLocation();
 
+            /*
             window.dispatchEvent(new CustomEvent('IQB.unit.audioElementTick', {
                 detail: {'elementID': this.getElementID()}
             }));
+            */
         });
 
         audioElement.onended = () => {
@@ -369,7 +370,7 @@ export class AudioElement extends UnitElement {
     setCurrentTime(newCurrentTime: number): void {
         const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
         audioElement.currentTime = newCurrentTime;
-        console.log('Set current time of ' + this.getElementID() + ' as ' + newCurrentTime);
+        // console.log('Set current time of ' + this.getElementID() + ' as ' + newCurrentTime);
     }
 
     showAudioLocation()
@@ -378,30 +379,32 @@ export class AudioElement extends UnitElement {
         const audioElementVisualLocation = document.getElementById(this.elementID + '_audio_visualLocation') as HTMLAudioElement;
         const audioElementTextLocation = document.getElementById(this.elementID + '_audio_textLocation') as HTMLAudioElement;
 
-        if (audioElement.duration > 0) {
-            console.log('Retrieved current time of ' + this.getElementID() + ' as ' + audioElement.currentTime);
-            audioElementVisualLocation.setAttribute('value', audioElement.currentTime.toString());
+        if (audioElement !== null) {
+            if (audioElement.duration > 0) {
+                // console.log('Retrieved current time of ' + this.getElementID() + ' as ' + audioElement.currentTime);
+                audioElementVisualLocation.setAttribute('value', audioElement.currentTime.toString());
 
-            const currentLocationMinutesAsInt: number = Math.floor(audioElement.currentTime / 60);
-            let currentLocationMinutesAsString: string = currentLocationMinutesAsInt.toString();
-            // if (currentLocationMinutesAsInt < 10) { currentLocationMinutesAsString = '0' + currentLocationMinutesAsString; }
+                const currentLocationMinutesAsInt: number = Math.floor(audioElement.currentTime / 60);
+                const currentLocationMinutesAsString: string = currentLocationMinutesAsInt.toString();
+                // if (currentLocationMinutesAsInt < 10) { currentLocationMinutesAsString = '0' + currentLocationMinutesAsString; }
 
-            const currentLocationSecondsAsInt = Math.floor(audioElement.currentTime % 60);
-            let currentLocationSecondsAsString: string = currentLocationSecondsAsInt.toString();
-            if (currentLocationSecondsAsInt < 10) { currentLocationSecondsAsString = '0' + currentLocationSecondsAsString; }
+                const currentLocationSecondsAsInt = Math.floor(audioElement.currentTime % 60);
+                let currentLocationSecondsAsString: string = currentLocationSecondsAsInt.toString();
+                if (currentLocationSecondsAsInt < 10) { currentLocationSecondsAsString = '0' + currentLocationSecondsAsString; }
 
-            const totalDurationMinutesAsInt: number = Math.floor(audioElement.duration / 60);
-            let totalDurationMinutesAsString: string = totalDurationMinutesAsInt.toString();
-            // if (totalDurationMinutesAsInt < 10) { totalDurationMinutesAsString = '0' + totalDurationMinutesAsString; }
+                const totalDurationMinutesAsInt: number = Math.floor(audioElement.duration / 60);
+                const totalDurationMinutesAsString: string = totalDurationMinutesAsInt.toString();
+                // if (totalDurationMinutesAsInt < 10) { totalDurationMinutesAsString = '0' + totalDurationMinutesAsString; }
 
-            const totalDurationSecondsAsInt = Math.floor(audioElement.duration % 60);
-            let totalDurationSecondsAsString: string = totalDurationSecondsAsInt.toString();
-            if (totalDurationSecondsAsInt < 10) { totalDurationSecondsAsString = '0' + totalDurationSecondsAsString; }
+                const totalDurationSecondsAsInt = Math.floor(audioElement.duration % 60);
+                let totalDurationSecondsAsString: string = totalDurationSecondsAsInt.toString();
+                if (totalDurationSecondsAsInt < 10) { totalDurationSecondsAsString = '0' + totalDurationSecondsAsString; }
 
-            const textLocation =  currentLocationMinutesAsString + ':' + currentLocationSecondsAsString + ' / ' +
-                                    totalDurationMinutesAsString + ':' + totalDurationSecondsAsString;
+                const textLocation =  currentLocationMinutesAsString + ':' + currentLocationSecondsAsString + ' / ' +
+                                        totalDurationMinutesAsString + ':' + totalDurationSecondsAsString;
 
-            audioElementTextLocation.innerHTML =  textLocation;
+                audioElementTextLocation.innerHTML =  textLocation;
+            }
         }
     }
 }

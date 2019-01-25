@@ -260,8 +260,8 @@ class IQB_UnitAuthoringTool
     {
         // listens for the deletion of table cells so as to also delete their contents
         const tableCell = e.detail.tableCell; // when a new table cell is deleted, a reference to it is provided in e.detail.tableCell
-        this.dockingFeatures.getAllContainedElements(tableCell).forEach((containedElement: UnitElement) => {
-            this.currentUnit.deleteElement(containedElement.getElementID());
+        this.dockingFeatures.getAllDockedElements(tableCell).forEach((dockedElement: UnitElement) => {
+            this.currentUnit.deleteElement(dockedElement.getElementID());
         });
     }
 
@@ -720,7 +720,7 @@ class IQB_UnitAuthoringTool
             {
 
                 newPopupMenu.addPopupMenuItem({
-                        'triggerOnMouseOverElementID' : elementID + '_audio',
+                        'triggerOnMouseOverElementID' : elementID,
                         'containerElementID': '',
                         'innerHTML': 'Klicken Sie hier, um das Audio-Element zu ziehen.',
                         'tooltip': '',
@@ -732,7 +732,7 @@ class IQB_UnitAuthoringTool
             if (elementType === 'video')
             {
                 newPopupMenu.addPopupMenuItem({
-                        'triggerOnMouseOverElementID' : elementID + '_video',
+                        'triggerOnMouseOverElementID' : elementID,
                         'containerElementID': '',
                         'innerHTML': 'Klicken Sie hier, um das Video-Element zu ziehen.',
                         'tooltip': '',
@@ -744,7 +744,7 @@ class IQB_UnitAuthoringTool
             if (elementType === 'textbox')
             {
                 newPopupMenu.addPopupMenuItem({
-                    'triggerOnMouseOverElementID' : elementID + '_textbox',
+                    'triggerOnMouseOverElementID' : elementID,
                     'containerElementID': '',
                     'innerHTML': 'Klicken Sie hier, um die Textbox zu ziehen.',
                     'tooltip': '',
@@ -756,7 +756,7 @@ class IQB_UnitAuthoringTool
             if (elementType === 'dropdown')
             {
                 newPopupMenu.addPopupMenuItem({
-                    'triggerOnMouseOverElementID' : elementID + '_select',
+                    'triggerOnMouseOverElementID' : elementID,
                     'containerElementID': '',
                     'innerHTML': 'Klicken Sie hier, um das Dropdown-Element zu ziehen.',
                     'tooltip': '',
@@ -768,7 +768,7 @@ class IQB_UnitAuthoringTool
             if (elementType === 'table')
             {
                 newPopupMenu.addPopupMenuItem({
-                    'triggerOnMouseOverElementID' : elementID + '_table',
+                    'triggerOnMouseOverElementID' : elementID,
                     'containerElementID': '',
                     'innerHTML': 'Klicken Sie hier, um die ganze Tabelle auszuwählen.',
                     'tooltip': '',
@@ -1126,7 +1126,7 @@ class IQB_UnitAuthoringTool
 
                 const saveFileContent: string = this.currentUnit.exportDataToJSON();
                 // console.log(saveFileContent);
-                const saveFile =  new File([saveFileContent], saveFileName + '.unitDefinition',
+                const saveFile =  new File([saveFileContent], saveFileName + '.voud',
                                             {type: 'text/plain;charset=utf-8'});
                 saveAs(saveFile); // saveAs is external library for saving files
                 }

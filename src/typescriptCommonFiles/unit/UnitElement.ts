@@ -183,12 +183,15 @@ export class UnitElement extends ObjectWithSpatialProperties {
 
     public render()
     {
+        // console.log('Rendering element ' + this.elementID + '...');
         if (this.isDrawn === false) {
+            // console.log('Drawing element ' + this.elementID + '...');
             this.isDrawn = true;
             this.drawElement();
         }
         else
         {
+            // console.log('Rendering properties of element ' + this.elementID + '...');
             this.properties.renderProperties();
         }
     }
