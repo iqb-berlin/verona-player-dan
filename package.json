@@ -1,6 +1,6 @@
 {
   "name": "itemmodule-iqb-main",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "description": "IQB Unit Authoring and IQB Unit Player",
   "main": "",
   "scripts": {

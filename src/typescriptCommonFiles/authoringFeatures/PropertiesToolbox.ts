@@ -15,6 +15,8 @@ import {ObjectWithProperties} from '../unit/ObjectWithProperties.js';
 
 export class PropertiesToolbox
 {
+    private currentlySelectedProperty: string = '';
+
     constructor (public elementPropertiesDivID = 'elementProperties', public elementPropertiesTitleDivID = 'elementPropertiesTitle')
     {
 
@@ -78,7 +80,7 @@ export class PropertiesToolbox
         // console.log('Properties to be displayed:');
         // console.log(propertiesDisplayed);
 
-        propertiesDisplayed.forEach((property:Property, propertyName: string) => {
+        propertiesDisplayed.forEach((property: Property, propertyName: string) => {
             if ('caption' in property === false)
             {
                 // if no caption is found, then property caption = property name
@@ -140,6 +142,7 @@ export class PropertiesToolbox
                             // to do - escape more stuff
 
                             propertiesHTML += `<textarea
+                                                      id="${propertyName}_propertyInput"
                                                       class="propertyInput"
                                                       name="${propertyName}"
                                                       style="width: 98%;" title="${propertyTooltip}">${escapedPropertyValue}</textarea>`;
@@ -150,6 +153,7 @@ export class PropertiesToolbox
                             // to do - escape more stuff
 
                             propertiesHTML += `<input type="number"
+                                                      id="${propertyName}_propertyInput"
                                                       class="propertyInput"
                                                       name="${propertyName}"
                                                       value="${escapedPropertyValue}"
@@ -168,6 +172,7 @@ export class PropertiesToolbox
                             }
 
                             propertiesHTML += `<select class="propertyInput"
+                                                       id="${propertyName}_propertyInput"
                                                        name="${propertyName}"
                                                        title="${propertyTooltip}"
                                                        style="width: 200px">
@@ -178,6 +183,7 @@ export class PropertiesToolbox
                         else if (property.propertyType === 'dropdown')
                         {
                             propertiesHTML += `<select class="propertyInput"
+                                                       id="${propertyName}_propertyInput"
                                                        name="${propertyName}"
                                                        title="${propertyTooltip}"
                                                        style="width: 200px">`;
@@ -226,13 +232,41 @@ export class PropertiesToolbox
             (document.getElementById(this.elementPropertiesDivID) as HTMLDivElement).innerHTML = propertiesHTML;
             (document.getElementById(this.elementPropertiesDivID) as HTMLDivElement).style.display = 'inline-block';
 
-            (document.getElementById('btnSpreadFont') as HTMLElement).onclick = () => {
-
-            };
-
             (document.getElementById('btnApplyProperties') as HTMLElement).onclick = () => {
                 this.applyNewProperties(element);
             };
+
+            /*
+            if (this.currentlySelectedProperty !== '') {
+                const propertyInputElement = document.getElementById(this.currentlySelectedProperty + '_propertyInput');
+                if (propertyInputElement !== null) {
+                    propertyInputElement.focus();
+                }
+            }
+
+            document.querySelectorAll('.propertyInput').forEach( (propertyInputElement: Element) => {
+
+                propertyInputElement.addEventListener('change', (e) => {
+                    console.log(e);
+                    this.applyNewProperties(element);
+
+                    const propertyInputElementName = propertyInputElement.getAttribute('name');
+                    if ( propertyInputElementName !== null) {
+                        this.currentlySelectedProperty = propertyInputElementName;
+                    }
+                });
+
+                propertyInputElement.addEventListener('keyup', (e) => {
+                    console.log(e);
+                    this.applyNewProperties(element);
+
+                    const propertyInputElementName = propertyInputElement.getAttribute('name');
+                    if ( propertyInputElementName !== null) {
+                        this.currentlySelectedProperty = propertyInputElementName;
+                    }
+                });
+            });
+            */
         }
 
         if (objectWithProperties.getObjectType() === 'TableCell')
@@ -310,7 +344,7 @@ export class PropertiesToolbox
 
             (document.getElementById('btnApplyProperties') as HTMLElement).onclick = () => {
                 this.applyNewProperties(page);
-            }
+            };
         }
 
         if (objectWithProperties.getObjectType() === 'nothingSelected')

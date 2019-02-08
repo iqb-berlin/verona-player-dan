@@ -43,7 +43,8 @@ export class CheckboxElement extends UnitElement {
 
         this.properties.addPropertyRenderer('text', 'textRenderer', (propertyValue: string) => {
             const textToShow: string = propertyValue;
-            const HTMLTextToShow: string = textToShow.replace(new RegExp(' ', 'g'), '&nbsp;');
+            // const HTMLTextToShow: string = textToShow.replace(new RegExp(' ', 'g'), '&nbsp;');
+            const HTMLTextToShow: string = textToShow;
             const textHTMLElement = (document.getElementById(this.elementID + '_text') as HTMLElement);
             textHTMLElement.innerHTML = HTMLTextToShow; // bug: modifying the entire innerhtml removes resize stuff (todo)
         });
@@ -129,7 +130,7 @@ export class CheckboxElement extends UnitElement {
             <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
                 <span id="${this.elementID}_style">
                     <input id="${this.elementID}_checkbox" class="${this.elementID}_variableHolder" name="${this.elementID}" type="checkbox">
-                    <span id="${this.elementID}_text" style="word-break:break-all;">
+                    <span id="${this.elementID}_text" style="">
                         ${this.properties.getPropertyValue('text')}
                     </span>
                 </span>

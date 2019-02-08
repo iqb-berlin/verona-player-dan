@@ -6,6 +6,7 @@
 import {UnitElement} from '../UnitElement.js';
 import {Property, Properties} from '../Properties.js';
 import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../../models/Data.js';
+import {colorsObject} from '../../models/Colors.js';
 
 export class AudioElement extends UnitElement {
 
@@ -24,6 +25,8 @@ export class AudioElement extends UnitElement {
     constructor(public elementID: string, public pageHTMLElementID: string, src: string)
     {
         super(elementID, pageHTMLElementID);
+
+        this.width = 300;
 
         // console.log('Creating audio element with src ' + src);
 
@@ -108,14 +111,14 @@ export class AudioElement extends UnitElement {
         });
 
         this.properties.addPropertyRenderer('hasControl', 'audioRenderer', (propertyValue: string) => {
-            const disabledAudioDiv = elementID + '_audio_controls';
+            const hasControlDiv = elementID + '_hasControl';
             if (propertyValue === 'true')
             {
-                (document.getElementById(disabledAudioDiv) as HTMLInputElement).style.display = 'initial';
+                (document.getElementById(hasControlDiv) as HTMLInputElement).style.display = 'initial';
             }
             else
             {
-                (document.getElementById(disabledAudioDiv) as HTMLInputElement).style.display = 'none';
+                (document.getElementById(hasControlDiv) as HTMLInputElement).style.display = 'none';
             }
         });
 
@@ -155,8 +158,8 @@ export class AudioElement extends UnitElement {
         });
 
         this.properties.addPropertyRenderer('alreadyPlayed', 'audioRenderer', (propertyValue: string) => {
-            console.log('Rendering alreadyPlayed property for ' + this.getElementID());
-            console.log('Property value: ' + propertyValue);
+            // console.log('Rendering alreadyPlayed property for ' + this.getElementID());
+            // console.log('Property value: ' + propertyValue);
 
             if (propertyValue === 'true') {
                 const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
@@ -169,10 +172,26 @@ export class AudioElement extends UnitElement {
                 const audioControls = document.getElementById(this.elementID + '_audio_controls') as HTMLSpanElement;
                 audioControls.style.display = 'none';
 
-                audioElementVisualLocation.setAttribute('max', '100');
-                audioElementVisualLocation.setAttribute('value', '100');
+                audioElementVisualLocation.style.width = '100%';
 
                 audioElementTextLocation.innerHTML = '<br />Audio wurde gespielt.';
+            }
+        });
+
+        this.properties.addProperty('progressBarColor', {
+            value: 'green',
+            userAdjustable: true,
+            propertyType: 'dropdown',
+            propertyData: colorsObject,
+            hidden: false,
+            caption: 'Fortschrittsbalken',
+            tooltip: 'Was die Farbe des Fortschrittsbalkens ist'
+        });
+
+        this.properties.addPropertyRenderer('progressBarColor', 'audioRenderer', (propertyValue: string) => {
+            const visualLocationDiv =  document.getElementById(this.elementID + '_audio_visualLocation');
+            if (visualLocationDiv !== null) {
+                visualLocationDiv.style.backgroundColor = propertyValue;
             }
         });
 
@@ -180,8 +199,9 @@ export class AudioElement extends UnitElement {
         this.properties.removeProperty('style');
         this.properties.removeProperty('font-family');
         this.properties.removeProperty('font-size');
-        this.properties.removeProperty('color');
         this.properties.removeProperty('background-color');
+        this.properties.removeProperty('color');
+
     }
 
     drawElement()
@@ -207,12 +227,16 @@ export class AudioElement extends UnitElement {
                                     controls controlsList="nodownload">
                                 </audio>
                                 <div id="${this.elementID}_customAudio">
-                                    <span id="${this.elementID}_audio_controls" style="display: none">
-                                        <img id="${this.elementID}_audio_btnPlay" src="${this.playIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
-                                        <img id="${this.elementID}_audio_btnPause" src="${this.pauseIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                    <span id="${this.elementID}_audio_controls">
+                                        <span id="${this.elementID}_hasControl">
+                                            <img id="${this.elementID}_audio_btnPlay" src="${this.playIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                            <img id="${this.elementID}_audio_btnPause" src="${this.pauseIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                        </span>
                                     </span>
-                                    <meter id="${this.elementID}_audio_visualLocation" min="0" max="100" value="0" style="width: 60%"></meter>
-                                    <span id="${this.elementID}_audio_textLocation" style="width: 20%"></span>
+                                    <div id="${this.elementID}_audio_visualLocationContainer" style="width: 60%; display: inline-block; height: 16px; position: relative; top: 2px; border: 1px solid black;">
+                                        <div id="${this.elementID}_audio_visualLocation" style="width: 0%; height: 100%; background-color: green; display: inline-block;"></div>
+                                    </div>
+                                    <span id="${this.elementID}_audio_textLocation" style="width: 20%; position: relative; top: -1px;"></span>
                                 </div>
                             </div>
                     </div>`;
@@ -260,8 +284,7 @@ export class AudioElement extends UnitElement {
             playButton.style.display = 'initial';
             pauseButton.style.display = 'none';
 
-            audioElementVisualLocation.setAttribute('max', audioElement.duration.toString());
-            audioElementVisualLocation.setAttribute('value', '0');
+            audioElementVisualLocation.style.width = '0%';
 
             // todo - customizable volume
 
@@ -283,18 +306,22 @@ export class AudioElement extends UnitElement {
             if (this.getPropertyValue('autoplay') === 'true')
             {
                 if (this.getPropertyValue('alreadyPlayed') !== 'true') {
-                    playButton.style.display = 'none';
-                    pauseButton.style.display = 'initial';
 
-                    audioElement.play();
+                    this.play();
 
-                    window.dispatchEvent(new CustomEvent('IQB.unit.audioElementStarted', {
+                    window.dispatchEvent(new CustomEvent('IQB.unit.audioElementAutoplayed', {
                         detail: {'elementID': this.getElementID()}
                     }));
                 }
             }
 
             this.showAudioLocation();
+        };
+
+        audioElement.onplay = () => {
+            window.dispatchEvent(new CustomEvent('IQB.unit.audioElementStarted', {
+                detail: {'elementID': this.getElementID()}
+            }));
         };
 
         audioElement.addEventListener('timeupdate', () => {
@@ -309,7 +336,14 @@ export class AudioElement extends UnitElement {
             */
         });
 
+        audioElement.onpause = () => {
+            window.dispatchEvent(new CustomEvent('IQB.unit.audioElementStopped', {
+                detail: {'elementID': this.getElementID()}
+            }));
+        };
+
         audioElement.onended = () => {
+
             playButton.style.display = 'initial';
             pauseButton.style.display = 'none';
 
@@ -321,6 +355,10 @@ export class AudioElement extends UnitElement {
                 this.render();
             }
 
+            window.dispatchEvent(new CustomEvent('IQB.unit.audioElementStopped', {
+                detail: {'elementID': this.getElementID()}
+            }));
+
             window.dispatchEvent(new CustomEvent('IQB.unit.audioElementEnded', {
                 detail: {'elementID': this.getElementID()}
             }));
@@ -328,17 +366,32 @@ export class AudioElement extends UnitElement {
         // finished adding audio events
 
         // add play and pause functionality
+
         playButton.addEventListener('click', () => {
-            playButton.style.display = 'none';
-            pauseButton.style.display = 'initial';
-            audioElement.play();
+            this.play();
         });
 
         pauseButton.addEventListener('click', () => {
-            pauseButton.style.display = 'none';
-            playButton.style.display = 'initial';
-            audioElement.pause();
+            this.pause();
         });
+
+        // react to other audios being played and stop, by hiding / showing audio controls
+
+        window.addEventListener('IQB.unit.audioElementStarted', (e) => {
+            if (e.detail.elementID !== this.elementID) {
+                audioControls.style.visibility = 'hidden';
+            }
+        });
+
+        window.addEventListener('IQB.unit.audioElementStopped', (e) => {
+            if (e.detail.elementID !== this.elementID) {
+                if (this.getPropertyValue('alreadyPlayed') !== 'true') {
+                    audioControls.style.visibility = 'visible';
+                }
+            }
+        });
+
+        // end of reacting to other audios being played / stopped
 
         // todo - customizable volume
         /*
@@ -359,7 +412,23 @@ export class AudioElement extends UnitElement {
     }
 
     play(): void {
+        const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
+        const playButton = document.getElementById(this.elementID + '_audio_btnPlay') as HTMLImageElement;
+        const pauseButton = document.getElementById(this.elementID + '_audio_btnPause') as HTMLImageElement;
 
+        playButton.style.display = 'none';
+        pauseButton.style.display = 'initial';
+        audioElement.play();
+    }
+
+    pause(): void {
+        const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
+        const playButton = document.getElementById(this.elementID + '_audio_btnPlay') as HTMLImageElement;
+        const pauseButton = document.getElementById(this.elementID + '_audio_btnPause') as HTMLImageElement;
+
+        pauseButton.style.display = 'none';
+        playButton.style.display = 'initial';
+        audioElement.pause();
     }
 
     getCurrentTime(): number {
@@ -382,7 +451,7 @@ export class AudioElement extends UnitElement {
         if (audioElement !== null) {
             if (audioElement.duration > 0) {
                 // console.log('Retrieved current time of ' + this.getElementID() + ' as ' + audioElement.currentTime);
-                audioElementVisualLocation.setAttribute('value', audioElement.currentTime.toString());
+                audioElementVisualLocation.style.width = Math.floor(audioElement.currentTime / audioElement.duration * 100) + '%';
 
                 const currentLocationMinutesAsInt: number = Math.floor(audioElement.currentTime / 60);
                 const currentLocationMinutesAsString: string = currentLocationMinutesAsInt.toString();

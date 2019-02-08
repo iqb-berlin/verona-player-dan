@@ -32,7 +32,7 @@ import { UnitElementData } from '../typescriptCommonFiles/models/Data.js';
 
 const OpenCBA_UnitAuthoringInterface =
 {
-    unitDefinitionType: 'IQBUnitPlayerV9',
+    unitDefinitionType: 'IQBUnitPlayerV10',
     containerWindow: window.parent,
     checkOrigin: false,
     acceptedOrigin: '*',
@@ -91,12 +91,11 @@ class IQB_UnitAuthoringTool
             this.updateCurrentPageSelect();
         });
 
-        window.addEventListener('IQB.unit.audioElementStarted', (e) => {
+        window.addEventListener('IQB.unit.audioElementAutoplayed', (e) => {
             // if element is audio or video element, pause it (so as not to autoplay)
-            const audioElement = document.getElementById(e.detail.elementID + '_audio') as HTMLAudioElement | null;
-            if (audioElement !== null) {
-               audioElement.pause();
-            }
+            const elementID: string = e.detail.elementID;
+            const audioElement = this.currentUnit.element(elementID) as AudioElement;
+            audioElement.pause();
         });
 
         window.addEventListener('IQB.unit.videoElementStarted', (e) => {
@@ -120,7 +119,7 @@ class IQB_UnitAuthoringTool
         });
         // end of when clicking outside the page functionality
 
-        this.currentUnit = new Unit(this.containerDivID);
+        this.currentUnit = new Unit(this.containerDivID, this.containerDivID, false);
         this.dockingFeatures = new DockingFeatures(this.currentUnit);
 
         this.currentUnit.render();
@@ -430,6 +429,11 @@ class IQB_UnitAuthoringTool
             this.currentUnit.newElement('html');
         });
 
+        (document.getElementById('btnAddViewpoint') as HTMLButtonElement).addEventListener('click', (e) => {
+            alert('Warning: Viewpoints are still an experimental feature and their final properties are not yet decided. Use sparsely and with caution.');
+            this.currentUnit.newElement('viewpoint');
+        });
+
         (document.getElementById('btnSpreadFont') as HTMLButtonElement).addEventListener('click', (e) => {
             if (typeof this.selectedObjectWithProperties !== 'undefined') {
                 const selectedObject = this.selectedObjectWithProperties;
@@ -479,7 +483,27 @@ class IQB_UnitAuthoringTool
             this.deleteCurrentlySelectedObject();
         });
 
+        window.addEventListener('keydown', (e) => {
+            let considerKey = true;
+            if (e.srcElement !== null) {
+                if (e.srcElement.classList.contains('propertyInput')) {
+                    considerKey = false;
+                }
+                if ((e.srcElement.tagName === 'INPUT') || (e.srcElement.tagName === 'SELECT')) {
+                    considerKey = false;
+                }
+            }
+            if (considerKey) {
+                if (e.key === 'Delete') {
+                    this.deleteCurrentlySelectedObject();
+                }
+            }
+        });
+
         (document.getElementById('btnOpenUnit') as HTMLButtonElement).addEventListener('click', (e) => {
+            // unselect elements if any are selected
+            this.selectObject(this.currentUnit.getCurrentPage());
+
             this.AddFile('Aufgabe importieren', (uploadedFileContent: string) =>
             {
                 this.loadUnitFromJson(uploadedFileContent);
@@ -489,6 +513,9 @@ class IQB_UnitAuthoringTool
 
 
         (document.getElementById('btnSaveUnit') as HTMLButtonElement).addEventListener('click', (e) => {
+            // unselect elements if any are selected
+            this.selectObject(this.currentUnit.getCurrentPage());
+
             this.saveUnitToFile();
         });
 
@@ -683,9 +710,9 @@ class IQB_UnitAuthoringTool
             }
 
             // add resizable functionality
-            if (elementType !== 'table')
+            if ((elementType !== 'table') && (elementType !== 'viewpoint'))
             {
-                // all elements are resizable, except tables (where the resizing happens at the individual cell level)
+                // all elements are resizable, except tables (where the resizing happens at the individual cell level) and viewpoints
 
                 if (elementType !== 'tableCell')
                 {
@@ -705,6 +732,13 @@ class IQB_UnitAuthoringTool
                     });
                 }
             }
+
+            /*
+            if (elementType === 'viewpoint') {
+                element.width = 25;
+                element.height = 30;
+            })
+            */
 
             // add selectable functionality
             jQuery('#' + elementID).on('mousedown', (e) => {
@@ -961,8 +995,8 @@ class IQB_UnitAuthoringTool
                             });
 
                             console.log(elementClone);
-                            elementClone.setPropertyValue('left', elementClone.getPropertyValue('left') + 50);
-                            elementClone.setPropertyValue('top', elementClone.getPropertyValue('top') + 50);
+                            elementClone.setPropertyValue('left', elementClone.getPropertyValue('left') + 40);
+                            elementClone.setPropertyValue('top', elementClone.getPropertyValue('top') + 40);
                             elementClone.render();
                             this.selectObject(elementClone);
                         }
@@ -1013,12 +1047,12 @@ class IQB_UnitAuthoringTool
             }
             else if (this.selectedObjectWithProperties.getObjectType() === 'UnitPage')
             {
-                alert('Cannot delete a page.');
+                alert('Nichts zu löschen: kein Element gewählt.');
             }
         }
         else
         {
-            alert('Nichts zu löschen: kein Objekt gewählt.');
+            alert('Nichts zu löschen: kein Element gewählt.');
 
         }
     }

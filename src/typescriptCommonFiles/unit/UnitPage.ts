@@ -18,6 +18,7 @@ import {TableCell, TableElement, TableCellFunction} from './elementTypes/TableEl
 import {TextboxElement} from './elementTypes/TextboxElement.js';
 import {TextElement} from './elementTypes/TextElement.js';
 import {VideoElement} from './elementTypes/VideoElement.js';
+import {ViewpointElement} from './elementTypes/ViewpointElement.js';
 
 // todo - customizable volume
 // import {VolumePickerElement} from './elementTypes/VolumePicker.js';
@@ -25,7 +26,7 @@ import {VideoElement} from './elementTypes/VideoElement.js';
 import {colorsObject} from '../models/Colors.js';
 
 export type SupportedUnitElementType = 'text' | 'image' | 'audio' | 'video' | 'textbox' | 'checkbox' |
-'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html';
+'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html' | 'viewpoint';
 
 export interface NewElementOptions {
     elementID: string;
@@ -261,20 +262,24 @@ export class UnitPage extends ObjectWithProperties {
 
         const children = [];
 
-        for (let i = 0; i < element.children.length; i++) {
-            children.push(element.children[i]);
-        }
+        if (element !== null) {
+            for (let i = 0; i < element.children.length; i++) {
+                children.push(element.children[i]);
+            }
 
-        for (let i = 0; i < children.length; i++) {
-            this.removeElementChildren(children[i]);
-            // console.log('removing dom element ' + children[i].id);
-            children[i].remove();
+            for (let i = 0; i < children.length; i++) {
+                this.removeElementChildren(children[i]);
+                // console.log('removing dom element ' + children[i].id);
+                children[i].remove();
+            }
         }
     }
 
     public drawPage()
     {
        console.log('Drawing page ' + this.pageID);
+       console.log('Page container: ' + this.containerDivID);
+
        const pageStyle = `display: inline-block; position: relative; margin-left: auto; margin-right: auto; text-align: left;`;
        // the position needs to be relative, so that it is considered positioned,
        // so that its children with absolute coordinates get drawn in reference to it
@@ -465,6 +470,12 @@ export class UnitPage extends ObjectWithProperties {
         {
          element = new HtmlUnitElement(elementID, this.getPageHTMLElementID());
         }
+
+        if (elementType === 'viewpoint')
+        {
+         element = new ViewpointElement(elementID, this.getPageHTMLElementID());
+        }
+
 
         this.elements.set(elementID, element);
 

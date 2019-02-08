@@ -62,6 +62,7 @@ export class TextboxElement extends UnitElement {
             tooltip: 'Ob jemand etwas in dem Textbox eingeben kann'
         });
 
+
         this.properties.addPropertyRenderer('text', 'textboxRenderer', (propertyValue: string) => {
             const textToShow: string = propertyValue;
             const textboxHTMLElement = (document.getElementById(this.elementID + '_textbox') as HTMLInputElement);

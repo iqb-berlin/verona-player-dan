@@ -16,6 +16,7 @@ import {Property} from '../typescriptCommonFiles/unit/Properties.js';
 import {ObjectWithProperties} from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
 import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
 import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
+import { ViewpointElement } from '../typescriptCommonFiles/unit/elementTypes/ViewpointElement.js';
 
 /*     IQB specific implementation of the item player       */
 
@@ -39,7 +40,7 @@ interface ResponsesObject
 
 class IQB_ItemPlayer {
     // the main class that implements the IQB ItemPlayer functionality
-    private responseType = 'IQBUnitPlayerV9';
+    private responseType = 'IQBUnitPlayerV10';
 
     private currentUnit: Unit;
 
@@ -143,6 +144,25 @@ class IQB_ItemPlayer {
                     }
                 }
                 */
+
+                // add viewpoint functionality
+                this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
+                    viewpoint.addIntersectionObserverCallback((entries) => {
+                        entries.forEach((entry) => {
+                            // console.log(viewpoint.getPropertyValue('name') + ' has been triggered');
+                            if (viewpoint.getPropertyValue('sendsLogs') === 'true') {
+                                const logEntry: string = 'Viewpoint ' + viewpoint.elementID + ', isBeigViewed=' + entry.isIntersecting + ', time=' + parseInt(entry.time, 10);
+                                this.sendMessageToParent({
+                                    type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                                    sessionId: this.sessionId,
+                                    logEntries: [logEntry]
+                                });
+                            }
+                            // console.log(entry);
+                        });
+                    });
+                });
+
                 // figure out the default can leave status
                     // check if there are audio elements
                     let thereArePlayOnlyOnceAudioElements = false;
@@ -483,6 +503,17 @@ class IQB_ItemPlayer {
                 }
         });
 
+
+        this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
+            if (viewpoint.viewed) {
+                unitStatus[viewpoint.elementID] = 'true';
+            }
+            else {
+                unitStatus[viewpoint.elementID] = 'false';
+            }
+        });
+
+
         return JSON.stringify(unitStatus);
     }
 
@@ -537,10 +568,19 @@ class IQB_ItemPlayer {
                                     }
                                 }
 
-                                console.log(elementID + ' is drawn? : ' + element.getIsDrawn());
+                                if (elementType === 'viewpoint') {
+                                    const viewpointElement = element as ViewpointElement;
+                                    if (unitStatus[elementID] === 'true') {
+                                        viewpointElement.viewed = true;
+                                    }
+                                    else
+                                    {
+                                        viewpointElement.viewed = false;
+                                    }
+                                }
 
                                 if (element.getIsDrawn()) {
-                                    console.log(elementID + ' detected as drawn during restore point load; re-rendering it...');
+                                    // console.log(elementID + ' detected as drawn during restore point load; re-rendering it...');
                                     // if the element is currently drawn on the screen, also re-render it with the updated properties
                                     element.render();
                                 }
@@ -585,6 +625,17 @@ class IQB_ItemPlayer {
                         responses[elementID] = element.getPropertyValue('text');
                     }
                 }
+        });
+
+        this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
+            if (viewpoint.getPropertyValue('sendsResponses') === 'true') {
+                if (viewpoint.viewed) {
+                    responses[viewpoint.elementID] = 'true';
+                }
+                else {
+                    responses[viewpoint.elementID] = 'false';
+                }
+            }
         });
 
         return JSON.stringify(responses);

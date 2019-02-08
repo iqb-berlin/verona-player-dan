@@ -110,6 +110,83 @@ export class TextElement extends UnitElement {
             }
         });
 
+        // prepare lineHeightObject, which contains all line heights between 10% and 300%
+
+        const lineHeightObject: {[lineHeightCaption: string]: string} = {};
+
+        for (let i = 1; i <= 50; i++) {
+            const lineHeight = i * 10 + '%';
+            lineHeightObject[lineHeight] = lineHeight;
+        }
+
+        this.properties.addProperty('line-height', {
+            value: '120%',
+            userAdjustable: true,
+            propertyType: 'dropdown',
+            propertyData: lineHeightObject,
+            hidden: false,
+            caption: 'Zeilenhöhe',
+            tooltip: 'Wie groß der Abstand zwischen den Zeilen ist'
+        });
+
+        this.properties.addPropertyRenderer('line-height', 'textRenderer', (propertyValue: string) => {
+            const textHTMLElement = (document.getElementById(this.elementID + '_text') as HTMLElement);
+            textHTMLElement.style.lineHeight = propertyValue;
+        });
+
+        // prepare lineHeightObject, which contains all line heights between 10% and 300%
+
+        const textIndentObject: {[textIndentCaption: string]: string} = {};
+        for (let i = -100; i <= 100; i++) {
+            const textIndent = i + 'px';
+            textIndentObject[textIndent] = textIndent;
+        }
+
+        this.properties.addProperty('text-indent', {
+            value: '0px',
+            userAdjustable: true,
+            propertyType: 'dropdown',
+            propertyData: textIndentObject,
+            hidden: false,
+            caption: 'Erste Zeile',
+            tooltip: 'Wie groß der Einzug der ersten Zeile ist'
+        });
+
+        this.properties.addPropertyRenderer('text-indent', 'textRenderer', (propertyValue: string) => {
+            const textHTMLElement = (document.getElementById(this.elementID + '_text') as HTMLElement);
+            textHTMLElement.style.textIndent = propertyValue;
+        });
+
+        this.properties.addProperty('text-align', {
+            value: 'left',
+            userAdjustable: true,
+            propertyType: 'dropdown',
+            propertyData: {'linksbündig': `left`,
+                           'zentriert': 'center',
+                           'rechtsbündig': `right`,
+                           'Blocksatz': 'justify'
+                          },
+            hidden: false,
+            caption: 'Textausrichtung',
+            tooltip: `Was die Ausrichtung des Texts in dem Element ist. Wenn man 'Blocksatz' wählt, werden mehrere aufeinanderfolgende Leerzeichen auf nur ein Lehrzeichen reduziert.`
+        });
+
+        this.properties.addPropertyRenderer('text-align', 'textRenderer', (propertyValue: string) => {
+            const element =  document.getElementById(this.elementID + '_text');
+            if (element !== null) {
+                 element.style.textAlign = propertyValue;
+
+                 // justify does not work with white-space set as pre-wrap, so set it as pre-line when the text is justified
+                 if (propertyValue === 'justify') {
+                    element.style.whiteSpace = 'pre-line';
+                 }
+                 else
+                 {
+                    element.style.whiteSpace = 'pre-wrap';
+                 }
+            }
+        });
+
         // other property renderers for properties inherited from UnitElement
 
         this.properties.addPropertyRenderer('font-size', 'fontSizeRenderer', (propertyValue: string) => {
@@ -146,9 +223,9 @@ export class TextElement extends UnitElement {
         const elementHTML = `
                             <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
                                 <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
-                                    <div id="${this.elementID}_divContainer" style="width: 100%; height: 100%; text-align: left; overflow: hidden;">
-                                            <span id="${this.elementID}_style">
-                                                <span id="${this.elementID}_text" style="white-space: pre-wrap;"></span>
+                                    <div id="${this.elementID}_divContainer" style="width: 100%; height: 100%; text-align: left; overflow: visible;">
+                                         <span id="${this.elementID}_style">
+                                                <p id="${this.elementID}_text" style="margin-top: 0px; margin-bottom: 0px; white-space: pre-wrap;"></p>
                                         </span>
                                     </div>
                                 </div>

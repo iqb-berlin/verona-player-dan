@@ -21,8 +21,10 @@ import {VideoElement} from './elementTypes/VideoElement.js';
 
 import {ObjectWithProperties} from './ObjectWithProperties.js';
 import {SupportedUnitElementType} from './UnitPage.js';
+import { ViewpointElement } from './elementTypes/ViewpointElement.js';
 
 export type ElementFunction = (element: UnitElement) => any;
+export type ViewpointFunction = (viewpoint: ViewpointElement) => any;
 
 export class Unit extends ObjectWithProperties {
     private pages: Map<string, UnitPage> = new Map();
@@ -32,7 +34,7 @@ export class Unit extends ObjectWithProperties {
 
     public alwaysOnPage: UnitPage | undefined;
 
-    constructor (public containerDivID: string, public alwaysOnPageDivID?: string)
+    constructor (public containerDivID: string, public alwaysOnPageDivID?: string, public showAlwaysOnPage: boolean = true)
     {
         super('UnitID', 'Unit'); // todo: UnitID
 
@@ -40,7 +42,7 @@ export class Unit extends ObjectWithProperties {
 
         if (containerDiv !== null)
         {
-            console.log(`IQB Item Canvas: Container DIV (${containerDivID}) found. Initializing...`);
+            console.log(`IQB Unit Canvas: Container DIV (${containerDivID}) found. Initializing...`);
 
             this.properties.addProperty('elementsCounter', {
                 value: 0,
@@ -61,11 +63,30 @@ export class Unit extends ObjectWithProperties {
             const firstPage = this.newPage().getID();
             this.currentPageID = firstPage;
 
-            console.log('IQB Item Canvas: Initialized.');
+            window.addEventListener('IQB.unit.elementCompletelyViewed', (e) => {
+                // when an element is completely viewed, check if all of them are so as to mark the unit as completely viewed
+                // console.log('Running check to see if all unit elements have been viewed');
+
+                let allElementsCompletelyViewed = true;
+                this.mapToElements((element: UnitElement) => {
+                    // console.log(element);
+                    // console.log(element.hasBeenCompletelyViewed);
+                    if (element.hasBeenCompletelyViewed === false) {
+                        allElementsCompletelyViewed = false;
+                    }
+                });
+
+                if (allElementsCompletelyViewed) {
+                    console.log('All elements belonging to the current unit have been completely viewed.');
+                }
+
+            });
+
+            console.log('IQB Unit Canvas: Initialized.');
         }
         else
         {
-            console.log('IQB Item Canvas: Error. No container DIV found. Initialization halted.');
+            console.log('IQB Unit Canvas: Error. No container DIV found. Initialization halted.');
         }
     }
 
@@ -86,8 +107,8 @@ export class Unit extends ObjectWithProperties {
     public loadData(unitData: UnitData)
     {
         console.log('################## Loading new unit ################');
-        // console.log('Unit data: ');
-        // console.log(unitData);
+        console.log('Unit data: ');
+        console.log(unitData);
 
         // before loading a new unit, first, clear this one
         console.log('Clearing up the old unit...')
@@ -107,7 +128,13 @@ export class Unit extends ObjectWithProperties {
         for (const pageID in unitData.pages)
         {
             if (pageID in unitData.pages) {
-                const alwaysOnPagePropertyValue = unitData.pages[pageID].properties['alwaysOn'];
+
+                let alwaysOnPagePropertyValue: string = 'no'; // default to no
+                if ('alwaysOn' in unitData.pages[pageID].properties) {
+                    // if the data specifies an alwaysOn property for the page, use that instead
+                    alwaysOnPagePropertyValue = unitData.pages[pageID].properties['alwaysOn'];
+                }
+
                 const newPage = this.newPage(pageID, alwaysOnPagePropertyValue);
                 newPage.loadData(unitData.pages[pageID]);
 
@@ -122,6 +149,7 @@ export class Unit extends ObjectWithProperties {
 
         if (this.currentPageID === '') {
             // if there is no main page to show, create an empty one;
+            console.log('No non-alwayson page identified while loading unit; creating a new normal page to show as a main page.');
             const newPageID: string = this.newPage().getID();
             this.currentPageID = newPageID;
         }
@@ -146,6 +174,8 @@ export class Unit extends ObjectWithProperties {
 
     public newPage(pageID?: string, alwaysOn: 'no' | 'top' | 'left' = 'no'): UnitPage
     {
+        console.log('Creating new page; pageID: ' + pageID + ' ; alwaysOn: ' + alwaysOn);
+
         let newPageID = '';
 
         if (typeof pageID === 'undefined')
@@ -321,11 +351,23 @@ export class Unit extends ObjectWithProperties {
         });
     }
 
+    public mapToViewpoints(viewpointFunction: ViewpointFunction)
+    {
+        this.mapToElements((element: UnitElement) => {
+            if (element.getElementType() === 'viewpoint') {
+                const viewpointElement = element as ViewpointElement;
+                viewpointFunction(viewpointElement);
+            }
+        });
+    }
+
     public render(): void
     {
         this.renderCurrentPage();
 
-        this.renderAlwaysOnPage();
+        if (this.showAlwaysOnPage) {
+            this.renderAlwaysOnPage();
+        }
     }
 
     public renderCurrentPage(): void
