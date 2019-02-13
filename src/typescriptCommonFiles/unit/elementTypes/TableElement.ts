@@ -372,6 +372,8 @@ export class TableElement extends UnitElement {
             {
                 this.newTableCell(newRowNumber, columnIndex);
             }
+
+            this.height += 100; // 100px is the default table cell height
         }
         else if (alterationType === 'addColumn')
         {
@@ -381,6 +383,8 @@ export class TableElement extends UnitElement {
             {
                 this.newTableCell(rowIndex, newColumnNumber);
             }
+
+            this.width += 100; // 100px is the default table cell width
         }
         else if (alterationType === 'deleteRow')
         {
@@ -447,6 +451,8 @@ export class TableElement extends UnitElement {
 
         this.updatePositionPropertiesOfTableCells();
         this.updatePositionPropertiesBasedOn(this.pageID, this.getElementID());
+
+        this.render();
     }
 
     public dispatchNewTableCellDrawnEvent(tableCell: TableCell)
@@ -495,12 +501,20 @@ export class TableElement extends UnitElement {
             if (typeof unitElementData.tableCells !== 'undefined') {
                 const tableCellsProperty: ObjectWithProperties[][] = [];
                 const tableCellsData: PropertiesValue[][] = unitElementData.tableCells;
+
+                let cellCounter = 0;
                 for (let i = 0; i < tableCellsData.length; i++)
                 {
                     tableCellsProperty.push([]);
                     for (let j = 0; j < tableCellsData[i].length; j++)
                     {
-                        const tableCell = new TableCell(tableCellsData[i][j].id, 
+                        cellCounter++;
+                        if (tableCellsData[i][j].id.indexOf(this.elementID) === -1) {
+                            // if the table id does not correspond to current element, name it properly
+                            tableCellsData[i][j].id = this.elementID + '_cell_' + cellCounter;
+                        }
+
+                        const tableCell = new TableCell(tableCellsData[i][j].id,
                                                         this,
                                                         tableCellsData[i][j].rowNumber,
                                                         tableCellsData[i][j].columnNumber,

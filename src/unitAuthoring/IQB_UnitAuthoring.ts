@@ -434,26 +434,43 @@ class IQB_UnitAuthoringTool
             this.currentUnit.newElement('viewpoint');
         });
 
+        const btnSpreadfont = document.getElementById('btnSpreadFont') as HTMLElement;
         (document.getElementById('btnSpreadFont') as HTMLButtonElement).addEventListener('click', (e) => {
-            if (typeof this.selectedObjectWithProperties !== 'undefined') {
-                const selectedObject = this.selectedObjectWithProperties;
-                const currentPage = this.currentUnit.getCurrentPage();
-                if (typeof currentPage !== 'undefined') {
-                    currentPage.getElementsMap().forEach((element: UnitElement) => {
+            if (btnSpreadfont.style.color === 'black') {
+                if (typeof this.selectedObjectWithProperties !== 'undefined') {
+                    const selectedObject = this.selectedObjectWithProperties;
+                    const currentPage = this.currentUnit.getCurrentPage();
+                    if (typeof currentPage !== 'undefined') {
+                        currentPage.getElementsMap().forEach((element: UnitElement) => {
 
-                        if (selectedObject.properties.hasProperty('font-family') && element.properties.hasProperty('font-family')) {
-                            element.setPropertyValue('font-family', selectedObject.getPropertyValue('font-family'));
-                        }
-                        if (selectedObject.properties.hasProperty('font-size') && element.properties.hasProperty('font-size')) {
-                            element.setPropertyValue('font-size', selectedObject.getPropertyValue('font-size'));
-                        }
-                        if (selectedObject.properties.hasProperty('color') && element.properties.hasProperty('color')) {
-                            element.setPropertyValue('color', selectedObject.getPropertyValue('color'));
-                        }
-                        element.render();
+                            if (selectedObject.properties.hasProperty('font-family') && element.properties.hasProperty('font-family')) {
+                                element.setPropertyValue('font-family', selectedObject.getPropertyValue('font-family'));
+                            }
+                            if (selectedObject.properties.hasProperty('font-size') && element.properties.hasProperty('font-size')) {
+                                element.setPropertyValue('font-size', selectedObject.getPropertyValue('font-size'));
+                            }
+                            if (selectedObject.properties.hasProperty('color') && element.properties.hasProperty('color')) {
+                                element.setPropertyValue('color', selectedObject.getPropertyValue('color'));
+                            }
+                            element.render();
 
-                    });
+                        });
+                    }
                 }
+            }
+        });
+
+        const btnCopyElement = document.getElementById('btnCopyElement') as HTMLElement;
+        btnCopyElement.addEventListener('click', (e) => {
+            if (btnCopyElement.style.color === 'black') {
+                this.copyCurrentlySelectedElementToClipboard();
+            }
+        });
+
+        const btnPasteElement = document.getElementById('btnPasteElement') as HTMLElement;
+        btnPasteElement.addEventListener('click', (e) => {
+            if (btnPasteElement.style.color === 'black') {
+                this.pasteElementFromClipboard();
             }
         });
 
@@ -473,10 +490,14 @@ class IQB_UnitAuthoringTool
             this.moveAllPageElements(0, 10);
         });
 
-
-
-        (document.getElementById('btnCloneElement') as HTMLButtonElement).addEventListener('click', (e) => {
-            this.cloneCurrentlySelectedObject();
+        const btnCloneElement = document.getElementById('btnCloneElement') as HTMLElement;
+        btnCloneElement.addEventListener('click', (e) => {
+            if (btnCloneElement.style.color === 'black') {
+                this.clearClipboard();
+                this.copyCurrentlySelectedElementToClipboard();
+                this.pasteElementFromClipboard();
+                this.clearClipboard();
+            }
         });
 
         (document.getElementById('btnDeleteElement') as HTMLButtonElement).addEventListener('click', (e) => {
@@ -900,17 +921,59 @@ class IQB_UnitAuthoringTool
             }
         }
 
-        // enable or disable the spread font button
+        // enable or disable the spread font button and the copy element button
         // currently, only a visual effect
         if (obj.getObjectType() === 'UnitElement')
         {
             (document.getElementById('btnSpreadFont') as HTMLButtonElement).style.color = 'black';
             (document.getElementById('btnCopyElement') as HTMLButtonElement).style.color = 'black';
+            (document.getElementById('btnCloneElement') as HTMLButtonElement).style.color = 'black';
         }
         else
         {
             (document.getElementById('btnSpreadFont') as HTMLButtonElement).style.color = 'lightgray';
             (document.getElementById('btnCopyElement') as HTMLButtonElement).style.color = 'lightgray';
+            (document.getElementById('btnCloneElement') as HTMLButtonElement).style.color = 'lightgray';
+        }
+
+        // enable or disable the paste element
+        // currently, only a visual effect
+
+        // if the clipboard data is older than 24h, then delete it;
+
+        // enforcing expiry date inspired by stackoverflow answer
+        // https://stackoverflow.com/a/4275854
+        // Answer by: https://stackoverflow.com/users/506570/sebarmeli
+        // License: cc by-sa 3.0
+
+        const clipboardTextDate = localStorage.getItem('IQB.unitAuthoring.clipboardDate');
+        if (clipboardTextDate !== null) {
+            const clipboardTextDateAsNumber = parseInt(clipboardTextDate, 10);
+            const timePassed = Date.now() - clipboardTextDateAsNumber;
+            if (timePassed > 1000 * 60 * 60 * 24) {
+                this.clearClipboard();
+            }
+        }
+        // end of enforcing clipboard expiry
+        this.btnPasteElementCheck();
+        window.setTimeout(this.btnPasteElementCheck, 250);
+    }
+
+    btnPasteElementCheck(): void {
+        let elementAvailableInClipboard = false;
+        const clipboardText = localStorage.getItem('IQB.unitAuthoring.clipboard');
+        if (clipboardText !== null) {
+            if (clipboardText.indexOf('UnitElementJSON') !== -1) {
+                elementAvailableInClipboard = true;
+            }
+        }
+
+        if (elementAvailableInClipboard) {
+            (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'black';
+
+        }
+        else {
+            (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'lightgray';
         }
     }
 
@@ -918,18 +981,21 @@ class IQB_UnitAuthoringTool
     {
         // work in progress
 
-        /*
+
         if (typeof this.selectedObjectWithProperties !== 'undefined')
         {
             // if an object is selected
             if (this.selectedObjectWithProperties.getObjectType() === 'UnitElement') {
                 // if the object is an element
                 const selectedElement = this.selectedObjectWithProperties as UnitElement;
-                return JSON.stringify({
+
+                const elementJSON = JSON.stringify({
                     elementData: selectedElement.getData(),
                     elementType: selectedElement.getElementType(),
                     thisIs: 'UnitElementJSON'
                 });
+
+                return elementJSON;
             }
             else {
                 alert('Error: Only elements can be copied');
@@ -940,7 +1006,6 @@ class IQB_UnitAuthoringTool
             alert('Error: nothing currently selected');
             return undefined;
         }
-        */
 
         return undefined;
     }
@@ -949,24 +1014,86 @@ class IQB_UnitAuthoringTool
 
         // work in progress
 
-        /*
         if (elementJSON.indexOf('UnitElementJSON') !== -1) {
             const elementData = (JSON.parse(elementJSON).elementData) as UnitElementData;
             const elementType = (JSON.parse(elementJSON).elementType) as SupportedUnitElementType;
 
             const currentPage = this.currentUnit.getCurrentPage();
             if (typeof currentPage !== 'undefined') {
-                const newElement = this.currentUnit.newElement(elementType);
+
+                let elementContent: string = '';
+                if ('src' in elementData.properties) {
+                    elementContent = elementData.properties.src;
+                }
+                if ('dockedToObjectWithID' in elementData.properties) {
+                    elementData.properties.dockedToObjectWithID = '';
+                }
+                if ('dockedToLeft' in elementData.properties) {
+                    elementData.properties.dockedToLeft = '';
+                }
+                if ('dockedToTop' in elementData.properties) {
+                    elementData.properties.dockedToTop = '';
+                }
+
+                const newElement = this.currentUnit.newElement(elementType, elementContent);
+
                 if (typeof newElement !== 'undefined') {
+                    // console.log('Initial Data');
+                    // console.log(newElement.getData());
+                    // console.log('New data');
+                    // console.log(elementData);
+
                     newElement.loadData(elementData);
+                    newElement.top += 40;
+                    newElement.left += 40;
+                    newElement.render();
+
+                    this.selectObject(newElement);
                 }
             }
         }
-        */
-
     }
 
+    private copyCurrentlySelectedElementToClipboard(): void {
+        const currentlySelectedElementJSON = this.getCurrentlySelectedElementJSON();
+        if (typeof currentlySelectedElementJSON !== 'undefined') {
+            try {
+                localStorage.setItem('IQB.unitAuthoring.clipboard', currentlySelectedElementJSON);
+                localStorage.setItem('IQB.unitAuthoring.clipboardDate', String(Date.now()));
+            }
+            catch (e)
+            {
+                let errorText = 'Element konnte nicht kopiert werden.';
+                if (e.toString().indexOf('QuotaExceededError') !== -1) {
+                    errorText += ' Die Elementdaten sind zu groß.';
+                }
+                alert(errorText);
+            }
+        }
+    }
 
+    private pasteElementFromClipboard(): void {
+        const clipboardText = localStorage.getItem('IQB.unitAuthoring.clipboard');
+        // console.log('Pasting from clipboard:');
+        // console.log(clipboardText);
+        if (clipboardText !== null) {
+            if (clipboardText.indexOf('UnitElementJSON') !== -1) {
+                this.newElementBasedOnElementJSON(clipboardText);
+            }
+        }
+    }
+
+    private clearClipboard(): void {
+        if (localStorage.getItem('IQB.unitAuthoring.clipboard') !== null) {
+            localStorage.removeItem('IQB.unitAuthoring.clipboard');
+        }
+        if (localStorage.getItem('IQB.unitAuthoring.clipboardDate') !== null) {
+            localStorage.removeItem('IQB.unitAuthoring.clipboardDate');
+        }
+        this.btnPasteElementCheck();
+    }
+
+    /*
     private cloneCurrentlySelectedObject()
     {
         if (typeof this.selectedObjectWithProperties !== 'undefined')
@@ -1024,6 +1151,7 @@ class IQB_UnitAuthoringTool
             alert('Error: nothing selected, so nothing to clone');
         }
     }
+    */
 
     private deleteCurrentlySelectedObject() {
         if (typeof this.selectedObjectWithProperties !== 'undefined')

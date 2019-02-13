@@ -176,17 +176,16 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
 
         if ($element.width() < 10) $element.css('min-width', '10px');
         if ($element.height() < 10) $element.css('min-height', '10px');
-        
+            
         this.properties.setPropertyValue('width', $element.width());
         this.properties.setPropertyValue('height', $element.height());
-        
+    
         const newWidth = this.properties.getPropertyValue('width');
         const newHeight = this.properties.getPropertyValue('height');
 
-        // console.log('Updated size properties of ' + elementID + ':');
-        // console.log('Width changed from ' + oldWidth + ' to ' + newWidth);
-        // console.log('Height changed from ' + oldHeight + ' to ' + newHeight);
-        
+        console.log('Updated size properties of ' + elementID + ':');
+        console.log('Width changed from ' + oldWidth + ' to ' + newWidth);
+        console.log('Height changed from ' + oldHeight + ' to ' + newHeight);
     }
 
     public updatePositionPropertiesBasedOn(pageID: string, HTMLElementID: string)

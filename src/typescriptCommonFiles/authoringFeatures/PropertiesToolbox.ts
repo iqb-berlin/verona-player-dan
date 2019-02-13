@@ -145,7 +145,7 @@ export class PropertiesToolbox
                                                       id="${propertyName}_propertyInput"
                                                       class="propertyInput"
                                                       name="${propertyName}"
-                                                      style="width: 98%;" title="${propertyTooltip}">${escapedPropertyValue}</textarea>`;
+                                                      style="width: 98%; min-height: 70px;" title="${propertyTooltip}">${escapedPropertyValue}</textarea>`;
                         }
                         else if (property.propertyType === 'number')
                         {
@@ -214,6 +214,13 @@ export class PropertiesToolbox
                     }
                     propertiesHTML += `</td>`;
                     propertiesHTML += '</tr>';
+                    
+                    if (propertyName === 'text') {
+                        propertiesHTML += '<tr>';
+                        propertiesHTML += '<td title="Zum Benutzen via Kopieren und Einfügen">Sonderzeichen</td>';
+                        propertiesHTML += '<td class="selectableText" title="Zum Benutzen via Kopieren und Einfügen">© € $ £ ® ™ ½ ¼ ² ³</td>';
+                        propertiesHTML += '</tr>';
+                    }
                 }
             }
         }); // end of property loop
