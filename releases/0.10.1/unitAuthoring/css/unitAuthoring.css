@@ -1,0 +1,274 @@
+*
+{ 
+   /*
+
+    disables text selection on whole page in order to avoid buggy behaviour
+    
+    based on idea from Stackoverflow: https://stackoverflow.com/a/4358620
+    Idea by: https://stackoverflow.com/users/96100/tim-down
+    Additionally edited by: https://stackoverflow.com/users/1317805/james-donnelly
+    License: cc by-sa 3.0
+   */
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
+}
+
+input, textarea, .selectableText
+{
+    -webkit-user-select: text;  
+    -moz-user-select: text;
+    -ms-user-select: text;  
+    user-select: text;
+}
+
+html, body
+{
+    /* idea on how to make body height 100% based on Stackoverflow Post
+    Post: https://stackoverflow.com/a/6654996
+    Post originally by: https://stackoverflow.com/users/473625/bentoncoding
+    Post edited by: https://stackoverflow.com/users/473625/bentoncoding 
+                    https://stackoverflow.com/users/2128576/jomar-sevillejo
+                    https://stackoverflow.com/users/1779477/idmean
+    License: cc by-sa 3.0
+    */
+    height: 100%;
+}
+
+body
+{
+    background-color: #D7DCDF;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+}
+
+#pageVerticalFlex
+{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+#headerSection, #toolbox, #elementPropertiesSection, #selectPageSection, #footer {
+    border: 1px solid black;
+    display: inline-block;
+    background-color: white;
+}
+
+.UnitPage
+{
+    border: 1px solid black !important;
+    margin-left: none !important;
+    margin-right: none !important;
+}
+
+#headerSection, #toolbox, #unitCanvasContainer, #elementPropertiesSection, #selectPageSection, #footer {
+    box-shadow: 2px 5px 10px black;
+}
+
+
+#headerSection
+{
+    border: 1px solid black;
+    display: block;
+
+    font-family: "Helvetica", sans-serif;
+    color: white;
+    background-color: #607d8b;
+    font-size: 18px;
+
+    
+    width: 100%;
+    box-shadow: none;
+    border: none !important;
+    text-align: center;
+    padding-top: 12px;
+    padding-bottom: 12px;
+
+
+    /*
+        background-image: url('header.png');
+        background-repeat: no-repeat;
+        background-size: cover;
+    */
+}
+
+#middleSection
+{
+    flex: auto; /* its behaviour as a vertical flex elements */
+    display: flex; /* behaviour of child elements */
+    margin-top: 12px;
+    margin-bottom: 12px;
+    width: 100%;
+    height: 95%;
+}
+
+#toolbox {
+    width: 100px;
+    overflow: auto;
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
+#toolbox, #unitCanvasContainer, #rightSideSection
+{
+    max-height: 100%;
+}
+
+#elementPropertiesSection, #selectPageSection
+{
+    width: 96%;
+}
+
+.toolboxButton {
+    cursor: pointer;
+}
+
+.material-icons.toolboxButton
+{
+    font-size: 24px;    
+    color: black;
+    background-color: white;
+}
+
+.generalButton
+{
+    cursor: pointer;
+}
+
+.material-icons.generalButton
+{
+    font-size: 24px;    
+    color: black;
+    background-color: white;
+    padding-left: 6px;
+    padding-right: 6px;
+    position: relative;
+    top: 5px;
+}
+
+#unitCanvasContainer {
+    margin-left: 12px;
+    margin-right: 12px;
+    background-color: lightgray;
+    overflow: scroll;
+
+    flex: auto;
+}
+
+#normalPageContainer {
+    display: inline-block;
+
+    flex-grow: 1;
+    text-align: center;
+}
+
+#rightSideSection
+{
+    width: 375px;
+    overflow: auto;
+    flex-shrink: 0;
+}
+
+#elementPropertiesSection
+{
+    float: left;
+}
+
+#currentPageSelect
+{
+    width: 150px;
+    height: 24px;
+}
+
+#selectPageSection
+{
+    margin-bottom: 24px;
+    float: left;
+}
+
+#elementProperties
+{
+    padding: 12px 12px 12px 12px;
+}
+
+#footer
+{
+    width: 100%;
+    margin-left: 12px;
+    margin-right: 12px;
+    margin-bottom: 12px;
+}
+
+#footerSection
+{
+}
+
+.ui-icon-gripsmall-diagonal-se
+{
+    background-color: white;
+    border: 1px solid black;
+    z-index: 1000000 !important;
+    visibility: hidden;
+}
+
+.ui-resizable-helper
+{
+    z-index: 9999;
+    color: black;
+    border: 1px dotted black;
+}
+
+.highlighted
+{
+    border: 2px solid red !important;
+}
+
+.popupMenu
+{
+    width: 100vw; 
+    z-index: 90000 !important; 
+    position: absolute; 
+    background-color: transparent; 
+    top: -30px;
+    font-size: 16px;
+}
+
+.popupMenuItem 
+{
+    border: 1px solid black; 
+    display: inline-block; 
+    z-index: 99999 !important;
+    position: relative; 
+    background-color: #F0F0F0 !important; 
+    color: black !important;
+    font-size: 16px;
+    margin-right: 12px;
+}
+
+.viewpointAuthoringMarker {
+    display: initial !important;
+    z-index: 999999;
+    position: relative;
+}
+
+.itemElement {
+    display: inline-block !important;
+}
+
+.unitElementZIndexContainer {
+    height: 100%;
+    width: 100%;
+}
+
+.selected > .unitElementZIndexContainer
+{
+    border: 1px solid blue !important;
+}
+
+.selected > .ui-icon-gripsmall-diagonal-se
+{
+    visibility: visible;
+}

@@ -221,73 +221,73 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
 
     public get left(): number
     {
-        return this.getPropertyValue("left");
+        return this.getPropertyValue('left');
     }
 
     public set left(newPropertyValue: number)
     {
-        this.setPropertyValue("left", newPropertyValue);
+        this.setPropertyValue('left', newPropertyValue);
     }
 
     public get top(): number
     {
-        return this.getPropertyValue("top");
+        return this.getPropertyValue('top');
     }
 
     public set top(newPropertyValue: number)
     {
-        this.setPropertyValue("top", newPropertyValue);
+        this.setPropertyValue('top', newPropertyValue);
     }
 
     public get height(): number
     {
-        return this.getPropertyValue("height");
+        return this.getPropertyValue('height');
     }
 
     public set height(newPropertyValue: number)
     {
-        this.setPropertyValue("height", newPropertyValue);
+        this.setPropertyValue('height', newPropertyValue);
     }
 
     public get width(): number
     {
-        return this.getPropertyValue("width");
+        return this.getPropertyValue('width');
     }
 
     public set width(newPropertyValue: number)
     {
-        this.setPropertyValue("width", newPropertyValue);
+        this.setPropertyValue('width', newPropertyValue);
     }
 
     // end of setters and getters for left, top, height and width
 
     public get dockedToObjectWithID(): string
     {
-        return this.getPropertyValue("dockedToObjectWithID");
+        return this.getPropertyValue('dockedToObjectWithID');
     }
 
     public set dockedToObjectWithID(newPropertyValue: string)
     {
-        this.setPropertyValue("dockedToObjectWithID", newPropertyValue);
+        this.setPropertyValue('dockedToObjectWithID', newPropertyValue);
     }
 
     public get dockedToLeft(): number
     {
-        return this.getPropertyValue("dockedToLeft");
+        return this.getPropertyValue('dockedToLeft');
     }
 
     public set dockedToLeft(newPropertyValue: number)
     {
-        this.setPropertyValue("dockedToLeft", newPropertyValue);
+        this.setPropertyValue('dockedToLeft', newPropertyValue);
     }
 
     public get dockedToTop(): number
     {
-        return this.getPropertyValue("dockedToTop");
+        return this.getPropertyValue('dockedToTop');
     }
 
     public set dockedToTop(newPropertyValue: number)
     {
-        this.setPropertyValue("dockedToTop", newPropertyValue);
+        this.setPropertyValue('dockedToTop', newPropertyValue);
     }
 }

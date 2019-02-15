@@ -1044,8 +1044,23 @@ class IQB_UnitAuthoringTool
                     // console.log(elementData);
 
                     newElement.loadData(elementData);
-                    newElement.top += 40;
-                    newElement.left += 40;
+
+                    let elementInTheWay = false;
+                    const page = this.currentUnit.getCurrentPage();
+                    if (typeof page !== 'undefined') {
+                        page.getElementsMap().forEach((element) => {
+                            if (element.elementID !== newElement.elementID) {
+                                if ((element.top === newElement.top) && (element.left === newElement.left)) {
+                                    elementInTheWay = true;
+                                }
+                            }
+                        });
+                    }
+                    if (elementInTheWay) {
+                        newElement.top += 40;
+                        newElement.left += 40;
+                    }
+
                     newElement.render();
 
                     this.selectObject(newElement);
