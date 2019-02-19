@@ -14,6 +14,10 @@ To build the project, you will need the Typescript Compiler and the Webpack CLI 
 
 Alternatively, you can also do the whole build process by using the Node Package Manager (first "npm install" and then "npm run-script build").
 
+# Demo
+
+A live demo of the Unit Authoring Tool is available at: https://dan-barbulescu-dev.github.io/unitAuthoringDemo/
+
 # Release
 
 You can also use one of our previous releases directly, which are located in the "releases" folder.
