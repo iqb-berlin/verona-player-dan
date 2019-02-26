@@ -9,6 +9,8 @@ import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../../mo
 
 export class CheckboxElement extends UnitElement {
 
+    public responseGiven = false;
+
     constructor(public elementID: string, public pageHTMLElementID: string)
     {
         super(elementID, pageHTMLElementID);
@@ -94,6 +96,15 @@ export class CheckboxElement extends UnitElement {
             }
         });
 
+        this.properties.addProperty('mandatory', {
+            value: 'true',
+            userAdjustable: true,
+            propertyType: 'boolean',
+            hidden: false,
+            caption: 'Zwingend',
+            tooltip: 'Ob der Checkbox mindestens gesehen werden muss.'
+        });
+
         this.properties.addPropertyRenderer('font-size', 'fontSizeRenderer', (propertyValue: string) => {
             const element =  document.getElementById(this.elementID);
             if (element !== null) {
@@ -144,9 +155,27 @@ export class CheckboxElement extends UnitElement {
 
          this.properties.renderProperties();
 
-         (document.getElementById(this.elementID + '_checkbox') as HTMLInputElement).addEventListener('click', (event) => {
+         const checkboxHTMLElement = (document.getElementById(this.elementID + '_checkbox') as HTMLInputElement);
+         checkboxHTMLElement.addEventListener('click', (event) => {
            this.dispatchRefreshCheckedPropertyForAllElementsEvent();
          });
+
+        // add intersection observer to figure out when responseGiven should be set to true
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting === true) {
+                    if (this.responseGiven === false) {
+                        this.responseGiven = true;
+                        window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                            detail: {'elementID': this.getElementID()}
+                        }));
+                    }
+                }
+            });
+        }, {threshold: [1]});
+
+        observer.observe(checkboxHTMLElement);
+        // end of responseGiven observer
 
          this.dispatchNewElementDrawnEvent();
         }

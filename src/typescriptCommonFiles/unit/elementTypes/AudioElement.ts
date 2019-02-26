@@ -19,6 +19,7 @@ export class AudioElement extends UnitElement {
     */
     private playIcon24px: string = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAU0lEQVR4AWMAgVGwgUGANA3/Gd4z5JOkAQz3MygQrQEO64nVgIDnGRyI1YCA/YQC4T8GvM8QQJqGB6RpmECKky6Q5ukGUoL1ACkR94GhgLLENwoAu8xMerZ59JQAAAAASUVORK5CYII=`;
     private pauseIcon24px: string = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAIUlEQVR4AWMY2WAU/EfGhORHLRi1YNSCUQtGLRjeYBQAAMImb5Eus0ZYAAAAAElFTkSuQmCC`;
+    public playedOnce: boolean;
 
     /* --------------------------------------------------------------- */
 
@@ -140,7 +141,8 @@ export class AudioElement extends UnitElement {
             propertyType: 'number',
             hidden: true,
             caption: 'currentTime',
-            tooltip: ''
+            tooltip: '',
+            calculatedAtRuntime: true
         });
 
         this.properties.addPropertyRenderer('currentTime', 'audioRenderer', (propertyValue: string) => {
@@ -154,7 +156,8 @@ export class AudioElement extends UnitElement {
             propertyType: 'boolean',
             hidden: true,
             caption: 'alreadyPlayed',
-            tooltip: ''
+            tooltip: '',
+            calculatedAtRuntime: true
         });
 
         this.properties.addPropertyRenderer('alreadyPlayed', 'audioRenderer', (propertyValue: string) => {
@@ -178,6 +181,9 @@ export class AudioElement extends UnitElement {
             }
         });
 
+        this.playedOnce = false;
+
+
         this.properties.addProperty('progressBarColor', {
             value: 'green',
             userAdjustable: true,
@@ -193,6 +199,37 @@ export class AudioElement extends UnitElement {
             if (visualLocationDiv !== null) {
                 visualLocationDiv.style.backgroundColor = propertyValue;
             }
+        });
+
+        this.properties.addProperty('withoutPause', {
+            value: 'true',
+            userAdjustable: true,
+            propertyType: 'boolean',
+            hidden: false,
+            caption: 'Pausenlos',
+            tooltip: 'Ob man das Audio pausieren kann.'
+        });
+
+        this.properties.addPropertyRenderer('withoutPause', 'audioRenderer', (propertyValue: string) => {
+            const audioPausableSpan =  document.getElementById(this.elementID + '_audio_pausable');
+            if (audioPausableSpan !== null) {
+                if (propertyValue === 'true') {
+                    audioPausableSpan.style.display = 'none';
+                }
+                else
+                {
+                    audioPausableSpan.style.display = 'initial';
+                }
+            }
+        });
+
+        this.properties.addProperty('partOfPresentation', {
+            value: 'true',
+            userAdjustable: true,
+            propertyType: 'boolean',
+            hidden: false,
+            caption: 'Teil der Presentation',
+            tooltip: 'Ob das Audio Teil der Presentation ist. Unter manchen Bedingungen könnte man gezwungen werden, die ganze Presentation anzusehen, bevor man von dem Unit wegblättern kann.'
         });
 
         // remove inherited properties that this element type does not use
@@ -230,7 +267,9 @@ export class AudioElement extends UnitElement {
                                     <span id="${this.elementID}_audio_controls">
                                         <span id="${this.elementID}_hasControl">
                                             <img id="${this.elementID}_audio_btnPlay" src="${this.playIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
-                                            <img id="${this.elementID}_audio_btnPause" src="${this.pauseIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                            <span id="${this.elementID}_audio_pausable" class="audioPausableSpan">
+                                                <img id="${this.elementID}_audio_btnPause" src="${this.pauseIcon24px}" style="display: none; cursor: pointer; position: relative; top: 6px;">
+                                            </span>
                                         </span>
                                     </span>
                                     <div id="${this.elementID}_audio_visualLocationContainer" style="width: 60%; display: inline-block; height: 16px; position: relative; top: 2px; border: 1px solid black;">
@@ -346,6 +385,8 @@ export class AudioElement extends UnitElement {
 
             playButton.style.display = 'initial';
             pauseButton.style.display = 'none';
+
+            this.playedOnce = true;
 
             if (this.getPropertyValue('playOnlyOnce') === 'true') {
                 // if it can be played only once, mark it as already played, and wipe its contents

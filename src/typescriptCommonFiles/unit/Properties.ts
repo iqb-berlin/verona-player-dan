@@ -16,6 +16,7 @@ export interface Property {
     hidden: boolean;
     caption: string;
     tooltip?: string;
+    calculatedAtRuntime?: boolean;
 }
 
 export interface DropdownProperty extends Property
@@ -56,9 +57,19 @@ export class Properties
                 const propertyValue = propertiesValue[propertyName];
                 if (this.hasProperty(propertyName))
                 {
+                    const property = this.getProperty(propertyName);
                     // if the property found in the data still exists in the current class model
                     if (propertyName !== 'tableCells') {
-                        this.setPropertyValue(propertyName, propertyValue);
+                        let calculatedAtRuntime: boolean = false;
+                        // todo: remove need for calculated at runtime property
+                        if (typeof property.calculatedAtRuntime !== 'undefined') {
+                            calculatedAtRuntime = property.calculatedAtRuntime;
+                        }
+
+                        if (calculatedAtRuntime === false) {
+                             // only load the data into the property if it's not supposed to be calculated at runtime
+                            this.setPropertyValue(propertyName, propertyValue);
+                        }
                     }
                 }
                 else

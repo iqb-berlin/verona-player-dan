@@ -63,25 +63,6 @@ export class Unit extends ObjectWithProperties {
             const firstPage = this.newPage().getID();
             this.currentPageID = firstPage;
 
-            window.addEventListener('IQB.unit.elementCompletelyViewed', (e) => {
-                // when an element is completely viewed, check if all of them are so as to mark the unit as completely viewed
-                // console.log('Running check to see if all unit elements have been viewed');
-
-                let allElementsCompletelyViewed = true;
-                this.mapToElements((element: UnitElement) => {
-                    // console.log(element);
-                    // console.log(element.hasBeenCompletelyViewed);
-                    if (element.hasBeenCompletelyViewed === false) {
-                        allElementsCompletelyViewed = false;
-                    }
-                });
-
-                if (allElementsCompletelyViewed) {
-                    console.log('All elements belonging to the current unit have been completely viewed.');
-                }
-
-            });
-
             console.log('IQB Unit Canvas: Initialized.');
         }
         else
@@ -107,8 +88,8 @@ export class Unit extends ObjectWithProperties {
     public loadData(unitData: UnitData)
     {
         console.log('################## Loading new unit ################');
-        console.log('Unit data: ');
-        console.log(unitData);
+        // console.log('Unit data: ');
+        // console.log(unitData);
 
         // before loading a new unit, first, clear this one
         console.log('Clearing up the old unit...')
@@ -155,8 +136,8 @@ export class Unit extends ObjectWithProperties {
         }
 
         console.log('Loaded unit.');
-        console.log('It now looks like this:');
-        console.log(this);
+        // console.log('It now looks like this:');
+        // console.log(this);
         this.render();
     }
 

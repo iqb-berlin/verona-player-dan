@@ -9,6 +9,8 @@ import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../../mo
 
 export class MultipleChoiceElement extends UnitElement {
 
+    public responseGiven: boolean = false;
+    
     constructor(public elementID: string, public pageHTMLElementID: string)
     {
         super(elementID, pageHTMLElementID);
@@ -101,6 +103,14 @@ export class MultipleChoiceElement extends UnitElement {
             }
         });
 
+        this.properties.addProperty('mandatory', {
+            value: 'true',
+            userAdjustable: true,
+            propertyType: 'boolean',
+            hidden: false,
+            caption: 'Zwingend',
+            tooltip: 'Ob der Multiple Choice-Gruppe geantwortet werden muss.'
+        });
 
         this.properties.addPropertyRenderer('font-size', 'fontSizeRenderer', (propertyValue: string) => {
             const element =  document.getElementById(this.elementID);

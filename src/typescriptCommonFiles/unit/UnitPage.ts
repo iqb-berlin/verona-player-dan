@@ -40,12 +40,15 @@ export class UnitPage extends ObjectWithProperties {
 
     private containerDiv: HTMLElement;
     private isDrawn: boolean = false;
+    public viewed: boolean;
 
     constructor(public pageID: string, public containerDivID: string, pageData?: UnitPageData)
     {
         super(pageID, 'UnitPage');
 
         this.containerDiv = document.getElementById(containerDivID) as HTMLDivElement;
+
+        this.viewed = false;
 
         if (typeof pageData === 'undefined')
         {
@@ -209,6 +212,23 @@ export class UnitPage extends ObjectWithProperties {
         return this.pageID;
     }
 
+    public responseGivenForMultipleChoiceGroup(groupName: string) {
+        this.elements.forEach((element) => {
+            const elementID: string = element.getElementID();
+            const elementType: string = element.getElementType();
+            if (elementType === 'multipleChoice')
+            {
+                const multipleChoiceElement = element as MultipleChoiceElement;
+                if (multipleChoiceElement.responseGiven === false) {
+                    multipleChoiceElement.responseGiven = true;
+                    window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                        detail: {'elementID': elementID}
+                    }));
+                }
+            }
+        });
+    }
+
     public refreshCheckedPropertyForAllElements() {
         this.elements.forEach((element) => {
             const elementID: string = element.getElementID();
@@ -232,6 +252,8 @@ export class UnitPage extends ObjectWithProperties {
                 {
                     if ((document.getElementById(elementID + '_multipleChoice') as HTMLInputElement).checked) {
                         element.properties.setPropertyValue('checked', 'true');
+
+                        this.responseGivenForMultipleChoiceGroup(element.getPropertyValue('groupName'));
                     }
                     else {
                         element.properties.setPropertyValue('checked', 'false');
@@ -279,6 +301,8 @@ export class UnitPage extends ObjectWithProperties {
     {
        console.log('Drawing page ' + this.pageID);
        console.log('Page container: ' + this.containerDivID);
+
+       this.viewed = true;
 
        const pageStyle = `display: inline-block; position: relative; margin-left: auto; margin-right: auto; text-align: left;`;
        // the position needs to be relative, so that it is considered positioned,

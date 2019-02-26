@@ -17,6 +17,9 @@ import {ObjectWithProperties} from '../typescriptCommonFiles/unit/ObjectWithProp
 import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
 import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
 import { ViewpointElement } from '../typescriptCommonFiles/unit/elementTypes/ViewpointElement.js';
+import { MultipleChoiceElement } from '../typescriptCommonFiles/unit/elementTypes/MultipleChoiceElement.js';
+import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/TextboxElement.js';
+import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement.js';
 
 /*     IQB specific implementation of the item player       */
 
@@ -40,7 +43,7 @@ interface ResponsesObject
 
 class IQB_ItemPlayer {
     // the main class that implements the IQB ItemPlayer functionality
-    private responseType = 'IQBUnitPlayerV10';
+    private responseType = 'IQBUnitPlayerV11';
 
     private currentUnit: Unit;
 
@@ -48,8 +51,7 @@ class IQB_ItemPlayer {
 
     private validPageIDs: string[] = [];
 
-    private canLeave: 'yes' | 'warning' | 'no';
-    private canLeaveMessage: string;
+    private responsesGiven: 'yes' | 'no' | 'all';
     private environmentVariables: {[environmentVariableName: string]: string} = {};
 
     constructor (initData: OpenCBA.ToItemPlayer_DataTransfer)    {
@@ -63,13 +65,16 @@ class IQB_ItemPlayer {
             this.sessionId = initData.sessionId;
             if ('unitDefinition' in initData)
             {
-                // prepare the can leave state
-                this.canLeave = 'no';
-                this.canLeaveMessage = '';
+                this.responsesGiven = 'no';
 
                 window.addEventListener('IQB.unit.audioElementEnded', (e) => {
-                    // when the audio ends, the user can leave the unit without receiving a warning
-                    this.checkIfAllOnlyOnceAudiosArePlayed();
+                    // send the signal to the parent that the unit can be left at anytime
+                    this.sendMessageToParent({
+                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        sessionId: this.sessionId,
+                        presentationComplete: this.getPresentationCompleteStatus(),
+                        restorePoint: this.getRestorePoint()
+                    });
                 });
 
                 window.addEventListener('IQB.unit.audioElementTick', (e) => {
@@ -77,6 +82,26 @@ class IQB_ItemPlayer {
                     this.sendMessageToParent({
                         type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
+                        restorePoint: this.getRestorePoint()
+                    });
+                });
+
+                window.addEventListener('IQB.unit.viewpointViewed', (e) => {
+                    // send the signal to the parent that the unit can be left at anytime
+                    this.sendMessageToParent({
+                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        sessionId: this.sessionId,
+                        presentationComplete: this.getPresentationCompleteStatus(),
+                        restorePoint: this.getRestorePoint()
+                    });
+                });
+
+                window.addEventListener('IQB.unit.responseGiven', (e) => {
+                    // send the signal to the parent that the unit can be left at anytime
+                    this.sendMessageToParent({
+                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        sessionId: this.sessionId,
+                        responsesGiven: this.getResponsesGivenStatus(),
                         restorePoint: this.getRestorePoint()
                     });
                 });
@@ -145,7 +170,7 @@ class IQB_ItemPlayer {
                 }
                 */
 
-                // add viewpoint functionality
+                // add viewpoint log functionality
                 this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
                     viewpoint.addIntersectionObserverCallback((entries) => {
                         entries.forEach((entry) => {
@@ -162,38 +187,6 @@ class IQB_ItemPlayer {
                         });
                     });
                 });
-
-                // figure out the default can leave status
-                    // check if there are audio elements
-                    let thereArePlayOnlyOnceAudioElements = false;
-                    this.currentUnit.mapToElements((element) => {
-                        if (element.getElementType() === 'audio') {
-                            if (element.properties.hasProperty('playOnlyOnce'))
-                            {
-                                if (element.getPropertyValue('playOnlyOnce') === 'true')
-                                {
-                                    // if there are audio elements, mark them as initally not played yet
-                                    thereArePlayOnlyOnceAudioElements = true;
-                                }
-                            }
-                        }
-                    });
-                    // end of checking if there are audio elements
-
-                    if (thereArePlayOnlyOnceAudioElements === false) {
-                        // if there are no audio elements, the user can leave at any moment
-                        this.canLeave = 'yes';
-                    }
-                    else
-                    {
-                        // if there are audio elements, rather than just not being able to leave, show a warning until they play out
-                        if (this.canLeave === 'no') {
-                            this.canLeave = 'warning';
-                            this.canLeaveMessage = 'Warnung: Die Audiodatei ist noch nicht komplett gespielt.';
-                            this.canLeaveMessage +=  ' Wenn sie weiterblättern, können Sie die Datei nicht wieder hören';
-                        }
-                    }
-                // end of figuring out the default can leave status
 
                 // load the item restore point if given
                 if (typeof initData.restorePoint === 'string') {
@@ -323,7 +316,9 @@ class IQB_ItemPlayer {
                     this.sendMessageToParent({
                         type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
-                        currentPage: e.detail.pageID
+                        currentPage: e.detail.pageID,
+                        presentationComplete: this.getPresentationCompleteStatus(),
+                        restorePoint: this.getRestorePoint()
                     });
                 });
                 // end of currentPage notification
@@ -336,19 +331,16 @@ class IQB_ItemPlayer {
                     'sessionId': this.sessionId,
                     'currentPage': currentPageAsString,
                     'validPages': this.validPageIDs,
-                    'canLeave' : this.canLeave,
-                    'canLeaveMessage': this.canLeaveMessage
+                    'presentationComplete': this.getPresentationCompleteStatus(),
+                    'responsesGiven': this.getResponsesGivenStatus()
                 });
 
-                if (thereArePlayOnlyOnceAudioElements) {
-                    // if there are play once audio elements
-                    // send the first restore point, to mark that the unit has been played
-                    this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        restorePoint: this.getRestorePoint()
-                    });
-                }
+                // send the first restore point, to mark that the unit has been played
+                this.sendMessageToParent({
+                    type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                    sessionId: this.sessionId,
+                    restorePoint: this.getRestorePoint()
+                });
            }
            else
            {
@@ -361,33 +353,134 @@ class IQB_ItemPlayer {
         }
     }
 
-    private checkIfAllOnlyOnceAudiosArePlayed()
-    {
-        let allAudioElementsPlayed = true;
+    private getPresentationCompleteStatus(): 'yes' | 'no' {
+        let presentationComplete: 'yes' | 'no' = 'yes';
+
+        // check if there are unfinished audio elements that are part of the presentation
         this.currentUnit.mapToElements((element) => {
             if (element.getElementType() === 'audio') {
-                if (element.getPropertyValue('playOnlyOnce') === 'true') {
-                    if (element.getPropertyValue('alreadyPlayed') !== 'true')
+                const audioElement = element as AudioElement;
+                if (audioElement.properties.hasProperty('partOfPresentation'))
+                {
+                    if (audioElement.getPropertyValue('partOfPresentation') === 'true')
                     {
-                        allAudioElementsPlayed = false;
+                        // console.log('Presentation check. Detected ' + element.elementID + ' as part of the presentation.');
+                        // console.log('Has the audio been played yet: ' + element.getPropertyValue('playedOnce'));
+
+                        if (audioElement.playedOnce === false)
+                        {
+                            presentationComplete = 'no';
+                            console.log('Detected unfinished audio ' + audioElement.elementID + '. Therefore the presentation is not complete.');
+                        }
                     }
                 }
             }
         });
+        // end of checking if there are unfinished audio elements that are part of the presentation
 
-        if (allAudioElementsPlayed) {
-            this.canLeave = 'yes';
+        // check if there are unviewed viewpoint elements that are part of the presentation
+        this.currentUnit.mapToElements((element) => {
+            if (element.getElementType() === 'viewpoint') {
+                const viewpoint = element as ViewpointElement;
 
-            // send the signal to the parent that the unit can be left at anytime
-            this.sendMessageToParent({
-                type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
-                sessionId: this.sessionId,
-                canLeave: this.canLeave,
-                canLeaveMessage: ''
-            });
+                if (viewpoint.properties.hasProperty('partOfPresentation'))
+                {
+                    if (viewpoint.getPropertyValue('partOfPresentation') === 'true')
+                    {
+                        // console.log('Presentation check. Detected ' + element.elementID + ' as part of the presentation.');
 
-        }
+                        if (viewpoint.viewed === false)
+                        {
+                            presentationComplete = 'no';
+                            console.log('Detected unviewed viewpoint ' + element.elementID + '. Therefore the presentation is not complete.');
+                        }
+                    }
+                }
+            }
+        });
+        // end of checking if there are unviewed viewpoint elements that are part of the presentation
+
+        // check if all pages have been viewed
+        this.currentUnit.getPagesMap().forEach((page) => {
+            if (page.viewed === false) {
+                presentationComplete = 'no';
+                console.log('Detected unviewed page ' + page.pageID + '. Therefore the presentation is not complete.');
+            }
+        });
+        // end of checking if all pages have been viewed
+        return presentationComplete;
     }
+
+    private getResponsesGivenStatus(): 'yes' | 'no' | 'all' {
+        // checkboxes must at least be seen
+        // multiple choices, at least one in the groupName must be selected
+        // dropdown elements, one of the options must be selected
+        // textbox, something must be typed
+
+        let allResponsesGiven: boolean = true;
+        let aResponseGiven: boolean = false;
+
+        let responsesGiven: 'yes' | 'no' | 'all' = 'no';
+
+        this.currentUnit.mapToElements((element) => {
+            if (element.getElementType() === 'checkbox') {
+                const checkboxElement = element as CheckboxElement;
+                if (checkboxElement.responseGiven) {
+                    aResponseGiven = true;
+                }
+                if (checkboxElement.responseGiven === false) {
+                    allResponsesGiven = false;
+                }
+            }
+
+            if (element.getElementType() === 'multipleChoice') {
+                const multipleChoiceElement = element as MultipleChoiceElement;
+                if (multipleChoiceElement.responseGiven) {
+                    aResponseGiven = true;
+                }
+                if (multipleChoiceElement.responseGiven === false) {
+                    allResponsesGiven = false;
+                }
+            }
+
+            if (element.getElementType() === 'textbox') {
+                const textboxElement = element as TextboxElement;
+                if (textboxElement.responseGiven) {
+                    aResponseGiven = true;
+                }
+                if (textboxElement.responseGiven === false) {
+                    allResponsesGiven = false;
+                }
+            }
+
+            if (element.getElementType() === 'dropdown') {
+                const dropdownElement = element as DropdownElement;
+                if (dropdownElement.responseGiven) {
+                    aResponseGiven = true;
+                }
+                if (dropdownElement.responseGiven === false) {
+                    allResponsesGiven = false;
+                }
+            }
+
+        });
+
+        if (allResponsesGiven) {
+            responsesGiven = 'all';
+        }
+        else
+        {
+            if (aResponseGiven) {
+                responsesGiven = 'yes';
+            }
+            else {
+                responsesGiven = 'no';
+            }
+        }
+
+        return responsesGiven;
+    }
+
 
     private sendMessageToParent(message: OpenCBA.ItemPlayerMessageData)
     {
@@ -474,27 +567,39 @@ class IQB_ItemPlayer {
         // this function computes the restore point at a certain moment for the item, in the form of a javascript object
         // it then stringifies the object into JSON and returns the JSON string
         const unitStatus: any = {};
-
-        unitStatus['canLeave'] = 'yes'; // if the item is loaded again, then assume that all the only once playable audios have been played
+        unitStatus.responsesGiven = {};
+        unitStatus.pagesViewed = {};
 
         this.currentUnit.mapToElements((element: UnitElement) => {
                 const elementID = element.getElementID();
                 const elementType = element.getElementType();
 
                 if (elementType === 'checkbox') {
-                    unitStatus[elementID] = element.getPropertyValue('checked');
+                    const checkboxElement = element as CheckboxElement;
+
+                    unitStatus[elementID] = checkboxElement.getPropertyValue('checked');
+                    unitStatus.responsesGiven[elementID] = checkboxElement.responseGiven;
                 }
 
                 if (elementType === 'multipleChoice') {
-                    unitStatus[elementID] = element.getPropertyValue('checked');
+                    const multipleChoiceElement = element as MultipleChoiceElement;
+
+                    unitStatus[elementID] = multipleChoiceElement.getPropertyValue('checked');
+                    unitStatus.responsesGiven[elementID] = multipleChoiceElement.responseGiven;
                 }
 
                 if (elementType === 'dropdown') {
-                    unitStatus[elementID] = element.getPropertyValue('selectedOption');
+                    const dropdownElement = element as DropdownElement;
+
+                    unitStatus[elementID] = dropdownElement.getPropertyValue('selectedOption');
+                    unitStatus.responsesGiven[elementID] = dropdownElement.responseGiven;
                 }
 
                 if (elementType === 'textbox') {
-                    unitStatus[elementID] = element.getPropertyValue('text');
+                    const textboxElement = element as TextboxElement;
+
+                    unitStatus[elementID] = textboxElement.getPropertyValue('text');
+                    unitStatus.responsesGiven[elementID] = textboxElement.responseGiven;
                 }
 
                 if (elementType === 'audio') {
@@ -503,16 +608,13 @@ class IQB_ItemPlayer {
                 }
         });
 
-
         this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
-            if (viewpoint.viewed) {
-                unitStatus[viewpoint.elementID] = 'true';
-            }
-            else {
-                unitStatus[viewpoint.elementID] = 'false';
-            }
+            unitStatus[viewpoint.elementID] = viewpoint.viewed;
         });
 
+        this.currentUnit.getPagesMap().forEach((page) => {
+            unitStatus.pagesViewed[page.pageID] = page.viewed;
+        });
 
         return JSON.stringify(unitStatus);
     }
@@ -529,10 +631,6 @@ class IQB_ItemPlayer {
                 if (restorePoint.length > 0) {
                     const unitStatus: any = JSON.parse(restorePoint);
 
-                    if ('canLeave' in unitStatus) {
-                        this.canLeave = unitStatus['canLeave'];
-                    }
-
                     // update each HTML Input Element with the value available in its status
                     this.currentUnit.mapToElements((element: UnitElement) => {
                             const elementID = element.getElementID();
@@ -543,20 +641,39 @@ class IQB_ItemPlayer {
                                 console.log('Loading restore point data into ' + elementID +
                                             ' (of type ' + elementType + '): ' + unitStatus[elementID]);
 
+                                let responseGiven = false;
+                                if ('responsesGiven' in unitStatus) {
+                                    if (elementID in unitStatus.responsesGiven) {
+                                        responseGiven = unitStatus.responsesGiven[elementID];
+                                    }
+                                }
+
                                 if (elementType === 'checkbox') {
-                                    element.setPropertyValue('checked', unitStatus[elementID]);
+                                    const checkboxElement = element as CheckboxElement;
+
+                                    checkboxElement.setPropertyValue('checked', unitStatus[elementID]);
+                                    checkboxElement.responseGiven = responseGiven;
                                 }
 
                                 if (elementType === 'multipleChoice') {
-                                    element.setPropertyValue('checked', unitStatus[elementID]);
+                                    const multiplechoiceElement = element as MultipleChoiceElement;
+
+                                    multiplechoiceElement.setPropertyValue('checked', unitStatus[elementID]);
+                                    multiplechoiceElement.responseGiven = responseGiven;
                                 }
 
                                 if (elementType === 'dropdown') {
-                                    element.setPropertyValue('selectedOption', unitStatus[elementID]);
+                                    const dropdownElement = element as DropdownElement;
+
+                                    dropdownElement.setPropertyValue('selectedOption', unitStatus[elementID]);
+                                    dropdownElement.responseGiven = responseGiven;
                                 }
 
                                 if (elementType === 'textbox') {
-                                    element.setPropertyValue('text', unitStatus[elementID]);
+                                    const textboxElement = element as TextboxElement;
+
+                                    textboxElement.setPropertyValue('text', unitStatus[elementID]);
+                                    textboxElement.responseGiven = responseGiven;
                                 }
 
                                 if (elementType === 'audio') {
@@ -564,13 +681,15 @@ class IQB_ItemPlayer {
                                     if (unitStatus[elementID] === -1)
                                     {
                                         audioElement.setPropertyValue('alreadyPlayed', 'true');
+                                        audioElement.playedOnce = true;
                                         console.log('Set alreadyPlayed property to true for element ' + elementID);
                                     }
                                 }
 
                                 if (elementType === 'viewpoint') {
                                     const viewpointElement = element as ViewpointElement;
-                                    if (unitStatus[elementID] === 'true') {
+                                    console.log('Loading restore point data into viewpoint ' + viewpointElement.elementID);
+                                    if (unitStatus[elementID]) {
                                         viewpointElement.viewed = true;
                                     }
                                     else
@@ -586,6 +705,21 @@ class IQB_ItemPlayer {
                                 }
                             }
 
+                        });
+
+                        // load pages viewed info
+                        if ('pagesViewed' in unitStatus) {
+                            this.currentUnit.getPagesMap().forEach((page) => {
+                                page.viewed = unitStatus.pagesViewed[page.pageID];
+                            });
+                        }
+                        // finished loading pages viewed info
+                        
+                        this.sendMessageToParent({
+                            type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                            sessionId: this.sessionId,
+                            presentationComplete: this.getPresentationCompleteStatus(),
+                            responsesGiven: this.getResponsesGivenStatus()
                         });
                 }
             }
@@ -630,10 +764,10 @@ class IQB_ItemPlayer {
         this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
             if (viewpoint.getPropertyValue('sendsResponses') === 'true') {
                 if (viewpoint.viewed) {
-                    responses[viewpoint.elementID] = 'true';
+                    responses[viewpoint.elementID] = 'viewed';
                 }
                 else {
-                    responses[viewpoint.elementID] = 'false';
+                    responses[viewpoint.elementID] = 'not viewed';
                 }
             }
         });

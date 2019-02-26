@@ -32,7 +32,7 @@ import { UnitElementData } from '../typescriptCommonFiles/models/Data.js';
 
 const OpenCBA_UnitAuthoringInterface =
 {
-    unitDefinitionType: 'IQBUnitPlayerV10',
+    unitDefinitionType: 'IQBUnitPlayerV11',
     containerWindow: window.parent,
     checkOrigin: false,
     acceptedOrigin: '*',
@@ -430,7 +430,7 @@ class IQB_UnitAuthoringTool
         });
 
         (document.getElementById('btnAddViewpoint') as HTMLButtonElement).addEventListener('click', (e) => {
-            alert('Warning: Viewpoints are still an experimental feature and their final properties are not yet decided. Use sparsely and with caution.');
+            // alert('Warning: Viewpoints are still an experimental feature and their final properties are not yet decided. Use sparsely and with caution.');
             this.currentUnit.newElement('viewpoint');
         });
 
@@ -946,34 +946,49 @@ class IQB_UnitAuthoringTool
         // Answer by: https://stackoverflow.com/users/506570/sebarmeli
         // License: cc by-sa 3.0
 
-        const clipboardTextDate = localStorage.getItem('IQB.unitAuthoring.clipboardDate');
-        if (clipboardTextDate !== null) {
-            const clipboardTextDateAsNumber = parseInt(clipboardTextDate, 10);
-            const timePassed = Date.now() - clipboardTextDateAsNumber;
-            if (timePassed > 1000 * 60 * 60 * 24) {
-                this.clearClipboard();
+        try {
+            const clipboardTextDate = localStorage.getItem('IQB.unitAuthoring.clipboardDate');
+            if (clipboardTextDate !== null) {
+                const clipboardTextDateAsNumber = parseInt(clipboardTextDate, 10);
+                const timePassed = Date.now() - clipboardTextDateAsNumber;
+                if (timePassed > 1000 * 60 * 60 * 24) {
+                    this.clearClipboard();
+                }
             }
         }
+        catch (e)
+        {
+            console.log('IQB Unit Authoring Tool: error enforcing localStorage clipboard expiry');
+            console.log(e);
+        }
+
         // end of enforcing clipboard expiry
         this.btnPasteElementCheck();
         window.setTimeout(this.btnPasteElementCheck, 250);
     }
 
     btnPasteElementCheck(): void {
-        let elementAvailableInClipboard = false;
-        const clipboardText = localStorage.getItem('IQB.unitAuthoring.clipboard');
-        if (clipboardText !== null) {
-            if (clipboardText.indexOf('UnitElementJSON') !== -1) {
-                elementAvailableInClipboard = true;
+        try {
+            let elementAvailableInClipboard = false;
+            const clipboardText = localStorage.getItem('IQB.unitAuthoring.clipboard');
+            if (clipboardText !== null) {
+                if (clipboardText.indexOf('UnitElementJSON') !== -1) {
+                    elementAvailableInClipboard = true;
+                }
+            }
+
+            if (elementAvailableInClipboard) {
+                (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'black';
+
+            }
+            else {
+                (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'lightgray';
             }
         }
-
-        if (elementAvailableInClipboard) {
-            (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'black';
-
-        }
-        else {
-            (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'lightgray';
+        catch (e)
+        {
+            console.log('IQB Unit Authoring Tool: error checking whether to enable or disable the paste element button');
+            console.log(e);
         }
     }
 
@@ -1078,6 +1093,7 @@ class IQB_UnitAuthoringTool
             }
             catch (e)
             {
+                console.log(e);
                 let errorText = 'Element konnte nicht kopiert werden.';
                 if (e.toString().indexOf('QuotaExceededError') !== -1) {
                     errorText += ' Die Elementdaten sind zu groß.';
@@ -1088,22 +1104,35 @@ class IQB_UnitAuthoringTool
     }
 
     private pasteElementFromClipboard(): void {
-        const clipboardText = localStorage.getItem('IQB.unitAuthoring.clipboard');
-        // console.log('Pasting from clipboard:');
-        // console.log(clipboardText);
-        if (clipboardText !== null) {
-            if (clipboardText.indexOf('UnitElementJSON') !== -1) {
-                this.newElementBasedOnElementJSON(clipboardText);
+        try  {
+            const clipboardText = localStorage.getItem('IQB.unitAuthoring.clipboard');
+            // console.log('Pasting from clipboard:');
+            // console.log(clipboardText);
+            if (clipboardText !== null) {
+                if (clipboardText.indexOf('UnitElementJSON') !== -1) {
+                    this.newElementBasedOnElementJSON(clipboardText);
+                }
             }
+        }
+        catch (e)
+        {
+            console.log('IQB Unit Authoring Tool: error pasting element from clipboard');
+            console.log(e);
         }
     }
 
     private clearClipboard(): void {
-        if (localStorage.getItem('IQB.unitAuthoring.clipboard') !== null) {
-            localStorage.removeItem('IQB.unitAuthoring.clipboard');
+        try {
+            if (localStorage.getItem('IQB.unitAuthoring.clipboard') !== null) {
+                localStorage.removeItem('IQB.unitAuthoring.clipboard');
+            }
+            if (localStorage.getItem('IQB.unitAuthoring.clipboardDate') !== null) {
+                localStorage.removeItem('IQB.unitAuthoring.clipboardDate');
+            }
         }
-        if (localStorage.getItem('IQB.unitAuthoring.clipboardDate') !== null) {
-            localStorage.removeItem('IQB.unitAuthoring.clipboardDate');
+        catch (e) {
+            console.log('IQB Authoring Tool: Error cleaning clipboard');
+            console.log(e);
         }
         this.btnPasteElementCheck();
     }

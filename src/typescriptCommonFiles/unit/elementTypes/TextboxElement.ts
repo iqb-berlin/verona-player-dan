@@ -9,6 +9,8 @@ import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../../mo
 
 export class TextboxElement extends UnitElement {
 
+    public responseGiven = false;
+
     constructor(public elementID: string, public pageHTMLElementID: string)
     {
         super(elementID, pageHTMLElementID);
@@ -62,6 +64,14 @@ export class TextboxElement extends UnitElement {
             tooltip: 'Ob jemand etwas in dem Textbox eingeben kann'
         });
 
+        this.properties.addProperty('mandatory', {
+            value: 'true',
+            userAdjustable: true,
+            propertyType: 'boolean',
+            hidden: false,
+            caption: 'Zwingend',
+            tooltip: 'Ob der Textbox geantwortet werden muss.'
+        });
 
         this.properties.addPropertyRenderer('text', 'textboxRenderer', (propertyValue: string) => {
             const textToShow: string = propertyValue;
@@ -140,6 +150,12 @@ export class TextboxElement extends UnitElement {
             const textboxHTMLElement = document.getElementById(this.elementID + '_textbox') as HTMLInputElement;
             textboxHTMLElement.addEventListener('keyup', (event) => {
                 this.setPropertyValue('text', textboxHTMLElement.value);
+                if (this.responseGiven === false) {
+                    this.responseGiven = true;
+                    window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                        detail: {'elementID': this.getElementID()}
+                    }));
+                }
               });
 
             this.dispatchNewElementDrawnEvent();

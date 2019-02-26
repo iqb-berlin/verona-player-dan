@@ -272,3 +272,8 @@ body
 {
     visibility: visible;
 }
+
+.audioPausableSpan {
+    /* audio pause button should be visible when authoring units */
+    display: initial !important;
+}

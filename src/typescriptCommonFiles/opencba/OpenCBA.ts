@@ -87,8 +87,8 @@ export namespace OpenCBA {
         sessionId: string;
         validPages?: string[];
         currentPage?: string;
-        canLeave?: 'yes' | 'no' | 'warning';
-        canLeaveMessage?: string;
+        presentationComplete?: 'yes' | 'no';
+        responsesGiven?: 'yes' | 'no' | 'all';
     }
 
     export interface FromItemPlayer_ChangedDataTransfer {
@@ -106,8 +106,8 @@ export namespace OpenCBA {
         responseType?: string;
         responseComplete?: boolean;
         logEntries?: string[];
-        canLeave?: 'yes' | 'no' | 'warning';
-        canLeaveMessage?: string;
+        presentationComplete?: 'yes' | 'no';
+        responsesGiven?: 'yes' | 'no' | 'all';
     }
 
     export interface ToItemPlayer_PageNavigationRequest {

@@ -9,6 +9,8 @@ import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../../mo
 
 export class DropdownElement extends UnitElement {
 
+    public responseGiven: boolean = false;
+
     constructor(public elementID: string, public pageHTMLElementID: string)
     {
         super(elementID, pageHTMLElementID);
@@ -135,6 +137,15 @@ export class DropdownElement extends UnitElement {
             }
         });
 
+        this.properties.addProperty('mandatory', {
+            value: 'true',
+            userAdjustable: true,
+            propertyType: 'boolean',
+            hidden: false,
+            caption: 'Zwingend',
+            tooltip: 'Ob man eine Antwort wählen muss.'
+        });
+
 
         this.properties.addPropertyRenderer('font-size', 'fontSizeRenderer', (propertyValue: string) => {
             const selectElement = (document.getElementById(elementID + '_select') as HTMLElement);
@@ -188,7 +199,13 @@ export class DropdownElement extends UnitElement {
          const dropdownHTMLElement = document.getElementById(this.elementID + '_select') as HTMLSelectElement;
          dropdownHTMLElement.addEventListener('change', (event) => {
              this.setPropertyValue('selectedOption', dropdownHTMLElement.value);
-           });
+             if (this.responseGiven === false) {
+                this.responseGiven = true;
+                window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                    detail: {'elementID': this.getElementID()}
+                }));
+            }
+         });
 
          this.dispatchNewElementDrawnEvent();
         }

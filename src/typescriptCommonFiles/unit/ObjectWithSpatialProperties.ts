@@ -183,9 +183,9 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
         const newWidth = this.properties.getPropertyValue('width');
         const newHeight = this.properties.getPropertyValue('height');
 
-        console.log('Updated size properties of ' + elementID + ':');
-        console.log('Width changed from ' + oldWidth + ' to ' + newWidth);
-        console.log('Height changed from ' + oldHeight + ' to ' + newHeight);
+        // console.log('Updated size properties of ' + elementID + ':');
+        // console.log('Width changed from ' + oldWidth + ' to ' + newWidth);
+        // console.log('Height changed from ' + oldHeight + ' to ' + newHeight);
     }
 
     public updatePositionPropertiesBasedOn(pageID: string, HTMLElementID: string)

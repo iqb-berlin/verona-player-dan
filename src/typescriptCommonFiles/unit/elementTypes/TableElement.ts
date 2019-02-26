@@ -202,7 +202,7 @@ export class TableElement extends UnitElement {
             userAdjustable: false,
             propertyType: 'tableCells',
             hidden: true,
-            caption: 'table cells'
+            caption: 'table cells',
         });
 
         this.setPropertyValue('z-index', 50);

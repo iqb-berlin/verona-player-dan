@@ -9,7 +9,8 @@ import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../../mo
 
 export class ViewpointElement extends UnitElement {
 
-    public viewed: boolean = false;
+    public viewed: boolean;
+    private callbacks: IntersectionObserverCallback[] = [];
 
     constructor(public elementID: string, public pageHTMLElementID: string)
     {
@@ -56,13 +57,33 @@ export class ViewpointElement extends UnitElement {
             tooltip: 'Soll, ob der Viewpoint gesehen / nicht gesehen wurde, Teil der Antwort-Daten sein?'
         });
 
-        this.properties.addProperty('mandatory', {
-            value: 'false',
+        this.properties.addProperty('partOfPresentation', {
+            value: 'true',
             userAdjustable: true,
             propertyType: 'boolean',
             hidden: false,
-            caption: 'Zwingend',
-            tooltip: 'Muss der Viewpoint gesehen werden, bevor man die Aufgabe verlassen kann?'
+            caption: 'Teil der Presentation',
+            tooltip: 'Muss der Viewpoint gesehen werden, bevor man unter manchen Testeinstellungen die Aufgabe verlassen kann?'
+        });
+
+        this.viewed = false;
+
+        this.addIntersectionObserverCallback((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting === true) {
+                    // console.log(this.elementID + ' is viewed? ' + this.getPropertyValue('viewed'));
+
+
+                    if (!this.viewed) {
+                        // console.log('Viewpoint ' + this.elementID + ' has been viewed.');
+                        // console.log(entry);
+                        this.viewed = true;
+                        window.dispatchEvent(new CustomEvent('IQB.unit.viewpointViewed', {
+                            detail: {'elementID': this.getElementID()}
+                        }));
+                    }
+                }
+            });
         });
 
         this.properties.removeProperty('z-index');
@@ -96,11 +117,8 @@ export class ViewpointElement extends UnitElement {
         }
 
         */
-        const observer = new IntersectionObserver(callback, {threshold: [0, 1]});
 
-        const viewpointHTMLElement = document.getElementById(this.elementID + '_viewpoint') as HTMLDivElement;
-
-        observer.observe(viewpointHTMLElement);
+        this.callbacks.push(callback);
     }
 
     drawElement()
@@ -120,13 +138,10 @@ export class ViewpointElement extends UnitElement {
             pageHTMLElement.insertAdjacentHTML('beforeend', elementHTML);
             this.properties.renderProperties();
 
-            // todo: in unitplayer make sure intersections are checked after rendering and not before
-            this.addIntersectionObserverCallback((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting === true) {
-                        this.viewed = true;
-                    }
-                });
+            this.callbacks.forEach((callback) => {
+                const observer = new IntersectionObserver(callback, {threshold: [0, 1]});
+                const viewpointHTMLElement = document.getElementById(this.elementID + '_viewpoint') as HTMLDivElement;
+                observer.observe(viewpointHTMLElement);
             });
 
             this.dispatchNewElementDrawnEvent();

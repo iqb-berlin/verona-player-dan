@@ -18,20 +18,6 @@ export class UnitElement extends ObjectWithSpatialProperties {
     public propertyRenderers : PropertyRenderersLibrary = {};
     public elementCommonStyle = 'display: inline-block; position: absolute; overflow: visible;';
 
-    public hasBeenPartiallyViewed: {
-        topLeft: boolean,
-        topRight: boolean,
-        bottomLeft: boolean,
-        bottomRight: boolean
-    } = {
-        topLeft: false,
-        topRight: false,
-        bottomLeft: false,
-        bottomRight: false
-        };
-
-        public hasBeenCompletelyViewed: boolean = false;
-
     private isDrawn: boolean = false;
 
     constructor(public elementID: string, public pageHTMLElementID: string)
@@ -196,64 +182,6 @@ export class UnitElement extends ObjectWithSpatialProperties {
     }
     /* end of functions that handle rendering element properties */
 
-    public addViewObserver()
-    {
-        // requires the element to have already been drawn
-        // monitors if the element has been completely viewed
-
-        const elementHTMLNode = document.getElementById(this.elementID) as HTMLDivElement;
-
-        const viewPointsHTML = `
-        <div id="${this.elementID}_topleft_viewpoint" class="${this.elementID}_viewpoint" data-viewpointPosition='topLeft' style="width: 1px; height: 1px; position: absolute; top: 0px; left: 0px; z-index: 1000000;"></div>
-        <div id="${this.elementID}_topright_viewpoint" class="${this.elementID}_viewpoint" data-viewpointPosition='topRight' style="width: 1px; height: 1px; position: absolute; top: 0px; left: 100%; z-index: 1000000;"></div>
-        <div id="${this.elementID}_bottomleft_viewpoint" class="${this.elementID}_viewpoint" data-viewpointPosition='bottomLeft' style="width: 1px; height: 1px; position: absolute; top: 100%; left: 0px; z-index: 1000000;"></div>
-        <div id="${this.elementID}_bottomright_viewpoint" class="${this.elementID}_viewpoint" data-viewpointPosition='bottomRight' style="width: 1px; height: 1px; position: absolute; top: 100%; left: 100%; z-index: 1000000;"></div>
-        `;
-
-        elementHTMLNode.insertAdjacentHTML('beforeend', viewPointsHTML);
-
-        document.querySelectorAll('.' + this.elementID + '_viewpoint').forEach((viewpointDivElement: Element) => {
-
-            // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
-
-            const observer = new IntersectionObserver((intersectionObserverEntries) => {
-                intersectionObserverEntries.forEach((intersectionObserverEntry) => {
-                    // console.log('individual element subviewpoint has been triggered');
-                    // console.log(entry);
-
-                    if (intersectionObserverEntry.intersectionRatio === 1) {
-                        const viewpointPosition = viewpointDivElement.getAttribute('data-viewpointPosition');
-
-                        if (viewpointPosition === 'bottomLeft') {
-                            this.hasBeenPartiallyViewed.bottomLeft = true;
-                        }
-                        if (viewpointPosition === 'bottomRight') {
-                            this.hasBeenPartiallyViewed.bottomRight = true;
-                        }
-                        if (viewpointPosition === 'topLeft') {
-                            this.hasBeenPartiallyViewed.topLeft = true;
-                        }
-                        if (viewpointPosition === 'topRight') {
-                            this.hasBeenPartiallyViewed.topRight = true;
-                        }
-
-                        if (this.hasBeenCompletelyViewed === false) {
-                            // if element has not yet been completely viewed, check if it now has
-                            if (this.hasBeenPartiallyViewed.bottomLeft && this.hasBeenPartiallyViewed.bottomRight &&
-                                this.hasBeenPartiallyViewed.topLeft && this.hasBeenPartiallyViewed.topRight) {
-                                    this.hasBeenCompletelyViewed = true;
-                                    console.log('Element ' + this.elementID + ' has been completely viewed');
-                                    this.dispatchElementCompletelyViewedEvent();
-                                }
-                        }
-                    }
-                });
-            }, {threshold: [1]});
-
-            observer.observe(viewpointDivElement);
-        });
-    }
-
     public render()
     {
         // console.log('Rendering element ' + this.elementID + '...');
@@ -261,9 +189,6 @@ export class UnitElement extends ObjectWithSpatialProperties {
             // console.log('Drawing element ' + this.elementID + '...');
             this.isDrawn = true;
             this.drawElement();
-
-            // add view observer
-            this.addViewObserver();
         }
         else
         {
@@ -315,13 +240,6 @@ export class UnitElement extends ObjectWithSpatialProperties {
             detail: {
                 'pageID': pageID
             }
-        }));
-    }
-
-    public dispatchElementCompletelyViewedEvent()
-    {
-        window.dispatchEvent(new CustomEvent('IQB.unit.elementCompletelyViewed', {
-            detail: {'elementID': this.elementID}
         }));
     }
 
