@@ -417,6 +417,17 @@ export class UnitPage extends ObjectWithProperties {
             pageHTMLElement.style.height = newHeight + 'px';
          });
 
+         this.properties.addPropertyRenderer('padding', 'basicRenderer', (propertyValue: any) => {
+
+            if ((propertyValue * 2 > this.properties.getPropertyValue('height')) ||
+                (propertyValue * 2 > this.properties.getPropertyValue('width')))
+            {
+                this.setPropertyValue('padding', '0');
+            }
+
+            console.log('Der Seitenrand von ' + propertyValue + 'px ist zu groß! Der wird stattdessen auf 0px gesetzt.');
+         });
+
          // whenever a canvas property is rendered, re-render also element properties
         // this.properties.getPropertyNames().forEach((propertyName:string) => {
         //     // for each canvas property

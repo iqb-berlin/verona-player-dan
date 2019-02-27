@@ -58,6 +58,8 @@ class IQB_UnitAuthoringTool
 
     private isLoaded: boolean = false;
 
+    private doPaddingCheck: boolean = false;
+
     constructor(private standAloneMode: boolean = true)
     {
         this.initializeToolbar();
@@ -136,6 +138,77 @@ class IQB_UnitAuthoringTool
                 }
 
                 this.shownPropertiesNeedToBeRefreshed = false;
+            }
+        }, 100);
+
+        setInterval(() => {
+            // padding check
+            // todo: only start interval when property has changed
+
+            if (this.doPaddingCheck)
+            {
+
+                if (typeof this.currentUnit !== 'undefined') {
+                    const currentPage = this.currentUnit.getCurrentPage();
+                    if (typeof currentPage !== 'undefined') {
+                        const padding = parseInt(currentPage.getPropertyValue('padding'), 10);
+                        const pageWidth = parseInt(currentPage.getPropertyValue('width'), 10);
+                        const pageHeight = parseInt(currentPage.getPropertyValue('height'), 10);
+
+                        currentPage.getElementsMap().forEach((element: UnitElement) => {
+                            let elementChanged: boolean = false;
+                            if (element.left < padding) {
+                                element.left = padding;
+
+                                // check if element is too big to fit into padding; if so make it smaller;
+                                if (element.left + element.width > pageWidth - padding) {
+                                    element.width = pageWidth - padding - element.left - 10;
+                                }
+
+                                elementChanged = true;
+                            }
+                            if (element.left + element.width > pageWidth - padding) {
+                                element.left = pageWidth - padding - element.width;
+
+                                // check if element is too big to fit into padding; if so make it smaller;
+                                if (element.left < padding) {
+                                    element.width = pageWidth - 2 * padding - 10;
+                                    element.left = padding;
+                                }
+
+                                elementChanged = true;
+                            }
+                            if (element.top < padding) {
+                                element.top = padding;
+
+                                // check if element is too big to fit into padding; if so make it smaller;
+                                if (element.top + element.height > pageHeight - padding) {
+                                    element.height = pageHeight - element.top - padding - 10;
+                                }
+
+                                elementChanged = true;
+                            }
+                            if (element.top + element.height > pageHeight - padding) {
+                                element.top = pageHeight - padding - element.height;
+
+                                // check if element is too big to fit into padding; if so make it smaller;
+                                if (element.top < 0) {
+                                    element.height = pageHeight - 2 * padding - 10;
+                                    element.top = padding;
+                                }
+
+                                elementChanged = true;
+                            }
+
+                            if (elementChanged) {
+                                // console.log('x:' + element.left + ' y:' + element.top + ' width:' + element.width + ' height:' + element.height);
+                                element.render();
+                            }
+                        });
+                    }
+                }
+
+                this.doPaddingCheck = false;
             }
         }, 100);
 
@@ -284,59 +357,8 @@ class IQB_UnitAuthoringTool
         }
 
         // enforce page padding
-        if (typeof this.currentUnit !== 'undefined') {
-            const currentPage = this.currentUnit.getCurrentPage();
-            if (typeof currentPage !== 'undefined') {
-                const padding = parseInt(currentPage.getPropertyValue('padding'), 10);
-                const pageWidth = parseInt(currentPage.getPropertyValue('width'), 10);
-                const pageHeight = parseInt(currentPage.getPropertyValue('height'), 10);
+        this.doPaddingCheck = true;
 
-                currentPage.getElementsMap().forEach((element: UnitElement) => {
-                    if (element.left < padding) {
-                        element.left = padding;
-
-                        // check if element is too big to fit into padding; if so make it smaller;
-                        if (element.left + element.width > pageWidth - padding) {
-                            element.width = pageWidth - 2 * padding - 10;
-                        }
-
-                        element.render();
-                    }
-                    if (element.left + element.width > pageWidth - padding) {
-                        element.left = pageWidth - padding - element.width;
-
-                        // check if element is too big to fit into padding; if so make it smaller;
-                        if (element.left < padding) {
-                            element.width = pageWidth - 2 * padding - 10;
-                            element.left = padding;
-                        }
-
-                        element.render();
-                    }
-                    if (element.top < padding) {
-                        element.top = padding;
-
-                        // check if element is too big to fit into padding; if so make it smaller;
-                        if (element.top + element.height > pageHeight - padding) {
-                            element.height = pageHeight - 2 * padding - 10;
-                        }
-
-                        element.render();
-                    }
-                    if (element.top + element.height > pageHeight - padding) {
-                        element.top = pageHeight - padding - element.height;
-
-                        // check if element is too big to fit into padding; if so make it smaller;
-                        if (element.top < 0) {
-                            element.height = pageHeight - 2 * padding - 10;
-                            element.top = padding;
-                        }
-    
-                        element.render();
-                    }
-                });
-            }
-        }
         // end of enforcing page padding
 
         if (propertyOwnerType === 'TableCell') {
