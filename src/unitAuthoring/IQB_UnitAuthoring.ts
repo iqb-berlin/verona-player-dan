@@ -4,7 +4,7 @@ IQB Unit Authoring Entry Point
 
 // www.IQB.hu-berlin.de
 // Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
-// 2018
+// 2019
 // license: MIT
 
 import {Unit} from '../typescriptCommonFiles/unit/Unit.js';

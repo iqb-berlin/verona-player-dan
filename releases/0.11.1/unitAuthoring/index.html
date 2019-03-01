@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>IQB Unit Authoring</title>
+    <link rel="stylesheet" href="./includes/jquery-ui-1.12.1.custom/jquery-ui.css">
+    <link rel="stylesheet" href="./includes/material/material-icons.css">
+    <link rel="stylesheet" href="./includes/material/mdc.button.css">    
+    <link rel="stylesheet" href="./css/unitAuthoring.css">    
+
+    <script src="./includes/jquery-3.3.1.min.js"></script>
+    <script src="./includes/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+    <script src="./includes/FileSaver.js"></script>
+    <script src="./js/IQB_unitAuthoring_Bundled.js"></script>
+
+    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+    
+</head>
+<body>
+
+<div id="pageVerticalFlex">
+    <div id="headerSection">
+        IQB Unit Authoring Tool
+    </div>
+
+    <div id="middleSection">
+            <div id="toolbox">
+                    <p style="text-align: center">
+                            
+                        <i id="btnAddText" class="material-icons mdc-button--raised toolboxButton" title="Text hinzufügen">text_fields</i>
+                        <i id="btnAddImage" class="material-icons mdc-button--raised toolboxButton" title="Bild hinzufügen">add_photo_alternate</i>
+                        <i id="btnAddAudio" class="material-icons mdc-button--raised toolboxButton" title="Audio hinzufügen">audiotrack</i>
+                        <i id="btnAddVideo" class="material-icons mdc-button--raised toolboxButton" title="Video hinzufügen">videocam</i>
+                        <!-- todo - customizable volume
+                        <i id="btnAddVolumePicker" class="material-icons mdc-button--raised toolboxButton" title="volumePicker hinzufügen">volume_up</i>
+                        -->
+                      
+                        <br />
+
+                        <i id="btnAddTextbox" class="material-icons mdc-button--raised toolboxButton" title="Textbox hinzufügen">crop_7_5</i>
+                        <i id="btnAddCheckbox" class="material-icons mdc-button--raised toolboxButton" title="Checkbox hinzufügen">check_box</i>
+                        <i id="btnAddMultipleChoice" class="material-icons mdc-button--raised toolboxButton" title="Multiple Choice hinzufügen">radio_button_checked</i>
+                        <i id="btnAddDropdown" class="material-icons mdc-button--raised toolboxButton" title="Dropdown hinzufügen">list</i>
+
+                        <br />
+
+                        <i id="btnAddTable" class="material-icons mdc-button--raised toolboxButton" title="Tabelle hinzufügen">table_chart</i>
+                        <i id="btnAddHTML" class="material-icons mdc-button--raised toolboxButton" title="HTML Element hinzufügen">code</i>
+                        <i id="btnAddViewpoint" class="material-icons mdc-button--raised toolboxButton" title="Viewpoint hinzufügen">gps_fixed</i>
+
+                    </p>
+                    
+                    <hr> 
+
+                    <p style="text-align: center; margin-top: 24px; margin-bottom: 24px;">
+                
+                    <i id="btnSpreadFont" class="material-icons mdc-button--raised toolboxButton" title="Übertrage die Schrifteigenschaften (Art, Größe, Farbe) des ausgewählten Elements auf alle Elemente der Seite">brush</i>
+                    
+                    <i id="btnCopyElement" class="material-icons mdc-button--raised toolboxButton" title="Kopiere Element">call_made</i>
+                    <i id="btnPasteElement" class="material-icons mdc-button--raised toolboxButton" title="Füge Element ein">call_received</i>
+                    <i id="btnCloneElement" class="material-icons mdc-button--raised toolboxButton" title="Kopiere das ausgewälte Element und füge es wieder ein">file_copy</i>
+
+                    <hr> 
+
+                    <p style="text-align: center; margin-top: 24px; margin-bottom: 24px;">
+
+                    <i id="btnMoveUp" class="material-icons mdc-button--raised toolboxButton" title="Verschiebe alle Elemente auf der Seite 10px nach oben">arrow_upward</i>
+                    <i id="btnMoveDown" class="material-icons mdc-button--raised toolboxButton" title="Verschiebe alle Elemente auf der Seite 10px nach unten">arrow_downward</i>
+                    <i id="btnMoveRight" class="material-icons mdc-button--raised toolboxButton" title="Verschiebe alle Elemente auf der Seite 10px nach rechts">arrow_forward</i>
+                    <i id="btnMoveLeft" class="material-icons mdc-button--raised toolboxButton" title="Verschiebe alle Elemente auf der Seite 10px nach links">arrow_back</i>
+
+                    </p>
+
+                    <hr>
+                    
+                    <p style="text-align: center; margin-top: 24px; margin-bottom: 24px;">
+                            <i id="btnDeleteElement" class="material-icons mdc-button--raised toolboxButton" title="Element löschen">delete_forever</i>
+                    </p>
+                    
+                    <hr>
+                    
+                    <p style="text-align: center">
+                        <span id="standAloneFeatures">
+                            <i id="btnNewUnit" class="material-icons mdc-button--raised toolboxButton" title="Neuen Item entwerfen ">insert_drive_file</i>
+                        </span>
+                            <i id="btnOpenUnit" class="material-icons mdc-button--raised toolboxButton" title="Aufgabedatei hochladen (local backup import)">cloud_upload</i>
+                            <i id="btnSaveUnit" class="material-icons mdc-button--raised toolboxButton" title="Aufgabedatei herunterladen (local backup export)">cloud_download</i>
+                    </p>
+                    
+                    <hr>
+
+        
+                </div>
+            <div id="unitCanvasContainer">
+                    <div id="normalPageContainer">
+                    </div>
+            </div>
+
+            <div id="rightSideSection">
+                <div id="selectPageSection">
+                        <p style="margin-left: 12px;">
+                            <span id="selectPageSectionTitle">Seite:</span>
+                            <select id="currentPageSelect">
+                            </select>
+
+                            <i id="btnAddPage" class="material-icons mdc-button--raised generalButton" style="" title="Seite hinzufügen">note_add</i>
+                            <i id="btnDeletePage" class="material-icons mdc-button--raised generalButton" style="" title="Seite löschen">delete</i>
+
+                        </p>
+                </div>    
+
+                <div id="elementPropertiesSection">
+                    <p style="text-align: center"><span id="elementPropertiesTitle">Elementeigenschaften</span></p>
+                    <div id="elementProperties">
+                    </div>
+                </div>               
+            </div>
+    </div>
+
+    <div id="footerSection">
+        <div id="footer">
+                <p style="text-align: center">Institut zur Qualitätsentwicklung im Bildungswesen, 2018 (v 0.8.2)</p>
+        </div>
+    </div>
+</div>
+
+<div id="fileDialog" style="display:none; text-align: center; vertical-align: middle;">
+    <input type="file" id="inputFile" name="inputFile" style="margin-top: 12px">
+</div>
+
+<div id="saveItemDialog" style="display:none; text-align: center; vertical-align: middle;">
+    Name: <input type="text"  value="untitled item" id="saveFileName" name="saveFileName" style="margin-top: 12px">
+    <p>Geschätzte Dateigröße: <span id="spanEstimatedItemFileSize">0</span> bytes</p>
+</div>
+
+</body>
+</html>
