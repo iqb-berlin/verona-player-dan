@@ -126,6 +126,11 @@ body
     cursor: pointer;
 }
 
+
+.material-icons
+{
+}
+
 .material-icons.toolboxButton
 {
     font-size: 24px;    
@@ -249,7 +254,7 @@ body
 }
 
 .viewpointAuthoringMarker {
-    display: initial !important;
+    display: inline !important;
     z-index: 999999;
     position: relative;
 }
@@ -275,5 +280,5 @@ body
 
 .audioPausableSpan {
     /* audio pause button should be visible when authoring units */
-    display: initial !important;
+    display: inline !important;
 }

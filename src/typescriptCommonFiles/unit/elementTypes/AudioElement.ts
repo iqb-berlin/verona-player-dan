@@ -115,7 +115,7 @@ export class AudioElement extends UnitElement {
             const hasControlDiv = elementID + '_hasControl';
             if (propertyValue === 'true')
             {
-                (document.getElementById(hasControlDiv) as HTMLInputElement).style.display = 'initial';
+                (document.getElementById(hasControlDiv) as HTMLInputElement).style.display = 'inline';
             }
             else
             {
@@ -218,7 +218,7 @@ export class AudioElement extends UnitElement {
                 }
                 else
                 {
-                    audioPausableSpan.style.display = 'initial';
+                    audioPausableSpan.style.display = 'inline';
                 }
             }
         });
@@ -320,7 +320,7 @@ export class AudioElement extends UnitElement {
             // console.log('Setting ' + this.elementID + 'currentTime to its detected value of ' + this.getPropertyValue('currentTime'));
             // audioElement.currentTime = this.getPropertyValue('currentTime');
 
-            playButton.style.display = 'initial';
+            playButton.style.display = 'inline';
             pauseButton.style.display = 'none';
 
             audioElementVisualLocation.style.width = '0%';
@@ -383,7 +383,7 @@ export class AudioElement extends UnitElement {
 
         audioElement.onended = () => {
 
-            playButton.style.display = 'initial';
+            playButton.style.display = 'inline';
             pauseButton.style.display = 'none';
 
             this.playedOnce = true;
@@ -458,7 +458,7 @@ export class AudioElement extends UnitElement {
         const pauseButton = document.getElementById(this.elementID + '_audio_btnPause') as HTMLImageElement;
 
         playButton.style.display = 'none';
-        pauseButton.style.display = 'initial';
+        pauseButton.style.display = 'inline';
         audioElement.play();
     }
 
@@ -468,7 +468,7 @@ export class AudioElement extends UnitElement {
         const pauseButton = document.getElementById(this.elementID + '_audio_btnPause') as HTMLImageElement;
 
         pauseButton.style.display = 'none';
-        playButton.style.display = 'initial';
+        playButton.style.display = 'inline';
         audioElement.pause();
     }
 

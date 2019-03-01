@@ -257,7 +257,7 @@ class IQB_ItemPlayer {
                         unitCanvasContainerDiv.style.flexDirection = 'row';
                         unitCanvasContainerDiv.style.justifyContent = 'center';
 
-                        alwaysOnPageContainerDiv.style.height = 'initial';
+                        alwaysOnPageContainerDiv.style.height = 'auto';
                         alwaysOnPageContainerDiv.style.display = 'inline-block';
                         alwaysOnPageContainerDiv.style.overflow = 'auto';
                         alwaysOnPageContainerDiv.style.flexGrow = '1';

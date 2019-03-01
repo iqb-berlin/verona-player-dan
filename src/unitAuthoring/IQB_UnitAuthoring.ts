@@ -968,20 +968,22 @@ class IQB_UnitAuthoringTool
         // Answer by: https://stackoverflow.com/users/506570/sebarmeli
         // License: cc by-sa 3.0
 
-        try {
-            const clipboardTextDate = localStorage.getItem('IQB.unitAuthoring.clipboardDate');
-            if (clipboardTextDate !== null) {
-                const clipboardTextDateAsNumber = parseInt(clipboardTextDate, 10);
-                const timePassed = Date.now() - clipboardTextDateAsNumber;
-                if (timePassed > 1000 * 60 * 60 * 24) {
-                    this.clearClipboard();
+        if (localStorage) {
+            try {
+                const clipboardTextDate = localStorage.getItem('IQB.unitAuthoring.clipboardDate');
+                if (clipboardTextDate !== null) {
+                    const clipboardTextDateAsNumber = parseInt(clipboardTextDate, 10);
+                    const timePassed = Date.now() - clipboardTextDateAsNumber;
+                    if (timePassed > 1000 * 60 * 60 * 24) {
+                        this.clearClipboard();
+                    }
                 }
             }
-        }
-        catch (e)
-        {
-            console.log('IQB Unit Authoring Tool: error enforcing localStorage clipboard expiry');
-            console.log(e);
+            catch (e)
+            {
+                console.log('IQB Unit Authoring Tool: error enforcing localStorage clipboard expiry');
+                console.log(e);
+            }
         }
 
         // end of enforcing clipboard expiry
@@ -991,20 +993,23 @@ class IQB_UnitAuthoringTool
 
     btnPasteElementCheck(): void {
         try {
-            let elementAvailableInClipboard = false;
-            const clipboardText = localStorage.getItem('IQB.unitAuthoring.clipboard');
-            if (clipboardText !== null) {
-                if (clipboardText.indexOf('UnitElementJSON') !== -1) {
-                    elementAvailableInClipboard = true;
+            if (localStorage)
+            {
+                let elementAvailableInClipboard = false;
+                const clipboardText = localStorage.getItem('IQB.unitAuthoring.clipboard');
+                if (clipboardText !== null) {
+                    if (clipboardText.indexOf('UnitElementJSON') !== -1) {
+                        elementAvailableInClipboard = true;
+                    }
                 }
-            }
 
-            if (elementAvailableInClipboard) {
-                (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'black';
+                if (elementAvailableInClipboard) {
+                    (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'black';
 
-            }
-            else {
-                (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'lightgray';
+                }
+                else {
+                    (document.getElementById('btnPasteElement') as HTMLButtonElement).style.color = 'lightgray';
+                }
             }
         }
         catch (e)
