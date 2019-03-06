@@ -4,7 +4,7 @@ IQB Unit Player Entry Point
 
 // www.IQB.hu-berlin.de
 // Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
-// 2018
+// 2019
 // license: MIT
 
 import {OpenCBA} from '../typescriptCommonFiles/OpenCBA/OpenCBA.js';
@@ -43,7 +43,7 @@ interface ResponsesObject
 
 class IQB_ItemPlayer {
     // the main class that implements the IQB ItemPlayer functionality
-    private responseType = 'IQBUnitPlayerV11';
+    private responseType = 'IQBUnitPlayerV12';
 
     private currentUnit: Unit;
 
@@ -118,6 +118,14 @@ class IQB_ItemPlayer {
                         type: 'OpenCBA.FromItemPlayer.PageNavigationRequestedNotification',
                         sessionId: this.sessionId,
                         newPage: e.detail.pageID
+                    });
+                });
+
+                window.addEventListener('IQB.unit.endTestButtonClicked', (e) => {
+                    this.sendMessageToParent({
+                        type: 'OpenCBA.FromItemPlayer.NavigationRequestedNotification',
+                        sessionId: this.sessionId,
+                        navigationTarget: '#last'
                     });
                 });
 

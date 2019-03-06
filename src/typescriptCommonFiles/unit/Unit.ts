@@ -60,6 +60,14 @@ export class Unit extends ObjectWithProperties {
                 caption: 'Elements counter'
             });
 
+            this.properties.addProperty('lastEdited', {
+                value: Date.now(),
+                userAdjustable: false,
+                propertyType: 'number',
+                hidden: true,
+                caption: 'When the unit was last edited'
+            });
+
             const firstPage = this.newPage().getID();
             this.currentPageID = firstPage;
 

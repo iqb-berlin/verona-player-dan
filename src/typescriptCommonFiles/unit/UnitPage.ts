@@ -19,6 +19,7 @@ import {TextboxElement} from './elementTypes/TextboxElement.js';
 import {TextElement} from './elementTypes/TextElement.js';
 import {VideoElement} from './elementTypes/VideoElement.js';
 import {ViewpointElement} from './elementTypes/ViewpointElement.js';
+import {EndButtonElement} from './elementTypes/EndButtonElement.js';
 
 // todo - customizable volume
 // import {VolumePickerElement} from './elementTypes/VolumePicker.js';
@@ -26,7 +27,7 @@ import {ViewpointElement} from './elementTypes/ViewpointElement.js';
 import {colorsObject} from '../models/Colors.js';
 
 export type SupportedUnitElementType = 'text' | 'image' | 'audio' | 'video' | 'textbox' | 'checkbox' |
-'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html' | 'viewpoint';
+'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html' | 'viewpoint' | 'endButton';
 
 export interface NewElementOptions {
     elementID: string;
@@ -292,7 +293,7 @@ export class UnitPage extends ObjectWithProperties {
             for (let i = 0; i < children.length; i++) {
                 this.removeElementChildren(children[i]);
                 // console.log('removing dom element ' + children[i].id);
-                children[i].remove();
+                element.removeChild(children[i]);
             }
         }
     }
@@ -511,6 +512,10 @@ export class UnitPage extends ObjectWithProperties {
          element = new ViewpointElement(elementID, this.getPageHTMLElementID());
         }
 
+        if (elementType === 'endButton')
+        {
+         element = new EndButtonElement(elementID, this.getPageHTMLElementID());
+        }
 
         this.elements.set(elementID, element);
 

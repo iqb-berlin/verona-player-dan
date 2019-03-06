@@ -32,7 +32,7 @@ import { UnitElementData } from '../typescriptCommonFiles/models/Data.js';
 
 const OpenCBA_UnitAuthoringInterface =
 {
-    unitDefinitionType: 'IQBUnitPlayerV11',
+    unitDefinitionType: 'IQBUnitPlayerV12',
     containerWindow: window.parent,
     checkOrigin: false,
     acceptedOrigin: '*',
@@ -452,8 +452,11 @@ class IQB_UnitAuthoringTool
         });
 
         (document.getElementById('btnAddViewpoint') as HTMLButtonElement).addEventListener('click', (e) => {
-            // alert('Warning: Viewpoints are still an experimental feature and their final properties are not yet decided. Use sparsely and with caution.');
             this.currentUnit.newElement('viewpoint');
+        });
+
+        (document.getElementById('btnAddEndButton') as HTMLButtonElement).addEventListener('click', (e) => {
+            this.currentUnit.newElement('endButton');
         });
 
         const btnSpreadfont = document.getElementById('btnSpreadFont') as HTMLElement;
@@ -841,6 +844,18 @@ class IQB_UnitAuthoringTool
                 });
             }
 
+            if (elementType === 'endButton')
+            {
+                newPopupMenu.addPopupMenuItem({
+                    'triggerOnMouseOverElementID' : elementID,
+                    'containerElementID': '',
+                    'innerHTML': 'Klicken Sie hier, um den End-Button zu ziehen.',
+                    'tooltip': '',
+                    'type': 'mover',
+                    'position': 'beforeend'
+                });
+            }
+
             if (elementType === 'table')
             {
                 newPopupMenu.addPopupMenuItem({
@@ -852,6 +867,7 @@ class IQB_UnitAuthoringTool
                     'position': 'beforeend'
                 });
             }
+
 
             /*
             // todo - customizable volume
@@ -1385,6 +1401,10 @@ class IQB_UnitAuthoringTool
         this.initializeUnitAuthoringTools();
 
         this.dispatchUnitHasLoadedEvent();
+
+        // update the lastEdited property of the unit
+        this.currentUnit.setPropertyValue('lastEdited', Date.now());
+        console.log('Last edited property changed');
 
         /*
         // first delete current elements
