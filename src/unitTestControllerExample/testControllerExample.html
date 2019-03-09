@@ -20,9 +20,7 @@
 
     Page navigation:
 
-    document.getElementById('unitIFrame').contentWindow.postMessage({type: 'OpenCBA.ToItemPlayer.PageNavigationRequest', sessionId: 'test session id', newPage: 'seite1'},'*');
-
-
+    document.getElementById('unitIFrame').contentWindow.postMessage({type: 'vo.ToPlayer.PageNavigationRequest', sessionId: 'test session id', newPage: 'seite1'},'*');
     
 -->
     <p style="text-align:center">
@@ -52,7 +50,7 @@
                 if (useRestorePoint) restorePointToLoad = currentRestorePoint;
 
                 document.getElementById("unitIFrame").contentWindow.postMessage({
-                                                                                type: "OpenCBA.ToItemPlayer.DataTransfer",
+                                                                                type: "vo.ToPlayer.DataTransfer",
                                                                                 unitDefinition: uploadedItemSpecification,
                                                                                 resources: {},
                                                                                 restorePoint: restorePointToLoad,
@@ -66,7 +64,7 @@
                             width: 600,
                             height: 200,
                             dialogClass: "",
-                            title: "Open item",
+                            title: "B item",
                             buttons: [
                             {
                                 text: "OK",
@@ -134,14 +132,14 @@
                 console.log(messageEvent);
 
                 
-                if (messageEvent.data.type === "OpenCBA.FromItemPlayer.ChangedDataTransfer")
+                if (messageEvent.data.type === "vo.FromPlayer.ChangedDataTransfer")
                 {
                     if ('restorePoint' in messageEvent.data)
                     {
                         currentRestorePoint = messageEvent.data.restorePoint;
                     }
                 }
-                else if (messageEvent.data.type === 'OpenCBA.FromItemPlayer.ReadyNotification')
+                else if (messageEvent.data.type === 'vo.FromPlayer.ReadyNotification')
                 {
                     initializeItemPlayer();
                 }

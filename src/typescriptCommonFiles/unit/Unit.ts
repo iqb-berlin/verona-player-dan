@@ -100,7 +100,7 @@ export class Unit extends ObjectWithProperties {
         // console.log(unitData);
 
         // before loading a new unit, first, clear this one
-        console.log('Clearing up the old unit...')
+        console.log('Clearing up the old unit...');
         this.pages.forEach((page: UnitPage, pageID: string) => {
             console.log('Deleting page ' + pageID);
             this.deletePage(pageID);
@@ -238,8 +238,8 @@ export class Unit extends ObjectWithProperties {
                 this.currentPageID = '';
 
                 let newPageToShow = '';
-                this.pages.forEach( (page: UnitPage, pageID: string) => {
-                    newPageToShow = pageID;
+                this.pages.forEach( (page: UnitPage, newPageID: string) => {
+                    newPageToShow = newPageID;
                 });
                 this.navigateToPage(newPageToShow);
             }

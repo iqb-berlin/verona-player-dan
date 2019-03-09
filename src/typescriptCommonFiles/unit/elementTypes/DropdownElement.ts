@@ -74,7 +74,7 @@ export class DropdownElement extends UnitElement {
         });
 
         this.properties.addPropertyRenderer('options', 'dropdownRenderer', (propertyValue: string) => {
-            const options:Array<string> = propertyValue.split('|');
+            const options: Array<string> = propertyValue.split('|');
             let optionsHTML = '';
             if (this.properties.getPropertyValue('placeholder') !== '')
             {
@@ -82,11 +82,11 @@ export class DropdownElement extends UnitElement {
                 // URL: https://stackoverflow.com/a/5859221
                 // Original answer: https://stackoverflow.com/users/295800/david
                 // Later edits: https://stackoverflow.com/users/295800/david ,
-                //              https://stackoverflow.com/users/2680216/josh-crozier , 
+                //              https://stackoverflow.com/users/2680216/josh-crozier ,
                 //              https://stackoverflow.com/users/6999690/user1492534
                 //              https://stackoverflow.com/users/885605/andreas-grapentin
                 // License:cc by-sa 3.0
-                optionsHTML += `<option value="placeholder" disabled selected>${this.properties.getPropertyValue("placeholder")}</option>`;
+                optionsHTML += `<option value="placeholder" disabled selected>${this.properties.getPropertyValue('placeholder')}</option>`;
                 // end of placeholder for dropdown boxes idea
             }
             options.forEach( (value, index, array) => {
@@ -193,7 +193,7 @@ export class DropdownElement extends UnitElement {
         if (pageHTMLElement !== null)
         {
          pageHTMLElement.insertAdjacentHTML('beforeend', elementHTML);
- 
+
          this.properties.renderProperties();
 
          const dropdownHTMLElement = document.getElementById(this.elementID + '_select') as HTMLSelectElement;

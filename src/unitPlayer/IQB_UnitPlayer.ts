@@ -7,13 +7,13 @@ IQB Unit Player Entry Point
 // 2019
 // license: MIT
 
-import {OpenCBA} from '../typescriptCommonFiles/OpenCBA/OpenCBA.js';
+import { VO } from '../typescriptCommonFiles/interfaces/iqb.js';
 
-import {Unit} from '../typescriptCommonFiles/unit/Unit.js';
-import {UnitElement} from '../typescriptCommonFiles/unit/UnitElement.js';
-import {UnitPage} from '../typescriptCommonFiles/unit/UnitPage.js';
-import {Property} from '../typescriptCommonFiles/unit/Properties.js';
-import {ObjectWithProperties} from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
+import { Property } from '../typescriptCommonFiles/unit/Properties.js';
+import { ObjectWithProperties } from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
+import { UnitElement } from '../typescriptCommonFiles/unit/UnitElement.js';
+import { UnitPage } from '../typescriptCommonFiles/unit/UnitPage.js';
+import { Unit } from '../typescriptCommonFiles/unit/Unit.js';
 import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
 import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
 import { ViewpointElement } from '../typescriptCommonFiles/unit/elementTypes/ViewpointElement.js';
@@ -43,7 +43,7 @@ interface ResponsesObject
 
 class IQB_ItemPlayer {
     // the main class that implements the IQB ItemPlayer functionality
-    private responseType = 'IQBUnitPlayerV12';
+    private responseType = 'IQBPlayerV1';
 
     private currentUnit: Unit;
 
@@ -54,7 +54,7 @@ class IQB_ItemPlayer {
     private responsesGiven: 'yes' | 'no' | 'all';
     private environmentVariables: {[environmentVariableName: string]: string} = {};
 
-    constructor (initData: OpenCBA.ToItemPlayer_DataTransfer)    {
+    constructor (initData: VO.ToPlayer_DataTransfer)    {
 
         console.log('Constructing IQB_ItemPlayer class...');
         // console.log('Constructing Item Player with the following initData:');
@@ -70,7 +70,7 @@ class IQB_ItemPlayer {
                 window.addEventListener('IQB.unit.audioElementEnded', (e) => {
                     // send the signal to the parent that the unit can be left at anytime
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         presentationComplete: this.getPresentationCompleteStatus(),
                         restorePoint: this.getRestorePoint()
@@ -80,7 +80,7 @@ class IQB_ItemPlayer {
                 window.addEventListener('IQB.unit.audioElementTick', (e) => {
                     // update restore point data, to save the current location of the audios
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint()
                     });
@@ -89,7 +89,7 @@ class IQB_ItemPlayer {
                 window.addEventListener('IQB.unit.viewpointViewed', (e) => {
                     // send the signal to the parent that the unit can be left at anytime
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         presentationComplete: this.getPresentationCompleteStatus(),
                         restorePoint: this.getRestorePoint()
@@ -99,7 +99,7 @@ class IQB_ItemPlayer {
                 window.addEventListener('IQB.unit.responseGiven', (e) => {
                     // send the signal to the parent that the unit can be left at anytime
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         responsesGiven: this.getResponsesGivenStatus(),
                         restorePoint: this.getRestorePoint()
@@ -115,7 +115,7 @@ class IQB_ItemPlayer {
 
                 window.addEventListener('IQB.unit.navigateToPage', (e) => {
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.PageNavigationRequestedNotification',
+                        type: 'vo.FromPlayer.PageNavigationRequestedNotification',
                         sessionId: this.sessionId,
                         newPage: e.detail.pageID
                     });
@@ -123,9 +123,9 @@ class IQB_ItemPlayer {
 
                 window.addEventListener('IQB.unit.endTestButtonClicked', (e) => {
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.NavigationRequestedNotification',
+                        type: 'vo.FromPlayer.NavigationRequestedNotification',
                         sessionId: this.sessionId,
-                        navigationTarget: '#last'
+                        navigationTarget: '#end'
                     });
                 });
 
@@ -134,7 +134,7 @@ class IQB_ItemPlayer {
                 window.addEventListener('IQB.unit.newVolume', (e) => {
                     const newVolume = e.detail.newVolume;
                     this.sendMessageToParent({
-                        'type': 'OpenCBA.FromItemPlayer.newVolumeNotification',
+                        'type': 'vo.FromPlayer.newVolumeNotification',
                         'sessionId': this.sessionId,
                         'newVolume': newVolume
                     });
@@ -186,7 +186,7 @@ class IQB_ItemPlayer {
                             if (viewpoint.getPropertyValue('sendsLogs') === 'true') {
                                 const logEntry: string = 'Viewpoint ' + viewpoint.elementID + ', isBeigViewed=' + entry.isIntersecting + ', time=' + parseInt(entry.time, 10);
                                 this.sendMessageToParent({
-                                    type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                                    type: 'vo.FromPlayer.ChangedDataTransfer',
                                     sessionId: this.sessionId,
                                     logEntries: [logEntry]
                                 });
@@ -322,7 +322,7 @@ class IQB_ItemPlayer {
                 // currentPage notification is placed here, so as not to report the currentPage twice when rendering
                 window.addEventListener('IQB.unit.newPageDrawn', (e) => {
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         currentPage: e.detail.pageID,
                         presentationComplete: this.getPresentationCompleteStatus(),
@@ -335,7 +335,7 @@ class IQB_ItemPlayer {
                 console.log(this.validPageIDs);
 
                 this.sendMessageToParent({
-                    'type': 'OpenCBA.FromItemPlayer.StartedNotification',
+                    'type': 'vo.FromPlayer.StartedNotification',
                     'sessionId': this.sessionId,
                     'currentPage': currentPageAsString,
                     'validPages': this.validPageIDs,
@@ -345,7 +345,7 @@ class IQB_ItemPlayer {
 
                 // send the first restore point, to mark that the unit has been played
                 this.sendMessageToParent({
-                    type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                    type: 'vo.FromPlayer.ChangedDataTransfer',
                     sessionId: this.sessionId,
                     restorePoint: this.getRestorePoint()
                 });
@@ -490,7 +490,7 @@ class IQB_ItemPlayer {
     }
 
 
-    private sendMessageToParent(message: OpenCBA.ItemPlayerMessageData)
+    private sendMessageToParent(message: VO.UnitPlayerMessageData)
     {
         parent.window.postMessage(message, '*');
     }
@@ -499,7 +499,7 @@ class IQB_ItemPlayer {
     {
         // this function initializes the event listeners, which are used to identify when new data is inputed by the test taker
         // when new data from the testee is available, send it to the test controller via the sendMessageToParent() function,
-        // using the 'OpenCBA.FromItemPlayer.ChangedDataTransfer' postMessage type
+        // using the 'vo.FromPlayer.ChangedDataTransfer' postMessage type
 
         // console.log('IQB Item Player: adding response input events');
         const element = this.currentUnit.element(elementID);
@@ -513,7 +513,7 @@ class IQB_ItemPlayer {
 
                 checkboxHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
@@ -528,7 +528,7 @@ class IQB_ItemPlayer {
 
                 multipleChoiceHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
@@ -543,7 +543,7 @@ class IQB_ItemPlayer {
 
                 dropdownHTMLElement.addEventListener('change', (e) => {
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
@@ -558,7 +558,7 @@ class IQB_ItemPlayer {
 
                 textboxHTMLElement.addEventListener('keyup',  (e) => {
                     this.sendMessageToParent({
-                        type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
@@ -722,9 +722,9 @@ class IQB_ItemPlayer {
                             });
                         }
                         // finished loading pages viewed info
-                        
+
                         this.sendMessageToParent({
-                            type: 'OpenCBA.FromItemPlayer.ChangedDataTransfer',
+                            type: 'vo.FromPlayer.ChangedDataTransfer',
                             sessionId: this.sessionId,
                             presentationComplete: this.getPresentationCompleteStatus(),
                             responsesGiven: this.getResponsesGivenStatus()
@@ -836,7 +836,7 @@ class IQB_ItemPlayer {
   let itemPlayerInstance: IQB_ItemPlayer | undefined = undefined;
 
   const DataTransferHandler = (event: MessageEvent) => {
-    const initData = <OpenCBA.ToItemPlayer_DataTransfer>event.data;
+    const initData = <VO.ToPlayer_DataTransfer>event.data;
 
     itemPlayerInstance = new IQB_ItemPlayer(initData);
   };
@@ -871,36 +871,35 @@ class IQB_ItemPlayer {
 
   const postMessageListener = (event: MessageEvent) =>
   {
-    // this listener waits for and handles 'OpenCBA.initItemPlayer' and 'OpenCBA.endItemPlayer' postMessages from the test controller
-    console.log('The IQB ItemPlayer has received a message.');
-    // console.log('The IQB ItemPlayer received a message:');
+    console.log('The IQB Unit Player has received a message.');
     // console.log(event);
 
     if ('data' in event) {
         // event.data is set
         if ('type' in event.data) {
-            if (event.data.type === 'OpenCBA.ToItemPlayer.DataTransfer') {
+            if (event.data.type === 'vo.ToPlayer.DataTransfer') {
                 DataTransferHandler(event);
             }
-            else if (event.data.type === 'OpenCBA.ToItemPlayer.PageNavigationRequest') {
+            else if (event.data.type === 'vo.ToPlayer.PageNavigationRequest') {
                 pageNavigationRequestHandler(event);
             }
             else  {
-                console.error('IQB Item Player Error: the message type was not recognized');
+                console.error('IQB Unit Player Error: the message type was not recognized');
             }
         }
         else {
-            console.error('IQB Item Player Error: Message does not contain event.data.type');
+            console.error('IQB Unit Player Error: Message does not contain event.data.type');
         }
     }
     else {
-        console.error('IQB Item Player Error: event.data is not set');
+        console.error('IQB Unit Player Error: event.data is not set');
     }
   };
 
   window.addEventListener('message', postMessageListener);
 
-  const readyNotificationMessage: OpenCBA.FromItemPlayer_ReadyNotification = {
-      'type': 'OpenCBA.FromItemPlayer.ReadyNotification'
+  const readyNotificationMessage: VO.FromPlayer_ReadyNotification = {
+      'type': 'vo.FromPlayer.ReadyNotification',
+      'version': 1
   };
   parent.window.postMessage(readyNotificationMessage, '*');

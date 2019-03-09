@@ -11,6 +11,7 @@ mkdir "build\unitAuthoring"
 mkdir "build\unitAuthoring\js"
 mkdir "build\unitAuthoring\css"
 mkdir "build\unitAuthoring\includes"
+mkdir "build\unitAuthoring\features"
 mkdir "build\unitAuthoring\polyfills"
 mkdir "build\unitPlayer"
 mkdir "build\unitTestControllerExample"
@@ -36,4 +37,4 @@ rem finishing up unitTestControllerExample
 xcopy "src\unitTestControllerExample" "build\unitTestControllerExample" /E /Y
 copy "build\unitPlayer\unitPlayer.html" "build\unitTestControllerExample\includes\unitPlayer.html"
 rem renaming the unitPlayer to the current release
-move /Y "build\unitPlayer\unitPlayer.html" "build\unitPlayer\IQBUnitPlayerV12.html"
+move /Y "build\unitPlayer\unitPlayer.html" "build\unitPlayer\IQBPlayerV1.html"

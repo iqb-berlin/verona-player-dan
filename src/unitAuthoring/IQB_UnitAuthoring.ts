@@ -7,32 +7,33 @@ IQB Unit Authoring Entry Point
 // 2019
 // license: MIT
 
-import {Unit} from '../typescriptCommonFiles/unit/Unit.js';
-import {UnitElement} from '../typescriptCommonFiles/unit/UnitElement.js';
-import {UnitPage, SupportedUnitElementType} from '../typescriptCommonFiles/unit/UnitPage.js';
-import {Property} from '../typescriptCommonFiles/unit/Properties.js';
-import {PropertiesToolbox} from '../typescriptCommonFiles/authoringFeatures/PropertiesToolbox.js';
-import {PopupMenu} from '../typescriptCommonFiles/authoringFeatures/PopupMenu.js';
-import {ObjectWithProperties} from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
-import {DockingFeatures} from '../typescriptCommonFiles/authoringFeatures/DockingFeatures.js';
+import { VO } from '../typescriptCommonFiles/interfaces/iqb.js';
 
-import {AudioElement} from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
-import {CheckboxElement} from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
-import {DropdownElement} from '../typescriptCommonFiles/unit/elementTypes/DropdownElement.js';
-import {HtmlUnitElement} from '../typescriptCommonFiles/unit/elementTypes/HtmlElement.js';
-import {ImageElement} from '../typescriptCommonFiles/unit/elementTypes/ImageElement.js';
-import {MultipleChoiceElement} from '../typescriptCommonFiles/unit/elementTypes/MultipleChoiceElement.js';
-import {TableCell, TableElement} from '../typescriptCommonFiles/unit/elementTypes/TableElement.js';
-import {TextboxElement} from '../typescriptCommonFiles/unit/elementTypes/TextboxElement.js';
-import {TextElement} from '../typescriptCommonFiles/unit/elementTypes/TextElement.js';
-import {VideoElement} from '../typescriptCommonFiles/unit/elementTypes/VideoElement.js';
+import { Property } from '../typescriptCommonFiles/unit/Properties.js';
+import { ObjectWithProperties } from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
 import { ObjectWithSpatialProperties } from '../typescriptCommonFiles/unit/ObjectWithSpatialProperties.js';
-import { OpenCBA } from '../typescriptCommonFiles/OpenCBA/OpenCBA.js';
+import { UnitElement } from '../typescriptCommonFiles/unit/UnitElement.js';
 import { UnitElementData } from '../typescriptCommonFiles/models/Data.js';
+import { UnitPage, SupportedUnitElementType } from '../typescriptCommonFiles/unit/UnitPage.js';
+import { Unit } from '../typescriptCommonFiles/unit/Unit.js';
+import { PropertiesToolbox } from './features/PropertiesToolbox.js';
+import { PopupMenu } from './features/PopupMenu.js';
+import { DockingFeatures } from './features/DockingFeatures.js';
+
+import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
+import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
+import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement.js';
+import { HtmlUnitElement } from '../typescriptCommonFiles/unit/elementTypes/HtmlElement.js';
+import { ImageElement } from '../typescriptCommonFiles/unit/elementTypes/ImageElement.js';
+import { MultipleChoiceElement } from '../typescriptCommonFiles/unit/elementTypes/MultipleChoiceElement.js';
+import { TableCell, TableElement } from '../typescriptCommonFiles/unit/elementTypes/TableElement.js';
+import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/TextboxElement.js';
+import { TextElement } from '../typescriptCommonFiles/unit/elementTypes/TextElement.js';
+import { VideoElement } from '../typescriptCommonFiles/unit/elementTypes/VideoElement.js';
 
 const OpenCBA_UnitAuthoringInterface =
 {
-    unitDefinitionType: 'IQBUnitPlayerV12',
+    unitDefinitionType: 'IQBPlayerV1',
     containerWindow: window.parent,
     checkOrigin: false,
     acceptedOrigin: '*',
@@ -1555,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
                     {
                         if (e.data.sessionId === OpenCBA_UnitAuthoringInterface.sessionId) {
 
-                            const changedDataTransferMessage: OpenCBA.FromUnitAuthoring_ChangedDataTransfer = {
+                            const changedDataTransferMessage: VO.FromUnitAuthoring_ChangedDataTransfer = {
                                 'type': 'OpenCBA.FromUnitAuthoring.ChangedDataTransfer',
                                 'sessionId': OpenCBA_UnitAuthoringInterface.sessionId,
                                 'unitDefinition': unitAuthoringTool.saveUnitToJson(),
@@ -1601,7 +1602,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
     }); // end of the message event listener
 
     window.addEventListener('IQB.unit.hasChanged', (e) => {
-        const changedNotificationMessage: OpenCBA.FromUnitAuthoring_ChangedNotification = {
+        const changedNotificationMessage: VO.FromUnitAuthoring_ChangedNotification = {
             'type': 'OpenCBA.FromUnitAuthoring.ChangedNotification',
             'sessionId': OpenCBA_UnitAuthoringInterface.sessionId
         };
@@ -1614,7 +1615,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
     });
 
-    const readyMessage: OpenCBA.FromUnitAuthoring_ReadyNotification = {
+    const readyMessage: VO.FromUnitAuthoring_ReadyNotification = {
         'type': 'OpenCBA.FromUnitAuthoring.ReadyNotification'
     };
 
