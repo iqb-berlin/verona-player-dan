@@ -39,15 +39,6 @@ export class ViewpointElement extends UnitElement {
         });
         */
 
-        this.properties.addProperty('sendsLogs', {
-            value: 'true',
-            userAdjustable: true,
-            propertyType: 'boolean',
-            hidden: false,
-            caption: 'Logdaten',
-            tooltip: 'Soll der Viewpoint Log-Daten schicken, wenn er gesehen / nicht gesehen wurde?'
-        });
-
         this.properties.addProperty('sendsResponses', {
             value: 'false',
             userAdjustable: true,

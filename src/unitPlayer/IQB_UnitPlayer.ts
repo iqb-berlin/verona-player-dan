@@ -179,6 +179,7 @@ class IQB_ItemPlayer {
                 */
 
                 // add viewpoint log functionality
+                /*
                 this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
                     viewpoint.addIntersectionObserverCallback((entries) => {
                         entries.forEach((entry) => {
@@ -195,6 +196,7 @@ class IQB_ItemPlayer {
                         });
                     });
                 });
+                */
 
                 // load the item restore point if given
                 if (typeof initData.restorePoint === 'string') {
@@ -518,7 +520,6 @@ class IQB_ItemPlayer {
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
                         responseType: this.responseType,
-                        logEntries: ['The checkbox ' + elementID + ' is now ' + checkboxHTMLElement.checked]
                     });
                 });
             }
@@ -533,7 +534,6 @@ class IQB_ItemPlayer {
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
                         responseType: this.responseType,
-                        logEntries: ['New multiple choice selected: ' + elementID]
                     });
                 });
             }
@@ -548,7 +548,6 @@ class IQB_ItemPlayer {
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
                         responseType: this.responseType,
-                        logEntries: ['The dropdown ' + elementID + ' is now ' + dropdownHTMLElement.value]
                     });
                 });
             }
@@ -563,7 +562,6 @@ class IQB_ItemPlayer {
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
                         responseType: this.responseType,
-                        logEntries: ['New text value for ' +  elementID  + ': ' + textboxHTMLElement.value]
                     });
                 });
             }

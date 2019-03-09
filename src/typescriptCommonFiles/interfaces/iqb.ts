@@ -105,7 +105,6 @@ export namespace VO {
         response?: string;
         responseType?: string;
         responseComplete?: boolean;
-        logEntries?: string[];
         presentationComplete?: 'yes' | 'no';
         responsesGiven?: 'yes' | 'no' | 'all';
     }
