@@ -219,7 +219,7 @@ export class TableElement extends UnitElement {
                 // console.log('trying to render table cells:');
                 // console.log(propertyValue);
 
-                // temporarily remove the height and with properties of the element, 
+                // temporarily remove the height and with properties of the element,
                 // so as to dynamically size the table element according to its contents
                 const tableElementID = this.getElementID() + '_table';
                 const tableElement = document.getElementById(tableElementID);
@@ -237,7 +237,7 @@ export class TableElement extends UnitElement {
                         for (let j = 0; j < tableCells[i].length; j++)
                         {
                             const tableCellID = tableCells[i][j].getPropertyValue('id');
-                            const tableCellWidth = tableCells[i][j].getPropertyValue('width'); 
+                            const tableCellWidth = tableCells[i][j].getPropertyValue('width');
                             const tableCellHeight = tableCells[i][j].getPropertyValue('height');
                             tableContentHTML += `<td id="${tableCellID}"
                                                      style="height: ${tableCellHeight}px; width: ${tableCellWidth}px; border: 1px solid black;">
@@ -401,7 +401,7 @@ export class TableElement extends UnitElement {
                 const deletedRowsOfElementIds = tableCells.splice(atRowNumber , 1);
 
                 // update table properties
-                this.setPropertyValue('tableCells', tableCells); 
+                this.setPropertyValue('tableCells', tableCells);
 
                 // update cell properties
                 this.mapToTableCells((tableCell: TableCell, rowNumber: number, columnNumber: number) => {
@@ -411,7 +411,7 @@ export class TableElement extends UnitElement {
             }
             else
             {
-                alert('Die letzte Linie einer Tabelle kann nicht gelöscht werden.')
+                alert('Die letzte Linie einer Tabelle kann nicht gelöscht werden.');
             }
         }
         else if (alterationType === 'deleteColumn')
@@ -441,7 +441,7 @@ export class TableElement extends UnitElement {
             }
             else
             {
-                alert('Die letzte Spalte einer Tabelle kann nicht gelöscht werden.')
+                alert('Die letzte Spalte einer Tabelle kann nicht gelöscht werden.');
             }
         }
 
