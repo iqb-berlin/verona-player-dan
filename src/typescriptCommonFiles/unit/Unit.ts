@@ -60,13 +60,14 @@ export class Unit extends ObjectWithProperties {
                 caption: 'Elements counter'
             });
 
-            this.properties.addProperty('lastEdited', {
-                value: Date.now(),
+            this.properties.addProperty('player', {
+                value: '',
                 userAdjustable: false,
-                propertyType: 'number',
+                propertyType: 'text',
                 hidden: true,
-                caption: 'When the unit was last edited'
+                caption: 'The player format for this Unit'
             });
+
 
             const firstPage = this.newPage().getID();
             this.currentPageID = firstPage;

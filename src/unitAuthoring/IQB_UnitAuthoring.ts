@@ -33,7 +33,7 @@ import { VideoElement } from '../typescriptCommonFiles/unit/elementTypes/VideoEl
 
 const vo_UnitAuthoringInterface =
 {
-    player: 'IQBUnitPlayerV1',
+    player: 'IQBVisualUnitPlayerV1',
     containerWindow: window.parent,
     checkOrigin: false,
     acceptedOrigin: '*',
@@ -1403,9 +1403,12 @@ class IQB_UnitAuthoringTool
 
         this.dispatchUnitHasLoadedEvent();
 
-        // update the lastEdited property of the unit
-        this.currentUnit.setPropertyValue('lastEdited', Date.now());
-        console.log('Last edited property changed');
+        // update unit player version if needed
+        if (this.currentUnit.getPropertyValue('player') !== vo_UnitAuthoringInterface.player) {
+            console.log('IQB Unit Editor: Detected that the unit was last saved for an older player, ' + this.currentUnit.getPropertyValue('player'));
+            console.log('Updated it to ' + vo_UnitAuthoringInterface.player);
+            this.currentUnit.setPropertyValue('player', vo_UnitAuthoringInterface.player);
+        }
 
         /*
         // first delete current elements
