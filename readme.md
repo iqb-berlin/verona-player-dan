@@ -1,7 +1,5 @@
 # Intro
 
-![IQB Logo](https://www.iqb.hu-berlin.de/system/img/logo_IQB.png)
-
 This repository contains v1.0.0 of the IQB Unit Authoring Tool and the IQB Unit Player.
 
 # Tech
