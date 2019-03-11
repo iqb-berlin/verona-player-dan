@@ -13,52 +13,49 @@ export namespace VO {
 
     // Unit Authoring
 
-    export interface FromUnitAuthoring_ReadyNotification {
+    export interface FromAuthoringModule_ReadyNotification {
         // Unit Authoring Module -> Host
         // Announcing Load Complete
 
-        type: 'OpenCBA.FromUnitAuthoring.ReadyNotification';
+        type: 'vo.FromAuthoringModule.ReadyNotification';
     }
 
-    export interface ToUnitAuthoring_DataTransfer {
+    export interface ToAuthoringModule_DataTransfer {
         // Host -> Unit Authoring Module
-        // Answering 'OpenCBA.FromUnitAuthoring.ReadyNotification'
+        // Answering 'vo.FromUnitAuthoring.ReadyNotification'
 
-        type: 'OpenCBA.ToUnitAuthoring.DataTransfer';
+        type: 'vo.ToAuthoringModule.DataTransfer';
         sessionId: string;
         unitDefinition: string;
     }
 
-    export interface FromUnitAuthoring_ChangedNotification {
+    export interface FromAuthoringModule_ChangedNotification {
         // Unit Authoring Module -> Host
         // Sent to announce that unit definition has changed
 
-        type: 'OpenCBA.FromUnitAuthoring.ChangedNotification';
+        type: 'vo.FromAuthoringModule.ChangedNotification';
         sessionId: string;
     }
 
-    export interface ToUnitAuthoring_ChangedDataCall {
+    export interface ToAuthoringModule_DataRequest {
         // Host -> Unit Authoring Module
         // the host calls to get the (changed) unit definition
 
-        type: 'OpenCBA.ToUnitAuthoring.ChangedDataCall';
+        type: 'vo.ToAuthoringModule.DataRequest';
         sessionId: string;
     }
 
-    export interface FromUnitAuthoring_ChangedDataTransfer {
+    export interface FromAuthoringModule_DataTransfer {
         // Unit authoring Module -> Host
-        // Direct answer to Message_ToUnitAuthoring_ChangedDataCall;
-        // the unitDefinitionType ensures that the right item player will be chosen to run this unit
+        // Direct answer to ToAuthoringModule_DataRequest;
 
-        type: 'OpenCBA.FromUnitAuthoring.ChangedDataTransfer';
+        type: 'vo.FromAuthoringModule.DataTransfer';
         sessionId: string;
         unitDefinition: string;
-        unitDefinitionType: string;
+        player: string;
     }
 
-
-
-    // Item Player
+    // Unit Player
 
     export interface FromPlayer_ReadyNotification {
         // Player -> Host
@@ -103,49 +100,49 @@ export namespace VO {
         currentPage?: string;
         restorePoint?: string;
         response?: string;
-        responseType?: string;
+        responseConverter?: string;
         responseComplete?: boolean;
         presentationComplete?: 'yes' | 'no';
         responsesGiven?: 'yes' | 'no' | 'all';
     }
 
-    export interface ToPlayer_PageNavigationRequest {
+    export interface ToPlayer_NavigateToPage {
         // Host ->  Player
         // Request that the player has to navigate to this page;
         // newPage is one of the strings given to the host via validPages;
         // completion is announced by the player via vo.FromPlayer.ChangedDataTransfer
 
-        type: 'vo.ToPlayer.PageNavigationRequest';
+        type: 'vo.ToPlayer.NavigateToPage';
         sessionId: string;
         newPage: string;
     }
 
-    export interface FromPlayer_PageNavigationRequestedNotification {
+    export interface FromPlayer_PageNavigationRequest {
         // Player -> Host
-        type: 'vo.FromPlayer.PageNavigationRequestedNotification';
+        type: 'vo.FromPlayer.PageNavigationRequest';
         sessionId: string;
         newPage: string;
     }
 
-    export interface FromPlayer_NavigationRequestedNotification {
+    export interface FromPlayer_UnitNavigationRequest {
         // Player -> Host
         // navigationTarget is an sequence-ID of a certain unit or one of these:
         //    (unit) "#next", "#previous", "#first", "#last", (booklet) "#end"
 
-        type: 'vo.FromPlayer.NavigationRequestedNotification';
+        type: 'vo.FromPlayer.UnitNavigationRequest';
         sessionId: string;
         navigationTarget: string;
     }
 
     // messages
 
-    export type UnitAuthoringMessageData = FromUnitAuthoring_ReadyNotification | ToUnitAuthoring_DataTransfer |
-                                           FromUnitAuthoring_ChangedNotification | ToUnitAuthoring_ChangedDataCall |
-                                           FromUnitAuthoring_ChangedDataTransfer;
+    export type UnitAuthoringMessageData = FromAuthoringModule_ReadyNotification | ToAuthoringModule_DataTransfer |
+                                           FromAuthoringModule_ChangedNotification | ToAuthoringModule_DataRequest |
+                                           FromAuthoringModule_DataTransfer;
 
     export type UnitPlayerMessageData = FromPlayer_ReadyNotification | ToPlayer_DataTransfer |
                                         FromPlayer_StartedNotification | FromPlayer_ChangedDataTransfer |
-                                        ToPlayer_PageNavigationRequest | FromPlayer_PageNavigationRequestedNotification |
-                                        FromPlayer_NavigationRequestedNotification;
+                                        ToPlayer_NavigateToPage | FromPlayer_PageNavigationRequest |
+                                        FromPlayer_UnitNavigationRequest;
 
-} // end of the OpenCBA namespace section
+} // end of the vo namespace section

@@ -35,7 +35,7 @@ export class CheckboxElement extends UnitElement {
         });
 
         this.properties.addProperty('text', {
-            value:'neue Checkbox',
+            value: 'neue Checkbox',
             userAdjustable: true,
             propertyType: 'text',
             hidden: false,

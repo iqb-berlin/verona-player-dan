@@ -5,7 +5,7 @@
 
 import {Property, Properties} from './Properties.js';
 import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../models/Data.js';
-import {ObjectWithProperties} from './ObjectWithProperties.js'
+import {ObjectWithProperties} from './ObjectWithProperties.js';
 
 export class ObjectWithSpatialProperties extends ObjectWithProperties {
     constructor(id: string, type: string, public pageID: string)
@@ -55,8 +55,8 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
             const element =  document.getElementById(this.getID());
             if (element !== null)
             {
-                let newTop = this.getPageJQueryElement().offset().top + parseInt(propertyValue);
-                let maxTop = this.getPageJQueryElement().offset().top + this.getPageJQueryElement().height() - this.properties.getPropertyValue("height");
+                let newTop = this.getPageJQueryElement().offset().top + parseInt(propertyValue, 10);
+                const maxTop = this.getPageJQueryElement().offset().top + this.getPageJQueryElement().height() - this.properties.getPropertyValue('height');
                 if (newTop > maxTop) {
                     newTop = maxTop;
                 }
@@ -168,18 +168,25 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
         const oldWidth = this.properties.getPropertyValue('width');
         const oldHeight = this.properties.getPropertyValue('height');
 
-        let maxHeight = $page.height() - ($element.offset().top - $page.offset().top) - 20;
-        let maxWidth = $page.width() - (($element.offset().left - $page.offset().left)) - 20;
+        const maxHeight = $page.height() - ($element.offset().top - $page.offset().top) - 20;
+        const maxWidth = $page.width() - (($element.offset().left - $page.offset().left)) - 20;
 
-        if ($element.width() > maxWidth) $element.css('width', maxWidth + 'px');
-        if ($element.height() > maxHeight) $element.css('height', maxHeight + 'px');
+        if ($element.width() > maxWidth) {
+            $element.css('width', maxWidth + 'px');
+        }
+        if ($element.height() > maxHeight) {
+            $element.css('height', maxHeight + 'px');
+        }
+        if ($element.width() < 10) {
+            $element.css('min-width', '10px');
+        }
+        if ($element.height() < 10) {
+            $element.css('min-height', '10px');
+        }
 
-        if ($element.width() < 10) $element.css('min-width', '10px');
-        if ($element.height() < 10) $element.css('min-height', '10px');
-            
         this.properties.setPropertyValue('width', $element.width());
         this.properties.setPropertyValue('height', $element.height());
-    
+
         const newWidth = this.properties.getPropertyValue('width');
         const newHeight = this.properties.getPropertyValue('height');
 

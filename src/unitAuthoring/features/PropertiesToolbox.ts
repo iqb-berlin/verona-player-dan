@@ -1,17 +1,17 @@
 // www.IQB.hu-berlin.de
 // Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
-// 2018
+// 2019
 // license: MIT
 
-import {UnitElement} from '../unit/UnitElement.js';
-import {UnitPage} from '../unit/UnitPage.js';
-import {Unit} from '../unit/Unit.js';
+import {UnitElement} from '../../typescriptCommonFiles/unit/UnitElement.js';
+import {UnitPage} from '../../typescriptCommonFiles/unit/UnitPage.js';
+import {Unit} from '../../typescriptCommonFiles/unit/Unit.js';
 
-import {Property, Properties, DropdownProperty} from '../unit/Properties.js';
+import {Property, Properties, DropdownProperty} from '../../typescriptCommonFiles/unit/Properties.js';
 
-import {TableCell, TableElement} from '../unit/elementTypes/TableElement.js';
+import {TableCell, TableElement} from '../../typescriptCommonFiles/unit/elementTypes/TableElement.js';
 
-import {ObjectWithProperties} from '../unit/ObjectWithProperties.js';
+import {ObjectWithProperties} from '../../typescriptCommonFiles/unit/ObjectWithProperties.js';
 
 export class PropertiesToolbox
 {
@@ -92,7 +92,7 @@ export class PropertiesToolbox
 
         // use an array to sort the properties beforehand
         const propertiesDisplayedArray: Array<string> = [];
-        propertiesDisplayed.forEach((property:Property, propertyName: string) => {
+        propertiesDisplayed.forEach((property: Property, propertyName: string) => {
                 propertiesDisplayedArray.push(propertyName);
         });
 
@@ -214,7 +214,7 @@ export class PropertiesToolbox
                     }
                     propertiesHTML += `</td>`;
                     propertiesHTML += '</tr>';
-                    
+
                     if (propertyName === 'text') {
                         propertiesHTML += '<tr>';
                         propertiesHTML += '<td title="Zum Benutzen via Kopieren und Einfügen">Sonderzeichen</td>';
@@ -298,7 +298,7 @@ export class PropertiesToolbox
 
             (document.getElementById('btnApplyProperties') as HTMLElement).onclick = () => {
                 this.applyNewProperties(tableCell);
-            }
+            };
 
             const tableElementID = tableCell.parentTable.getID();
             const atTableRow = tableCell.getPropertyValue('rowNumber');

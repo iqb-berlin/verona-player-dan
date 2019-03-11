@@ -31,9 +31,9 @@ import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/Textb
 import { TextElement } from '../typescriptCommonFiles/unit/elementTypes/TextElement.js';
 import { VideoElement } from '../typescriptCommonFiles/unit/elementTypes/VideoElement.js';
 
-const OpenCBA_UnitAuthoringInterface =
+const vo_UnitAuthoringInterface =
 {
-    unitDefinitionType: 'IQBPlayerV1',
+    player: 'IQBUnitPlayerV1',
     containerWindow: window.parent,
     checkOrigin: false,
     acceptedOrigin: '*',
@@ -665,7 +665,7 @@ class IQB_UnitAuthoringTool
         });
     }
 
-    public drawElementAuthoringTools(elementID:string)
+    public drawElementAuthoringTools(elementID: string)
     {
         const element = this.currentUnit.element(elementID);
         const htmlElement = document.getElementById(elementID) as HTMLElement;
@@ -1501,7 +1501,7 @@ const emptyNewUnitData = {
          {'elementsCounter': 0,
          'pagesCounter': 1},
     'pages': {
-        'seite1':{
+        'seite1': {
             'properties': {
                 'type': 'page',
                 'style': '',
@@ -1525,11 +1525,11 @@ document.addEventListener('DOMContentLoaded', (e) => {
         // console.log('IQB Authoring Tool has received the following message:');
         // console.log(e);
 
-        if ((e.origin === OpenCBA_UnitAuthoringInterface.acceptedOrigin) || (!OpenCBA_UnitAuthoringInterface.checkOrigin)) {
+        if ((e.origin === vo_UnitAuthoringInterface.acceptedOrigin) || (!vo_UnitAuthoringInterface.checkOrigin)) {
             if (('type' in e) && ('sessionId' in e.data)) {
 
                 // LoadUnitDefinition
-                if (e.data.type === 'OpenCBA.ToUnitAuthoring.DataTransfer') {
+                if (e.data.type === 'vo.ToAuthoringModule.DataTransfer') {
                     if ('unitDefinition' in e.data) {
                         if (typeof e.data.sessionId !== 'undefined')
                         {
@@ -1540,7 +1540,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
                             else {
                                 unitAuthoringTool.loadUnitFromJson(JSON.stringify(emptyNewUnitData));
                             }
-                            OpenCBA_UnitAuthoringInterface.sessionId = e.data.sessionId;
+                            vo_UnitAuthoringInterface.sessionId = e.data.sessionId;
                         }
                         else
                         {
@@ -1551,23 +1551,23 @@ document.addEventListener('DOMContentLoaded', (e) => {
                     }
 
                 // UnitDefinitionRequest
-                } else if (e.data.type === 'OpenCBA.ToUnitAuthoring.ChangedDataCall') {
+                } else if (e.data.type === 'vo.ToAuthoringModule.DataRequest') {
                     if (typeof e.data.sessionId !== 'undefined')
                     {
-                        if (e.data.sessionId === OpenCBA_UnitAuthoringInterface.sessionId) {
+                        if (e.data.sessionId === vo_UnitAuthoringInterface.sessionId) {
 
-                            const changedDataTransferMessage: VO.FromUnitAuthoring_ChangedDataTransfer = {
-                                'type': 'OpenCBA.FromUnitAuthoring.ChangedDataTransfer',
-                                'sessionId': OpenCBA_UnitAuthoringInterface.sessionId,
+                            const changedDataTransferMessage: VO.FromAuthoringModule_DataTransfer = {
+                                'type': 'vo.FromAuthoringModule.DataTransfer',
+                                'sessionId': vo_UnitAuthoringInterface.sessionId,
                                 'unitDefinition': unitAuthoringTool.saveUnitToJson(),
-                                'unitDefinitionType': OpenCBA_UnitAuthoringInterface.unitDefinitionType
+                                'player': vo_UnitAuthoringInterface.player
                             };
 
                             // console.log('IQB Authoring Tool: I have sent the following message to the host');
                             // console.log(changedDataTransferMessage);
 
-                            OpenCBA_UnitAuthoringInterface.containerWindow.postMessage(changedDataTransferMessage,
-                                                                                    OpenCBA_UnitAuthoringInterface.acceptedOrigin);
+                            vo_UnitAuthoringInterface.containerWindow.postMessage(changedDataTransferMessage,
+                                                                                    vo_UnitAuthoringInterface.acceptedOrigin);
                         }
                         else {
                             console.error('IQB Authoring Tool Error: sessionId not valid in message UnitDefinitionRequest');
@@ -1578,10 +1578,10 @@ document.addEventListener('DOMContentLoaded', (e) => {
                        console.error('IQB Authoring Tool Error: sessionId sent is undefined');
                    }
                 }
-                else if ((e.data.type === 'OpenCBA.FromUnitAuthoring.ChangedNotification') ||
-                        (e.data.type === 'OpenCBA.FromUnitAuthoring.ReadyNotification'))
+                else if ((e.data.type === 'vo.FromAuthoringModule.ChangedNotification') ||
+                        (e.data.type === 'vo.FromAuthoringModule.ReadyNotification'))
                 {
-                    // this happens when OpenCBA_UnitAuthoringInterface.containerWindow is the same window as 'window'
+                    // this happens when vo_UnitAuthoringInterface.containerWindow is the same window as 'window'
                 }
                 else {
                     console.error('IQB Authoring Tool Error: message type is not known.');
@@ -1602,27 +1602,27 @@ document.addEventListener('DOMContentLoaded', (e) => {
     }); // end of the message event listener
 
     window.addEventListener('IQB.unit.hasChanged', (e) => {
-        const changedNotificationMessage: VO.FromUnitAuthoring_ChangedNotification = {
-            'type': 'OpenCBA.FromUnitAuthoring.ChangedNotification',
-            'sessionId': OpenCBA_UnitAuthoringInterface.sessionId
+        const changedNotificationMessage: VO.FromAuthoringModule_ChangedNotification = {
+            'type': 'vo.FromAuthoringModule.ChangedNotification',
+            'sessionId': vo_UnitAuthoringInterface.sessionId
         };
 
         // console.log('IQB Authoring Tool: I have sent the following message to the host');
         // console.log(changedNotificationMessage);
 
-        OpenCBA_UnitAuthoringInterface.containerWindow.postMessage(changedNotificationMessage,
-                                                                   OpenCBA_UnitAuthoringInterface.acceptedOrigin);
+        vo_UnitAuthoringInterface.containerWindow.postMessage(changedNotificationMessage,
+                                                                   vo_UnitAuthoringInterface.acceptedOrigin);
 
     });
 
-    const readyMessage: VO.FromUnitAuthoring_ReadyNotification = {
-        'type': 'OpenCBA.FromUnitAuthoring.ReadyNotification'
+    const readyMessage: VO.FromAuthoringModule_ReadyNotification = {
+        'type': 'vo.FromAuthoringModule.ReadyNotification'
     };
 
     // console.log('IQB Authoring Tool: I have sent the following message to the host');
     // console.log(readyMessage);
 
-    OpenCBA_UnitAuthoringInterface.containerWindow.postMessage(readyMessage, OpenCBA_UnitAuthoringInterface.acceptedOrigin);
+    vo_UnitAuthoringInterface.containerWindow.postMessage(readyMessage, vo_UnitAuthoringInterface.acceptedOrigin);
 
     // finish instantiating editor functionality
 });

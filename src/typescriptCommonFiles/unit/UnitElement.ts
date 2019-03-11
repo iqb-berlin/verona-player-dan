@@ -15,7 +15,7 @@ import { ViewpointElement } from './elementTypes/ViewpointElement.js';
 
 export class UnitElement extends ObjectWithSpatialProperties {
 
-    public propertyRenderers : PropertyRenderersLibrary = {};
+    public propertyRenderers: PropertyRenderersLibrary = {};
     public elementCommonStyle = 'display: inline-block; position: absolute; overflow: visible;';
 
     private isDrawn: boolean = false;
@@ -124,7 +124,7 @@ export class UnitElement extends ObjectWithSpatialProperties {
     {
         const unitElementData = {
             'properties': this.properties.getData()
-        }
+        };
         return unitElementData;
     }
 

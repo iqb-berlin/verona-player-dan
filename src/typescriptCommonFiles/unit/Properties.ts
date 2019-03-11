@@ -23,7 +23,7 @@ export interface DropdownProperty extends Property
 {
     propertyData: {
         [dropdownOptionName: string]: string;
-    }
+    };
 }
 
 export interface PropertyRendererFunction {

@@ -1,11 +1,11 @@
 // www.IQB.hu-berlin.de
 // Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
-// 2018
+// 2019
 // license: MIT
 
-import {UnitElement} from '../unit/UnitElement.js';
-import {UnitPage} from '../unit/UnitPage.js';
-import {Unit} from '../unit/Unit.js';
+import {UnitElement} from '../../typescriptCommonFiles/unit/UnitElement.js';
+import {UnitPage} from '../../typescriptCommonFiles/unit/UnitPage.js';
+import {Unit} from '../../typescriptCommonFiles/unit/Unit.js';
 
 export interface PopupMenuItem
 {

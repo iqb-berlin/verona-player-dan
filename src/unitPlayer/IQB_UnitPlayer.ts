@@ -43,7 +43,8 @@ interface ResponsesObject
 
 class IQB_ItemPlayer {
     // the main class that implements the IQB ItemPlayer functionality
-    private responseType = 'IQBPlayerV1';
+    private name = 'IQBPlayerV1';
+    private responseConverter = 'VERAOnlineV1';
 
     private currentUnit: Unit;
 
@@ -115,7 +116,7 @@ class IQB_ItemPlayer {
 
                 window.addEventListener('IQB.unit.navigateToPage', (e) => {
                     this.sendMessageToParent({
-                        type: 'vo.FromPlayer.PageNavigationRequestedNotification',
+                        type: 'vo.FromPlayer.PageNavigationRequest',
                         sessionId: this.sessionId,
                         newPage: e.detail.pageID
                     });
@@ -123,7 +124,7 @@ class IQB_ItemPlayer {
 
                 window.addEventListener('IQB.unit.endTestButtonClicked', (e) => {
                     this.sendMessageToParent({
-                        type: 'vo.FromPlayer.NavigationRequestedNotification',
+                        type: 'vo.FromPlayer.UnitNavigationRequest',
                         sessionId: this.sessionId,
                         navigationTarget: '#end'
                     });
@@ -519,7 +520,7 @@ class IQB_ItemPlayer {
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
-                        responseType: this.responseType,
+                        responseConverter: this.responseConverter
                     });
                 });
             }
@@ -533,7 +534,7 @@ class IQB_ItemPlayer {
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
-                        responseType: this.responseType,
+                        responseConverter: this.responseConverter
                     });
                 });
             }
@@ -547,7 +548,7 @@ class IQB_ItemPlayer {
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
-                        responseType: this.responseType,
+                        responseConverter: this.responseConverter
                     });
                 });
             }
@@ -561,7 +562,7 @@ class IQB_ItemPlayer {
                         sessionId: this.sessionId,
                         restorePoint: this.getRestorePoint(),
                         response: this.getResponses(),
-                        responseType: this.responseType,
+                        responseConverter: this.responseConverter
                     });
                 });
             }
@@ -848,21 +849,21 @@ class IQB_ItemPlayer {
                 }
                 else
                 {
-                    console.error('IQB Item Player Error: newPage not specified in the PageNavigationRequest');
+                    console.error('IQB Unit Player Error: newPage not specified in the PageNavigationRequest');
                 }
             }
             else
             {
-                console.error('IQB Item Player Error: invalid sessionId. Expected ' + itemPlayerInstance.sessionId +
+                console.error('IQB Unit Player Error: invalid sessionId. Expected ' + itemPlayerInstance.sessionId +
                               ' but received ' + event.data.sessionId);
             }
         }
         else {
-            console.error('IQB Item Player Error: no sessionId provided in the page navigation request message');
+            console.error('IQB Unit Player Error: no sessionId provided in the page navigation request message');
         }
     }
     else {
-        console.error('IQB Item Player Error: no Item Player initialized, so cannot navigate to new page');
+        console.error('IQB Unit Player Error: no Unit Player initialized, so cannot navigate to new page');
     }
   };
 
@@ -878,11 +879,12 @@ class IQB_ItemPlayer {
             if (event.data.type === 'vo.ToPlayer.DataTransfer') {
                 DataTransferHandler(event);
             }
-            else if (event.data.type === 'vo.ToPlayer.PageNavigationRequest') {
+            else if (event.data.type === 'vo.ToPlayer.NavigateToPage') {
                 pageNavigationRequestHandler(event);
             }
             else  {
                 console.error('IQB Unit Player Error: the message type was not recognized');
+                console.log(event.data);
             }
         }
         else {

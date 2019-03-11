@@ -170,10 +170,10 @@ export class UnitPage extends ObjectWithProperties {
 
     public getData(): UnitPageData
     {
-        let unitPageData: UnitPageData = {
+        const unitPageData: UnitPageData = {
             properties: this.properties.getData(),
             elements: {}
-        }
+        };
 
         this.elements.forEach((element: UnitElement, elementName: string) => {
             unitPageData.elements[elementName] = element.getData();
@@ -524,7 +524,7 @@ export class UnitPage extends ObjectWithProperties {
 
     public mapToAllTableCellsOnPage(f: TableCellFunction): void
     {
-        this.getElementsMap().forEach((element:UnitElement) => {
+        this.getElementsMap().forEach((element: UnitElement) => {
             if (element.getElementType() === 'table')
             {
                 const tableElement = element as TableElement;

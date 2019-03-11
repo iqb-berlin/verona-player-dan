@@ -312,7 +312,7 @@ export class AudioElement extends UnitElement {
         const pauseButton = document.getElementById(this.elementID + '_audio_btnPause') as HTMLImageElement;
 
         // using oncanplay instead of dataloaded idea inspired by https://stackoverflow.com/a/37044134
-        // license: cc by-sa 3.0 
+        // license: cc by-sa 3.0
         // posted by user: https://stackoverflow.com/users/877819/mp-de-la-vega
 
         audioElement.onloadeddata = () => {

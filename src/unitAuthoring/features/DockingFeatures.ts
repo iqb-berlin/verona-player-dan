@@ -1,13 +1,13 @@
 // www.IQB.hu-berlin.de
 // Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
-// 2018
+// 2019
 // license: MIT
 
-import {ObjectWithSpatialProperties} from '../unit/ObjectWithSpatialProperties.js';
-import {UnitElement} from '../unit/UnitElement.js';
-import {TableCell, TableElement} from '../unit/elementTypes/TableElement.js';
-import {UnitPage} from '../unit/UnitPage.js';
-import {Unit} from '../unit/Unit.js';
+import {ObjectWithSpatialProperties} from '../../typescriptCommonFiles/unit/ObjectWithSpatialProperties.js';
+import {UnitElement} from '../../typescriptCommonFiles/unit/UnitElement.js';
+import {TableCell, TableElement} from '../../typescriptCommonFiles/unit/elementTypes/TableElement.js';
+import {UnitPage} from '../../typescriptCommonFiles/unit/UnitPage.js';
+import {Unit} from '../../typescriptCommonFiles/unit/Unit.js';
 
 export class DockingFeatures
 {
