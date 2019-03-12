@@ -148,7 +148,7 @@ export class MultipleChoiceElement extends UnitElement {
             <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
                 <span id="${this.elementID}_style">
                     <input id="${this.elementID}_multipleChoice" class="${this.elementID}_variableHolder" name="${this.elementID}" type="radio">
-                    <span id="${this.elementID}_text" style="">
+                    <label for="${this.elementID}_multipleChoice" id="${this.elementID}_text" style="">
                     ${this.properties.getPropertyValue('text')}
                     </span>
                 </span>

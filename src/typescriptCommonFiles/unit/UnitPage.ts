@@ -220,11 +220,13 @@ export class UnitPage extends ObjectWithProperties {
             if (elementType === 'multipleChoice')
             {
                 const multipleChoiceElement = element as MultipleChoiceElement;
-                if (multipleChoiceElement.responseGiven === false) {
-                    multipleChoiceElement.responseGiven = true;
-                    window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
-                        detail: {'elementID': elementID}
-                    }));
+                if (multipleChoiceElement.getPropertyValue('groupName') === groupName) {
+                    if (multipleChoiceElement.responseGiven === false) {
+                        multipleChoiceElement.responseGiven = true;
+                        window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                            detail: {'elementID': elementID}
+                        }));
+                    }
                 }
             }
         });

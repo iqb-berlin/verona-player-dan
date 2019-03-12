@@ -141,7 +141,7 @@ export class CheckboxElement extends UnitElement {
             <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
                 <span id="${this.elementID}_style">
                     <input id="${this.elementID}_checkbox" class="${this.elementID}_variableHolder" name="${this.elementID}" type="checkbox">
-                    <span id="${this.elementID}_text" style="">
+                    <label for="${this.elementID}_checkbox" id="${this.elementID}_text" style="">
                         ${this.properties.getPropertyValue('text')}
                     </span>
                 </span>
