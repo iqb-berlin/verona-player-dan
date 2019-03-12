@@ -146,11 +146,16 @@ export class MultipleChoiceElement extends UnitElement {
         const elementHTML = `
         <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
             <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                <div id="${this.elementID}_selectableDiv" class="displayInAuthoringTool" style="height: 100%; width: 100%; background-color: transparent; display: none; position: absolute; z-index: 3;"></div>
                 <span id="${this.elementID}_style">
-                    <input id="${this.elementID}_multipleChoice" class="${this.elementID}_variableHolder" name="${this.elementID}" type="radio">
-                    <label for="${this.elementID}_multipleChoice" id="${this.elementID}_text" style="">
-                    ${this.properties.getPropertyValue('text')}
-                    </span>
+                    <div class="pretty p-default p-round">
+                        <input id="${this.elementID}_multipleChoice" class="${this.elementID}_variableHolder" name="${this.elementID}" type="radio">
+                        <div class="state">
+                            <label for="${this.elementID}_multipleChoice" id="${this.elementID}_text" style="">
+                            ${this.properties.getPropertyValue('text')}
+                            </label>
+                        </div>
+                    </div>
                 </span>
             </div>
         </div>`;

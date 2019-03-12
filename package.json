@@ -1,6 +1,6 @@
 {
   "name": "itemmodule-iqb-main",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "IQB Unit Authoring and IQB Unit Player",
   "main": "",
   "scripts": {
@@ -28,6 +28,7 @@
     "custom-event-polyfill": "^1.0.6",
     "intersection-observer": "^0.5.1",
     "material-design-icons": "^3.0.1",
+    "pretty-checkbox": "^3.0.3",
     "tslint": "^5.11.0",
     "typescript": "^3.0.1",
     "webpack": "^4.19.0",

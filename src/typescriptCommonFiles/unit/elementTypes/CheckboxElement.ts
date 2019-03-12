@@ -136,14 +136,25 @@ export class CheckboxElement extends UnitElement {
 
     drawElement()
     {
+        // checked SVG icon from Material Icon
+        // https://material.io/tools/icons/?icon=check&style=baseline
+        // http://google.github.io/material-design-icons/
+        // http://www.apache.org/licenses/LICENSE-2.0.txt
+
         const elementHTML = `
         <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
             <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer">
+                <div id="${this.elementID}_selectableDiv" class="displayInAuthoringTool" style="height: 100%; width: 100%; background-color: transparent; display: none; position: absolute; z-index: 3;"></div>
                 <span id="${this.elementID}_style">
-                    <input id="${this.elementID}_checkbox" class="${this.elementID}_variableHolder" name="${this.elementID}" type="checkbox">
-                    <label for="${this.elementID}_checkbox" id="${this.elementID}_text" style="">
-                        ${this.properties.getPropertyValue('text')}
-                    </span>
+                    <div class="pretty p-svg p-smooth">
+                        <input id="${this.elementID}_checkbox" class="${this.elementID}_variableHolder" name="${this.elementID}" type="checkbox">
+                        <div class="state">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="svg svg-icon" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <label for="${this.elementID}_checkbox" id="${this.elementID}_text" style="">
+                                ${this.properties.getPropertyValue('text')}
+                            </label>
+                        </div>
+                    </div>
                 </span>
             </div>
         </div>`;

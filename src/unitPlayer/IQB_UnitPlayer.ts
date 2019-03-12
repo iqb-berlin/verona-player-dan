@@ -43,7 +43,6 @@ interface ResponsesObject
 
 class IQB_ItemPlayer {
     // the main class that implements the IQB ItemPlayer functionality
-    private name = 'IQBPlayerV1';
     private responseConverter = 'VERAOnlineV1';
 
     private currentUnit: Unit;
