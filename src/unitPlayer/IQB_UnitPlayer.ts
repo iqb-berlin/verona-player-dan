@@ -21,7 +21,7 @@ import { MultipleChoiceElement } from '../typescriptCommonFiles/unit/elementType
 import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/TextboxElement.js';
 import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement.js';
 
-/*     IQB specific implementation of the item player       */
+/*     IQB specific implementation of the unit player       */
 
 interface Variable
 {
@@ -31,18 +31,18 @@ interface Variable
 
 interface VariablesObject
 {
-    // describes the object that holds all variables for an item
+    // describes the object that holds all variables for an unit
     [variableName: string]: Variable;
 }
 
 interface ResponsesObject
 {
-    // describes the object that holds all the responses for an item
+    // describes the object that holds all the responses for an unit
     [variableName: string]: string;
 }
 
-class IQB_ItemPlayer {
-    // the main class that implements the IQB ItemPlayer functionality
+class IQB_UnitPlayer {
+    // the main class that implements the IQB Unit Player functionality
     private responseConverter = 'VERAOnlineV1';
 
     private currentUnit: Unit;
@@ -58,8 +58,7 @@ class IQB_ItemPlayer {
 
     constructor (initData: VO.ToPlayer_DataTransfer)    {
 
-        console.log('Constructing IQB_ItemPlayer class...');
-        // console.log('Constructing Item Player with the following initData:');
+        console.log('Constructing IQB_UnitPlayer class...');
         // console.log(initData);
 
         this.unitLoaded = false;
@@ -73,7 +72,7 @@ class IQB_ItemPlayer {
 
                 // prepare response input events for when a page will be drawn
 
-                // render the item
+                // render the unit
                 // show scrollbars only when needed solution based on idea from https://stackoverflow.com/a/14732488
                 document.body.innerHTML = `<div id="pageContainer" style="width: 100%; height: 100%;">
                                                  <div id="unitCanvasContainer" style="width: 100%; height: 100%; background-color: white;">
@@ -91,7 +90,7 @@ class IQB_ItemPlayer {
                 this.currentUnit = new Unit('normalPage', 'alwaysOnPage');
                 this.currentUnit.importDataFromJSON(initData.unitDefinition);
 
-                // load the item restore point if given
+                // load the unit restore point if given
                 if (typeof initData.restorePoint === 'string') {
                      this.loadRestorePoint(initData.restorePoint);
                 }
@@ -276,7 +275,7 @@ class IQB_ItemPlayer {
                 });
                 // end of preparing to handle navigation requests that come from inside the unit player
 
-                console.log('IQB Item Player: sent the following validPages: ');
+                console.log('IQB Unit Player: sent the following validPages: ');
                 console.log(this.validPageIDs);
 
                 this.sendMessageToParent({
@@ -297,12 +296,36 @@ class IQB_ItemPlayer {
            }
            else
            {
-            throw(new Error('IQB Item Player: no unitDefinition provided in the initialization data'));
+            throw(new Error('IQB Unit Player: no unitDefinition provided in the initialization data'));
            }
         }
         else
         {
-            throw(new Error('IQB Item Player: no sessionId provided in the initialization data'));
+            throw(new Error('IQB Unit Player: no sessionId provided in the initialization data'));
+        }
+    }
+
+    private sendMessageToParent(message: VO.UnitPlayerMessageData)
+    {
+        console.log('IQB Unit Player sent the following message to its parent:');
+        console.log(message);
+        parent.window.postMessage(message, '*');
+    }
+
+    navigateToPage(pageID: string): void {
+        if (this.unitLoaded = true) {
+            this.currentUnit.navigateToPage(pageID);
+
+            this.sendMessageToParent({
+                type: 'vo.FromPlayer.ChangedDataTransfer',
+                sessionId: this.sessionId,
+                currentPage: pageID,
+                presentationComplete: this.getPresentationCompleteStatus(),
+                restorePoint: this.getRestorePoint()
+            });
+        }
+        else {
+            console.error('IQB Unit Player: cannot navigate to page ' + pageID + '. The current unit has not yet finished loading.');
         }
     }
 
@@ -434,16 +457,8 @@ class IQB_ItemPlayer {
         return responsesGiven;
     }
 
-
-    private sendMessageToParent(message: VO.UnitPlayerMessageData)
-    {
-        console.log('IQB Unit Player sent the following message to its parent:');
-        console.log(message);
-        parent.window.postMessage(message, '*');
-    }
-
-    getRestorePoint(): string {
-        // this function computes the restore point at a certain moment for the item, in the form of a javascript object
+    private getRestorePoint(): string {
+        // this function computes the restore point at a certain moment for the unit, in the form of a javascript object
         // it then stringifies the object into JSON and returns the JSON string
         const unitStatus: any = {};
         unitStatus.responsesGiven = {};
@@ -500,7 +515,7 @@ class IQB_ItemPlayer {
 
     private loadRestorePoint(restorePoint: string): boolean
     {
-        //  loads the restore point contents into the item
+        //  loads the restore point contents into the unit
         //  receives as input a restorePoint JSON string
         console.log('Unit Player: loading restore point...');
         console.log(restorePoint);
@@ -604,8 +619,8 @@ class IQB_ItemPlayer {
         }
     }
 
-    getResponses(): string {
-        // computes the responses based on the current state of an item
+    private getResponses(): string {
+        // computes the responses based on the current state of an unit
         const responses: ResponsesObject = {};
 
         this.currentUnit.mapToElements((element: UnitElement) => {
@@ -674,25 +689,9 @@ class IQB_ItemPlayer {
         // }
     }
 
-    navigateToPage(pageID: string): void {
-        if (this.unitLoaded = true) {
-            this.currentUnit.navigateToPage(pageID);
-
-            this.sendMessageToParent({
-                type: 'vo.FromPlayer.ChangedDataTransfer',
-                sessionId: this.sessionId,
-                currentPage: pageID,
-                presentationComplete: this.getPresentationCompleteStatus(),
-                restorePoint: this.getRestorePoint()
-            });
-        }
-        else {
-            console.error('IQB Unit Player: cannot navigate to page ' + pageID + '. The current unit has not yet finished loading.');
-        }
-    }
-
+    /*
     end(): boolean {
-        // makeshift unload item function that probably doesn't completely and most efficiently dispose of an item
+        // makeshift unload unit function that probably doesn't completely and most efficiently dispose of an unit
         // made to serve as an example for an end function
 
        let cleaningLoopsDone = 0;
@@ -707,23 +706,29 @@ class IQB_ItemPlayer {
 
        return true;
      }
+    */
 
   }
 
-  let itemPlayerInstance: IQB_ItemPlayer | undefined = undefined;
+  // the code below handles the processing of postMessages received from the Test Controller
 
-  const DataTransferHandler = (event: MessageEvent) => {
+  let unitPlayerInstance: IQB_UnitPlayer | undefined = undefined;
+
+  const dataTransferHandler = (event: MessageEvent) => {
+    // handles sending data transfer messages (init data) to the Unit Player
     const initData = <VO.ToPlayer_DataTransfer>event.data;
 
-    itemPlayerInstance = new IQB_ItemPlayer(initData);
+    unitPlayerInstance = new IQB_UnitPlayer(initData);
   };
 
   const pageNavigationRequestHandler = (event: MessageEvent) => {
-    if (typeof itemPlayerInstance !== 'undefined') {
+    // handles sending page navigation requests to the Unit Player
+
+    if (typeof unitPlayerInstance !== 'undefined') {
         if ('sessionId' in event.data) {
-            if (itemPlayerInstance.sessionId === event.data.sessionId) {
+            if (unitPlayerInstance.sessionId === event.data.sessionId) {
                 if ('newPage' in event.data) {
-                    itemPlayerInstance.navigateToPage(event.data.newPage);
+                    unitPlayerInstance.navigateToPage(event.data.newPage);
                 }
                 else
                 {
@@ -732,7 +737,7 @@ class IQB_ItemPlayer {
             }
             else
             {
-                console.error('IQB Unit Player Error: invalid sessionId. Expected ' + itemPlayerInstance.sessionId +
+                console.error('IQB Unit Player Error: invalid sessionId. Expected ' + unitPlayerInstance.sessionId +
                               ' but received ' + event.data.sessionId);
             }
         }
@@ -755,7 +760,7 @@ class IQB_ItemPlayer {
         // event.data is set
         if ('type' in event.data) {
             if (event.data.type === 'vo.ToPlayer.DataTransfer') {
-                DataTransferHandler(event);
+                dataTransferHandler(event);
             }
             else if (event.data.type === 'vo.ToPlayer.NavigateToPage') {
                 pageNavigationRequestHandler(event);
