@@ -323,7 +323,7 @@ class IQB_ItemPlayer {
                         if (audioElement.playedOnce === false)
                         {
                             presentationComplete = 'no';
-                            console.log('Detected unfinished audio ' + audioElement.elementID + '. Therefore the presentation is not complete.');
+                            // console.log('Detected unfinished audio ' + audioElement.elementID + '. Therefore the presentation is not complete.');
                         }
                     }
                 }
@@ -345,7 +345,7 @@ class IQB_ItemPlayer {
                         if (viewpoint.viewed === false)
                         {
                             presentationComplete = 'no';
-                            console.log('Detected unviewed viewpoint ' + element.elementID + '. Therefore the presentation is not complete.');
+                            // console.log('Detected unviewed viewpoint ' + element.elementID + '. Therefore the presentation is not complete.');
                         }
                     }
                 }
@@ -357,7 +357,7 @@ class IQB_ItemPlayer {
         this.currentUnit.getPagesMap().forEach((page) => {
             if (page.viewed === false) {
                 presentationComplete = 'no';
-                console.log('Detected unviewed page ' + page.pageID + '. Therefore the presentation is not complete.');
+                // console.log('Detected unviewed page ' + page.pageID + '. Therefore the presentation is not complete.');
             }
         });
         // end of checking if all pages have been viewed
@@ -681,7 +681,7 @@ class IQB_ItemPlayer {
             this.sendMessageToParent({
                 type: 'vo.FromPlayer.ChangedDataTransfer',
                 sessionId: this.sessionId,
-                currentPage: e.detail.pageID,
+                currentPage: pageID,
                 presentationComplete: this.getPresentationCompleteStatus(),
                 restorePoint: this.getRestorePoint()
             });
