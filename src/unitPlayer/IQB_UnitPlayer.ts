@@ -54,11 +54,15 @@ class IQB_ItemPlayer {
     private responsesGiven: 'yes' | 'no' | 'all';
     private environmentVariables: {[environmentVariableName: string]: string} = {};
 
+    public unitLoaded: boolean;
+
     constructor (initData: VO.ToPlayer_DataTransfer)    {
 
         console.log('Constructing IQB_ItemPlayer class...');
         // console.log('Constructing Item Player with the following initData:');
         // console.log(initData);
+
+        this.unitLoaded = false;
 
         if ('sessionId' in initData)
         {
@@ -67,79 +71,7 @@ class IQB_ItemPlayer {
             {
                 this.responsesGiven = 'no';
 
-                window.addEventListener('IQB.unit.audioElementEnded', (e) => {
-                    // send the signal to the parent that the unit can be left at anytime
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        presentationComplete: this.getPresentationCompleteStatus(),
-                        restorePoint: this.getRestorePoint()
-                    });
-                });
-
-                window.addEventListener('IQB.unit.audioElementTick', (e) => {
-                    // update restore point data, to save the current location of the audios
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        restorePoint: this.getRestorePoint()
-                    });
-                });
-
-                window.addEventListener('IQB.unit.viewpointViewed', (e) => {
-                    // send the signal to the parent that the unit can be left at anytime
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        presentationComplete: this.getPresentationCompleteStatus(),
-                        restorePoint: this.getRestorePoint()
-                    });
-                });
-
-                window.addEventListener('IQB.unit.responseGiven', (e) => {
-                    // send the signal to the parent that the unit can be left at anytime
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        responsesGiven: this.getResponsesGivenStatus(),
-                        restorePoint: this.getRestorePoint()
-                    });
-                });
-
                 // prepare response input events for when a page will be drawn
-
-                window.addEventListener('IQB.unit.newElementDrawn', (e) => {
-                    const elementID = e.detail.elementID;
-                    this.addResponseInputEvents(elementID);
-                });
-
-                window.addEventListener('IQB.unit.navigateToPage', (e) => {
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.PageNavigationRequest',
-                        sessionId: this.sessionId,
-                        newPage: e.detail.pageID
-                    });
-                });
-
-                window.addEventListener('IQB.unit.endTestButtonClicked', (e) => {
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.UnitNavigationRequest',
-                        sessionId: this.sessionId,
-                        navigationTarget: '#end'
-                    });
-                });
-
-                // todo - customizable volume
-                /*
-                window.addEventListener('IQB.unit.newVolume', (e) => {
-                    const newVolume = e.detail.newVolume;
-                    this.sendMessageToParent({
-                        'type': 'vo.FromPlayer.newVolumeNotification',
-                        'sessionId': this.sessionId,
-                        'newVolume': newVolume
-                    });
-                 });
-                 */
 
                 // render the item
                 // show scrollbars only when needed solution based on idea from https://stackoverflow.com/a/14732488
@@ -158,45 +90,6 @@ class IQB_ItemPlayer {
                                           `;
                 this.currentUnit = new Unit('normalPage', 'alwaysOnPage');
                 this.currentUnit.importDataFromJSON(initData.unitDefinition);
-
-                // load environment variables
-                // todo - customizable volume
-                /*
-                if ('environment' in initData) {
-                    if (typeof initData.environment !== 'undefined') {
-                        this.environmentVariables = initData.environment;
-                        if ('volume' in this.environmentVariables) {
-                            // if a volume is given as an environment variable,
-                            // set it as the default volume for all audio and video elements
-                            this.currentUnit.mapToElements((element: UnitElement) => {
-                                if ((element.getElementType() === 'audio') || (element.getElementType() === 'video')) {
-                                    element.setPropertyValue('defaultVolume', this.environmentVariables['volume']);
-                                }
-                            });
-                        }
-                    }
-                }
-                */
-
-                // add viewpoint log functionality
-                /*
-                this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
-                    viewpoint.addIntersectionObserverCallback((entries) => {
-                        entries.forEach((entry) => {
-                            // console.log(viewpoint.getPropertyValue('name') + ' has been triggered');
-                            if (viewpoint.getPropertyValue('sendsLogs') === 'true') {
-                                const logEntry: string = 'Viewpoint ' + viewpoint.elementID + ', isBeigViewed=' + entry.isIntersecting + ', time=' + parseInt(entry.time, 10);
-                                this.sendMessageToParent({
-                                    type: 'vo.FromPlayer.ChangedDataTransfer',
-                                    sessionId: this.sessionId,
-                                    logEntries: [logEntry]
-                                });
-                            }
-                            // console.log(entry);
-                        });
-                    });
-                });
-                */
 
                 // load the item restore point if given
                 if (typeof initData.restorePoint === 'string') {
@@ -321,17 +214,67 @@ class IQB_ItemPlayer {
                     }
                 }
 
-                // currentPage notification is placed here, so as not to report the currentPage twice when rendering
-                window.addEventListener('IQB.unit.newPageDrawn', (e) => {
+                this.unitLoaded = true;
+
+                // once the unit has loaded, start listening for changes
+
+                // listen for events that signal changes in the presentation status
+
+                window.addEventListener('IQB.unit.viewpointViewed', (e) => {
+                    // send the signal to the parent that the unit can be left at anytime
                     this.sendMessageToParent({
                         type: 'vo.FromPlayer.ChangedDataTransfer',
                         sessionId: this.sessionId,
-                        currentPage: e.detail.pageID,
                         presentationComplete: this.getPresentationCompleteStatus(),
                         restorePoint: this.getRestorePoint()
                     });
                 });
-                // end of currentPage notification
+
+                window.addEventListener('IQB.unit.audioElementEnded', (e) => {
+                    // send the signal to the parent that the unit can be left at anytime
+                    this.sendMessageToParent({
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
+                        sessionId: this.sessionId,
+                        presentationComplete: this.getPresentationCompleteStatus(),
+                        restorePoint: this.getRestorePoint()
+                    });
+                });
+
+                // end of listening for events that signal a change in the presentation status
+
+                // listen for events that signal a change in the response status
+
+                window.addEventListener('IQB.unit.responseGiven', (e) => {
+                    // send the signal to the parent that the unit can be left at anytime
+                    this.sendMessageToParent({
+                        type: 'vo.FromPlayer.ChangedDataTransfer',
+                        sessionId: this.sessionId,
+                        responsesGiven: this.getResponsesGivenStatus(),
+                        restorePoint: this.getRestorePoint(),
+                        response: this.getResponses(),
+                        responseConverter: this.responseConverter
+                    });
+                });
+
+                // end of listening for events that signal a change in the response status
+
+                // prepare to handle navigation requests that come from inside the unit player
+                window.addEventListener('IQB.unit.navigateToPage', (e) => {
+                    this.sendMessageToParent({
+                        type: 'vo.FromPlayer.PageNavigationRequest',
+                        sessionId: this.sessionId,
+                        newPage: e.detail.pageID
+                    });
+                });
+
+                window.addEventListener('IQB.unit.endTestButtonClicked', (e) => {
+                    this.sendMessageToParent({
+                        type: 'vo.FromPlayer.UnitNavigationRequest',
+                        sessionId: this.sessionId,
+                        navigationTarget: '#end'
+                    });
+                });
+                // end of preparing to handle navigation requests that come from inside the unit player
 
                 console.log('IQB Item Player: sent the following validPages: ');
                 console.log(this.validPageIDs);
@@ -494,79 +437,9 @@ class IQB_ItemPlayer {
 
     private sendMessageToParent(message: VO.UnitPlayerMessageData)
     {
+        console.log('IQB Unit Player sent the following message to its parent:');
+        console.log(message);
         parent.window.postMessage(message, '*');
-    }
-
-    private addResponseInputEvents(elementID: string)
-    {
-        // this function initializes the event listeners, which are used to identify when new data is inputed by the test taker
-        // when new data from the testee is available, send it to the test controller via the sendMessageToParent() function,
-        // using the 'vo.FromPlayer.ChangedDataTransfer' postMessage type
-
-        // console.log('IQB Item Player: adding response input events');
-        const element = this.currentUnit.element(elementID);
-        if (typeof element !== 'undefined') {
-            // if the element that was drawn exists in the unit (this should always be the case)
-
-            const elementType = element.getElementType();
-            if (elementType === 'checkbox') {
-
-                const checkboxHTMLElement = document.getElementById(elementID + '_checkbox') as HTMLInputElement;
-
-                checkboxHTMLElement.addEventListener('change', (e) => {
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        restorePoint: this.getRestorePoint(),
-                        response: this.getResponses(),
-                        responseConverter: this.responseConverter
-                    });
-                });
-            }
-
-            if (elementType === 'multipleChoice') {
-                const multipleChoiceHTMLElement = document.getElementById(elementID + '_multipleChoice') as HTMLInputElement;
-
-                multipleChoiceHTMLElement.addEventListener('change', (e) => {
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        restorePoint: this.getRestorePoint(),
-                        response: this.getResponses(),
-                        responseConverter: this.responseConverter
-                    });
-                });
-            }
-
-            if (elementType === 'dropdown') {
-                const dropdownHTMLElement = document.getElementById(elementID + '_select') as HTMLSelectElement;
-
-                dropdownHTMLElement.addEventListener('change', (e) => {
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        restorePoint: this.getRestorePoint(),
-                        response: this.getResponses(),
-                        responseConverter: this.responseConverter
-                    });
-                });
-            }
-
-            if (elementType === 'textbox') {
-                const textboxHTMLElement = document.getElementById(elementID + '_textbox') as HTMLInputElement;
-
-                textboxHTMLElement.addEventListener('keyup',  (e) => {
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
-                        sessionId: this.sessionId,
-                        restorePoint: this.getRestorePoint(),
-                        response: this.getResponses(),
-                        responseConverter: this.responseConverter
-                    });
-                });
-            }
-        }
-
     }
 
     getRestorePoint(): string {
@@ -631,6 +504,7 @@ class IQB_ItemPlayer {
         //  receives as input a restorePoint JSON string
         console.log('Unit Player: loading restore point...');
         console.log(restorePoint);
+
         try
         {
             if (restorePoint !== null) {
@@ -644,8 +518,7 @@ class IQB_ItemPlayer {
 
                             if (elementID in unitStatus)
                             {
-                                console.log('Loading restore point data into ' + elementID +
-                                            ' (of type ' + elementType + '): ' + unitStatus[elementID]);
+                                // console.log('Loading restore point data into ' + elementID + '(of type ' + elementType + '): ' + unitStatus[elementID]);
 
                                 let responseGiven = false;
                                 if ('responsesGiven' in unitStatus) {
@@ -688,13 +561,13 @@ class IQB_ItemPlayer {
                                     {
                                         audioElement.setPropertyValue('alreadyPlayed', 'true');
                                         audioElement.playedOnce = true;
-                                        console.log('Set alreadyPlayed property to true for element ' + elementID);
+                                        // console.log('Set alreadyPlayed property to true for element ' + elementID);
                                     }
                                 }
 
                                 if (elementType === 'viewpoint') {
                                     const viewpointElement = element as ViewpointElement;
-                                    console.log('Loading restore point data into viewpoint ' + viewpointElement.elementID);
+                                    // console.log('Loading restore point data into viewpoint ' + viewpointElement.elementID);
                                     if (unitStatus[elementID]) {
                                         viewpointElement.viewed = true;
                                     }
@@ -720,13 +593,6 @@ class IQB_ItemPlayer {
                             });
                         }
                         // finished loading pages viewed info
-
-                        this.sendMessageToParent({
-                            type: 'vo.FromPlayer.ChangedDataTransfer',
-                            sessionId: this.sessionId,
-                            presentationComplete: this.getPresentationCompleteStatus(),
-                            responsesGiven: this.getResponsesGivenStatus()
-                        });
                 }
             }
             return true;
@@ -809,7 +675,20 @@ class IQB_ItemPlayer {
     }
 
     navigateToPage(pageID: string): void {
-        this.currentUnit.navigateToPage(pageID);
+        if (this.unitLoaded = true) {
+            this.currentUnit.navigateToPage(pageID);
+
+            this.sendMessageToParent({
+                type: 'vo.FromPlayer.ChangedDataTransfer',
+                sessionId: this.sessionId,
+                currentPage: e.detail.pageID,
+                presentationComplete: this.getPresentationCompleteStatus(),
+                restorePoint: this.getRestorePoint()
+            });
+        }
+        else {
+            console.error('IQB Unit Player: cannot navigate to page ' + pageID + '. The current unit has not yet finished loading.');
+        }
     }
 
     end(): boolean {
