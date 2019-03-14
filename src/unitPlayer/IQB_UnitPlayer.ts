@@ -400,42 +400,50 @@ class IQB_UnitPlayer {
 
         this.currentUnit.mapToElements((element) => {
             if (element.getElementType() === 'checkbox') {
-                const checkboxElement = element as CheckboxElement;
-                if (checkboxElement.responseGiven) {
-                    aResponseGiven = true;
-                }
-                if (checkboxElement.responseGiven === false) {
-                    allResponsesGiven = false;
+                if (element.getPropertyValue('disabled') === 'false') {
+                    const checkboxElement = element as CheckboxElement;
+                    if (checkboxElement.responseGiven) {
+                        aResponseGiven = true;
+                    }
+                    if (checkboxElement.responseGiven === false) {
+                        allResponsesGiven = false;
+                    }
                 }
             }
 
             if (element.getElementType() === 'multipleChoice') {
-                const multipleChoiceElement = element as MultipleChoiceElement;
-                if (multipleChoiceElement.responseGiven) {
-                    aResponseGiven = true;
-                }
-                if (multipleChoiceElement.responseGiven === false) {
-                    allResponsesGiven = false;
+                if (element.getPropertyValue('disabled') === 'false') {
+                    const multipleChoiceElement = element as MultipleChoiceElement;
+                    if (multipleChoiceElement.responseGiven) {
+                        aResponseGiven = true;
+                    }
+                    if (multipleChoiceElement.responseGiven === false) {
+                        allResponsesGiven = false;
+                    }
                 }
             }
 
             if (element.getElementType() === 'textbox') {
-                const textboxElement = element as TextboxElement;
-                if (textboxElement.responseGiven) {
-                    aResponseGiven = true;
-                }
-                if (textboxElement.responseGiven === false) {
-                    allResponsesGiven = false;
+                if (element.getPropertyValue('disabled') === 'false') {
+                    const textboxElement = element as TextboxElement;
+                    if (textboxElement.responseGiven) {
+                        aResponseGiven = true;
+                    }
+                    if (textboxElement.responseGiven === false) {
+                        allResponsesGiven = false;
+                    }
                 }
             }
 
             if (element.getElementType() === 'dropdown') {
-                const dropdownElement = element as DropdownElement;
-                if (dropdownElement.responseGiven) {
-                    aResponseGiven = true;
-                }
-                if (dropdownElement.responseGiven === false) {
-                    allResponsesGiven = false;
+                if (element.getPropertyValue('disabled') === 'false') {
+                    const dropdownElement = element as DropdownElement;
+                    if (dropdownElement.responseGiven) {
+                        aResponseGiven = true;
+                    }
+                    if (dropdownElement.responseGiven === false) {
+                        allResponsesGiven = false;
+                    }
                 }
             }
 
