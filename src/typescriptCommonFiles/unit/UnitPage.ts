@@ -38,6 +38,7 @@ export interface NewElementOptions {
 
 interface consideredElementForTabOrder {
     elementID: string;
+    elementType: SupportedUnitElementType;
     left: number;
     top: number;
 }
@@ -384,6 +385,7 @@ export class UnitPage extends ObjectWithProperties {
                (element.getElementType() === 'textbox')) {
                    consideredElements.push({
                        'elementID': element.getElementID(),
+                       'elementType': element.getElementType(),
                        'left': element.left / 10, // divide by 10 for more natural ordering
                        'top': element.top / 10 // divide by 10 for more natural ordering
                     });
@@ -418,10 +420,19 @@ export class UnitPage extends ObjectWithProperties {
 
         let tabIndex = 0;
         consideredElements.forEach( (consideredElement: consideredElementForTabOrder) => {
-            tabIndex++;
             document.querySelectorAll('.' + consideredElement.elementID + '_tabIndexable').forEach((element: Element) => {
-                const tablIndexableElement = element as HTMLInputElement;
-                tablIndexableElement.tabIndex = tabIndex;
+                const tabIndexableElement = element as HTMLInputElement;
+                if (consideredElement.elementType === 'textbox') {
+                    // textboxes should be reachable via tab
+                    tabIndex++;
+                    tabIndexableElement.tabIndex = tabIndex;
+                }
+                else
+                {
+                    // checkboxes, multiple choices and dropdown boxes should not be reachable via keyboard tab
+                    // so as not to then press arrows and not notice that the answer has changed
+                    tabIndexableElement.tabIndex = -1;
+                }
             });
         });
 
