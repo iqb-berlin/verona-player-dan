@@ -582,9 +582,11 @@ class IQB_UnitPlayer {
                                     const audioElement = element as AudioElement;
                                     if (unitStatus[elementID] === -1)
                                     {
-                                        audioElement.setPropertyValue('alreadyPlayed', 'true');
-                                        audioElement.playedOnce = true;
-                                        // console.log('Set alreadyPlayed property to true for element ' + elementID);
+                                        if (audioElement.getPropertyValue('playOnlyOnce') === 'true') {
+                                            audioElement.setPropertyValue('alreadyPlayed', 'true');
+                                            audioElement.playedOnce = true;
+                                            // console.log('Set alreadyPlayed property to true for element ' + elementID);
+                                        }
                                     }
                                 }
 

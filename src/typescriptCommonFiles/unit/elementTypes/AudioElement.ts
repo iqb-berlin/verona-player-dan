@@ -419,6 +419,7 @@ export class AudioElement extends UnitElement {
         // react to other audios being played and stop, by hiding / showing audio controls
 
         window.addEventListener('IQB.unit.audioElementStarted', (e) => {
+            console.log(e.detail.elementID + ' vs ' + this.elementID);
             if (e.detail.elementID !== this.elementID) {
                 audioControls.style.visibility = 'hidden';
             }
