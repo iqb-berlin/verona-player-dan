@@ -36,6 +36,12 @@ export interface NewElementOptions {
 
 }
 
+interface consideredElementForTabOrder {
+    elementID: string;
+    left: number;
+    top: number;
+}
+
 export class UnitPage extends ObjectWithProperties {
     public elements: Map<string, UnitElement> = new Map();
 
@@ -368,6 +374,59 @@ export class UnitPage extends ObjectWithProperties {
         this.elements.forEach((element) => {
             element.render();
         });
+
+        // apply proper tab order (top down; left right;) to drawn elements
+        const consideredElements: consideredElementForTabOrder[] = [];
+        this.elements.forEach((element) => {
+            if ((element.getElementType() === 'checkbox') ||
+               (element.getElementType() === 'multipleChoice') ||
+               (element.getElementType() === 'dropdown') ||
+               (element.getElementType() === 'textbox')) {
+                   consideredElements.push({
+                       'elementID': element.getElementID(),
+                       'left': element.left / 10, // divide by 10 for more natural ordering
+                       'top': element.top / 10 // divide by 10 for more natural ordering
+                    });
+               }
+        });
+
+        consideredElements.sort((elementA: consideredElementForTabOrder, elementB: consideredElementForTabOrder): number => {
+            if (elementA.top > elementB.top) {
+                return 1;
+            }
+            else {
+                if (elementA.top < elementB.top) {
+                    return -1;
+                }
+                else {
+                    // elementA.top === elementB.top
+                    if (elementA.left > elementB.left) {
+                        return 1;
+                    }
+                    else {
+                        if (elementA.left < elementB.left) {
+                            return -1;
+                        }
+                        else {
+                            // elementA.left === elementB.left
+                            return 0;
+                        }
+                    }
+                }
+            }
+        });
+
+        let tabIndex = 0;
+        consideredElements.forEach( (consideredElement: consideredElementForTabOrder) => {
+            tabIndex++;
+            document.querySelectorAll('.' + consideredElement.elementID + '_tabIndexable').forEach((element: Element) => {
+                const tablIndexableElement = element as HTMLInputElement;
+                tablIndexableElement.tabIndex = tabIndex;
+            });
+        });
+
+        // finished applying proper tab order to drawn elements
+
         console.log('Render of page ' + this.pageID + ' complete.');
         console.log('----------------------------------------------------------------------------');
     }

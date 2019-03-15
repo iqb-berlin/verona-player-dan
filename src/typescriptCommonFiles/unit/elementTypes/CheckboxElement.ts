@@ -147,7 +147,7 @@ export class CheckboxElement extends UnitElement {
                 <div id="${this.elementID}_selectableDiv" class="displayInAuthoringTool" style="height: 100%; width: 100%; background-color: transparent; display: none; position: absolute; z-index: 3;"></div>
                 <span id="${this.elementID}_style">
                     <div class="pretty p-svg p-smooth">
-                        <input id="${this.elementID}_checkbox" class="${this.elementID}_variableHolder" name="${this.elementID}" type="checkbox">
+                        <input id="${this.elementID}_checkbox" class="${this.elementID}_variableHolder ${this.elementID}_tabIndexable" name="${this.elementID}" type="checkbox">
                         <div class="state">
                             <svg xmlns="http://www.w3.org/2000/svg" class="svg svg-icon" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                             <label for="${this.elementID}_checkbox" id="${this.elementID}_text" style="">

@@ -135,7 +135,7 @@ export class TextboxElement extends UnitElement {
                                 <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer" style="border: none !important">
                                     <div id="${this.elementID}_selectableDiv" style="height: 100%; width: 100%; background-color: transparent; display: none; position: absolute;"></div>
                                     <span id="${this.elementID}_style">
-                                        <input id="${this.elementID}_textbox" type="text" style="width: 100%; height: 100%;" />
+                                        <input id="${this.elementID}_textbox" type="text" style="width: 100%; height: 100%;" class=" ${this.elementID}_tabIndexable" />
                                     </span>
                                 </div>
                         </div>`;

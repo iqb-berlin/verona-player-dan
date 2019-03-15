@@ -37,4 +37,4 @@ rem finishing up unitTestControllerExample
 xcopy "src\unitTestControllerExample" "build\unitTestControllerExample" /E /Y
 copy "build\unitPlayer\unitPlayer.html" "build\unitTestControllerExample\includes\unitPlayer.html"
 rem renaming the unitPlayer to the current release
-move /Y "build\unitPlayer\unitPlayer.html" "build\unitPlayer\IQBVisualUnitPlayerV1.2.4.html"
+move /Y "build\unitPlayer\unitPlayer.html" "build\unitPlayer\IQBVisualUnitPlayerV1.2.5.html"
