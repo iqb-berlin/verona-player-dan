@@ -17,6 +17,7 @@
    This project is licensed under the MIT License"
 
   Later modified on 12.03.2019, to change default color to black, and move the boxes a bit; IQB;
+  Modified on 18.03.2019, set opacity for disabled input fields to 1;
  */
 
 .pretty * {
@@ -685,7 +686,7 @@
 }
 
 .pretty input[disabled] ~ * {
-  opacity: .5;
+  opacity: 1;
 }
 
 .pretty.p-locked input {
