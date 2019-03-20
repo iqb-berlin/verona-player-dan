@@ -18,9 +18,10 @@
 
   Later modified on 12.03.2019, to change default color to black, and move the boxes a bit; IQB;
   Modified on 18.03.2019, set opacity for disabled input fields to 1;
+  Modified on 20.03.2019, modified word wrap and positioning of checkboxes and multiple choices; updated svg icon top position;
  */
 
-.pretty * {
+ .pretty * {
   box-sizing: border-box;
 }
 
@@ -32,8 +33,7 @@
   position: relative;
   display: inline-block;
   margin-right: 1em;
-  white-space: nowrap;
-  line-height: 1;
+  line-height: 120%;
 }
 
 .pretty input {
@@ -71,7 +71,7 @@
   z-index: 0;
   position: absolute;
   left: 0;
-  top: calc((0% - (100% - 1em)) - 2%);
+  top: 0.1em;
   background-color: transparent;
 }
 
@@ -390,7 +390,7 @@
   z-index: 1;
   text-align: center;
   line-height: normal;
-  top: calc((0% - (100% - 1em)) - 8%);
+  top: 0.1em;
   border: 1px solid transparent;
   opacity: 0;
 }
