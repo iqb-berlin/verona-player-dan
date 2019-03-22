@@ -131,6 +131,9 @@ export class DockingFeatures
             // console.log('Container element identified as:');
             // console.log(containerObject);
 
+            // console.log('Element docking position at the beginning:');
+            // console.log(dockedElement.left + ' - ' + dockedElement.top);
+
             // ideally, it should maintain the position relative to where it was docked
             let newLeft;
             let newTop;
@@ -196,6 +199,9 @@ export class DockingFeatures
             dockedElement.dockedToTop = newTop - containerObject.top;
 
             dockedElement.render();
+
+            // console.log('Element docking position at the end:');
+            // console.log(dockedElement.left + ' - ' + dockedElement.top);
         }
     }
 
