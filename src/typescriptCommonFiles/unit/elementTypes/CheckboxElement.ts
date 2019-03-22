@@ -169,6 +169,11 @@ export class CheckboxElement extends UnitElement {
          const checkboxHTMLElement = (document.getElementById(this.elementID + '_checkbox') as HTMLInputElement);
          checkboxHTMLElement.addEventListener('click', (event) => {
            this.dispatchRefreshCheckedPropertyForAllElementsEvent();
+
+           this.responseGiven = true;
+           window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+               detail: {'elementID': this.getElementID()}
+           }));
          });
 
         // add intersection observer to figure out when responseGiven should be set to true

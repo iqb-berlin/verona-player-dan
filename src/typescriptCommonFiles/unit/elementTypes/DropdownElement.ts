@@ -198,13 +198,11 @@ export class DropdownElement extends UnitElement {
 
          const dropdownHTMLElement = document.getElementById(this.elementID + '_select') as HTMLSelectElement;
          dropdownHTMLElement.addEventListener('change', (event) => {
-             this.setPropertyValue('selectedOption', dropdownHTMLElement.value);
-             if (this.responseGiven === false) {
-                this.responseGiven = true;
-                window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
-                    detail: {'elementID': this.getElementID()}
-                }));
-            }
+            this.setPropertyValue('selectedOption', dropdownHTMLElement.value);
+            this.responseGiven = true;
+            window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                detail: {'elementID': this.getElementID()}
+            }));
          });
 
          this.dispatchNewElementDrawnEvent();

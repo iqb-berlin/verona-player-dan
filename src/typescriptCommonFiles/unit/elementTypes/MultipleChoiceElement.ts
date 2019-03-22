@@ -168,7 +168,15 @@ export class MultipleChoiceElement extends UnitElement {
          this.properties.renderProperties();
 
          (document.getElementById(this.elementID + '_multipleChoice') as HTMLInputElement).addEventListener('click', (event) => {
+            this.responseGiven = true;
+
+            // this event propagation will also update the responseGiven properties for the other MCs
             this.dispatchRefreshCheckedPropertyForAllElementsEvent();
+            // end of MC specific event propagation
+
+            window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                detail: {'elementID': this.getElementID()}
+            }));
         });
 
          this.dispatchNewElementDrawnEvent();

@@ -150,13 +150,11 @@ export class TextboxElement extends UnitElement {
             const textboxHTMLElement = document.getElementById(this.elementID + '_textbox') as HTMLInputElement;
             textboxHTMLElement.addEventListener('keyup', (event) => {
                 this.setPropertyValue('text', textboxHTMLElement.value);
-                if (this.responseGiven === false) {
-                    this.responseGiven = true;
-                    window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                this.responseGiven = true;
+                 window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
                         detail: {'elementID': this.getElementID()}
                     }));
-                }
-              });
+            });
 
             this.dispatchNewElementDrawnEvent();
         }
