@@ -400,6 +400,10 @@ class IQB_UnitAuthoringTool
             this.currentUnit.newElement('text');
         });
 
+        (document.getElementById('btnAddMultilineTextbox') as HTMLInputElement).addEventListener('click', (e) => {
+            this.currentUnit.newElement('multilineTextbox');
+        });
+
         (document.getElementById('btnAddImage') as HTMLInputElement).addEventListener('click', (e) => {
             this.AddFile('Bild hinzufügen', (uploadedFileContentAsUrl: string) =>
             {
@@ -827,6 +831,18 @@ class IQB_UnitAuthoringTool
                     'triggerOnMouseOverElementID' : elementID,
                     'containerElementID': '',
                     'innerHTML': 'Klicken Sie hier, um die Textbox zu ziehen.',
+                    'tooltip': '',
+                    'type': 'mover',
+                    'position': 'beforeend'
+                });
+            }
+
+            if (elementType === 'multilineTextbox')
+            {
+                newPopupMenu.addPopupMenuItem({
+                    'triggerOnMouseOverElementID' : elementID,
+                    'containerElementID': '',
+                    'innerHTML': 'Klicken Sie hier, um die Multiline-Textbox zu ziehen.',
                     'tooltip': '',
                     'type': 'mover',
                     'position': 'beforeend'

@@ -149,7 +149,7 @@ export class MultipleChoiceElement extends UnitElement {
                 <div id="${this.elementID}_selectableDiv" class="displayInAuthoringTool" style="height: 100%; width: 100%; background-color: transparent; display: none; position: absolute; z-index: 3;"></div>
                 <span id="${this.elementID}_style">
                     <div class="pretty p-default p-round">
-                        <input id="${this.elementID}_multipleChoice" class="${this.elementID}_variableHolder ${this.elementID}_tabIndexable" name="${this.elementID}" type="radio">
+                        <input id="${this.elementID}_multipleChoice" autocomplete="off" class="${this.elementID}_variableHolder ${this.elementID}_tabIndexable" name="${this.elementID}" type="radio">
                         <div class="state">
                             <label for="${this.elementID}_multipleChoice" id="${this.elementID}_text" style="">
                             ${this.properties.getPropertyValue('text')}

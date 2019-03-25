@@ -17,6 +17,7 @@ import {MultipleChoiceElement} from './elementTypes/MultipleChoiceElement.js';
 import {TableCell, TableElement, TableCellFunction} from './elementTypes/TableElement.js';
 import {TextboxElement} from './elementTypes/TextboxElement.js';
 import {TextElement} from './elementTypes/TextElement.js';
+import {MultilineTextboxElement} from './elementTypes/MultilineTextboxElement.js';
 import {VideoElement} from './elementTypes/VideoElement.js';
 import {ViewpointElement} from './elementTypes/ViewpointElement.js';
 import {EndButtonElement} from './elementTypes/EndButtonElement.js';
@@ -26,7 +27,7 @@ import {EndButtonElement} from './elementTypes/EndButtonElement.js';
 
 import {colorsObject} from '../models/Colors.js';
 
-export type SupportedUnitElementType = 'text' | 'image' | 'audio' | 'video' | 'textbox' | 'checkbox' |
+export type SupportedUnitElementType = 'text' | 'image' | 'audio' | 'video' | 'textbox' | 'multilineTextbox' | 'checkbox' |
 'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html' | 'viewpoint' | 'endButton';
 
 export interface NewElementOptions {
@@ -525,9 +526,14 @@ export class UnitPage extends ObjectWithProperties {
         let element: UnitElement;
 
         element = new UnitElement(elementID, this.getPageHTMLElementID());
+
         if (elementType === 'text') {
           element = new TextElement(elementID, this.getPageHTMLElementID());
         }
+
+        if (elementType === 'multilineTextbox') {
+            element = new MultilineTextboxElement(elementID, this.getPageHTMLElementID());
+          }
 
         if (elementType === 'image') {
          element = new ImageElement(elementID, this.getPageHTMLElementID(), elementContent);

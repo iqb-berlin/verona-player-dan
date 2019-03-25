@@ -19,21 +19,10 @@ import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioEl
 import { ViewpointElement } from '../typescriptCommonFiles/unit/elementTypes/ViewpointElement.js';
 import { MultipleChoiceElement } from '../typescriptCommonFiles/unit/elementTypes/MultipleChoiceElement.js';
 import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/TextboxElement.js';
+import { MultilineTextboxElement } from '../typescriptCommonFiles/unit/elementTypes/MultilineTextboxElement.js';
 import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement.js';
 
 /*     IQB specific implementation of the unit player       */
-
-interface Variable
-{
-    // describes the type of elements that can be assigned a variable
-    type: 'checkbox' | 'multipleChoice' | 'simpleInput';
-}
-
-interface VariablesObject
-{
-    // describes the object that holds all variables for an unit
-    [variableName: string]: Variable;
-}
 
 interface ResponsesObject
 {
@@ -435,6 +424,19 @@ class IQB_UnitPlayer {
                 }
             }
 
+            if (element.getElementType() === 'multilineTextbox')  {
+                if (element.getPropertyValue('disabled') === 'false') {
+                    const textboxElement = element as MultilineTextboxElement;
+                    if (textboxElement.responseGiven) {
+                        aResponseGiven = true;
+                    }
+                    if (textboxElement.responseGiven === false) {
+                        allResponsesGiven = false;
+                    }
+                }
+            }
+
+
             if (element.getElementType() === 'dropdown') {
                 if (element.getPropertyValue('disabled') === 'false') {
                     const dropdownElement = element as DropdownElement;
@@ -499,6 +501,13 @@ class IQB_UnitPlayer {
 
                 if (elementType === 'textbox') {
                     const textboxElement = element as TextboxElement;
+
+                    unitStatus[elementID] = textboxElement.getPropertyValue('text');
+                    unitStatus.responsesGiven[elementID] = textboxElement.responseGiven;
+                }
+
+                if (elementType === 'multilineTextbox') {
+                    const textboxElement = element as MultilineTextboxElement;
 
                     unitStatus[elementID] = textboxElement.getPropertyValue('text');
                     unitStatus.responsesGiven[elementID] = textboxElement.responseGiven;
@@ -578,6 +587,13 @@ class IQB_UnitPlayer {
                                     textboxElement.responseGiven = responseGiven;
                                 }
 
+                                if (elementType === 'multilineTextbox') {
+                                    const textboxElement = element as MultilineTextboxElement;
+
+                                    textboxElement.setPropertyValue('text', unitStatus[elementID]);
+                                    textboxElement.responseGiven = responseGiven;
+                                }
+
                                 if (elementType === 'audio') {
                                     const audioElement = element as AudioElement;
                                     if (unitStatus[elementID] === -1)
@@ -638,7 +654,7 @@ class IQB_UnitPlayer {
                 const elementType = element.getElementType();
 
                 if ((elementType === 'checkbox') || (elementType === 'multipleChoice') ||
-                    (elementType === 'dropdown') || (elementType === 'textbox'))
+                    (elementType === 'dropdown') || (elementType === 'textbox') || (elementType === 'multilineTextbox'))
                 {
                     if (elementType === 'checkbox') {
                         responses[elementID] = element.getPropertyValue('checked');
@@ -653,6 +669,10 @@ class IQB_UnitPlayer {
                     }
 
                     if (elementType === 'textbox') {
+                        responses[elementID] = element.getPropertyValue('text');
+                    }
+
+                    if (elementType === 'multilineTextbox') {
                         responses[elementID] = element.getPropertyValue('text');
                     }
                 }

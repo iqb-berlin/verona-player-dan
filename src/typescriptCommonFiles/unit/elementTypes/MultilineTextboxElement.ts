@@ -7,7 +7,7 @@ import {UnitElement} from '../UnitElement.js';
 import {Property, Properties} from '../Properties.js';
 import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../../models/Data.js';
 
-export class TextboxElement extends UnitElement {
+export class MultilineTextboxElement extends UnitElement {
 
     public responseGiven = false;
 
@@ -16,10 +16,10 @@ export class TextboxElement extends UnitElement {
         super(elementID, pageHTMLElementID);
 
         this.setPropertyValue('width', 200);
-        this.setPropertyValue('height', 25);
+        this.setPropertyValue('height', 100);
 
         this.properties.addProperty('type', {
-            value: 'textbox',
+            value: 'multilineTextbox',
             userAdjustable: false,
             propertyType: 'text',
             hidden: false,
@@ -135,7 +135,7 @@ export class TextboxElement extends UnitElement {
                                 <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer" style="border: none !important">
                                     <div id="${this.elementID}_selectableDiv" style="height: 100%; width: 100%; background-color: transparent; display: none; position: absolute;"></div>
                                     <span id="${this.elementID}_style">
-                                        <input id="${this.elementID}_textbox" type="text" autocomplete="off" spellcheck="false" style="width: 100%; height: 100%;" class=" ${this.elementID}_tabIndexable" />
+                                        <textarea id="${this.elementID}_textbox" type="text" autocomplete="off" spellcheck="false" style="width: 100%; height: 100%;" class=" ${this.elementID}_tabIndexable"></textarea>
                                     </span>
                                 </div>
                         </div>`;
