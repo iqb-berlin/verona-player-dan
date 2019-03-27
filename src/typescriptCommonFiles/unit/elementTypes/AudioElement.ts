@@ -238,7 +238,6 @@ export class AudioElement extends UnitElement {
         this.properties.removeProperty('font-size');
         this.properties.removeProperty('background-color');
         this.properties.removeProperty('color');
-
     }
 
     drawElement()
@@ -311,52 +310,6 @@ export class AudioElement extends UnitElement {
         const playButton = document.getElementById(this.elementID + '_audio_btnPlay') as HTMLImageElement;
         const pauseButton = document.getElementById(this.elementID + '_audio_btnPause') as HTMLImageElement;
 
-        // using oncanplay instead of dataloaded idea inspired by https://stackoverflow.com/a/37044134
-        // license: cc by-sa 3.0
-        // posted by user: https://stackoverflow.com/users/877819/mp-de-la-vega
-
-        audioElement.onloadeddata = () => {
-
-            // console.log('Setting ' + this.elementID + 'currentTime to its detected value of ' + this.getPropertyValue('currentTime'));
-            // audioElement.currentTime = this.getPropertyValue('currentTime');
-
-            playButton.style.display = 'inline';
-            pauseButton.style.display = 'none';
-
-            audioElementVisualLocation.style.width = '0%';
-
-            // todo - customizable volume
-
-            /*
-            // set volume
-            let defaultVolume: number = parseFloat(this.getPropertyValue('defaultVolume'));
-            if (defaultVolume > 1) {
-                defaultVolume = 1;
-            }
-            if (defaultVolume < 0) {
-                defaultVolume = 1;
-            }
-
-            // audioElement.volume = defaultVolume;             // todo -customizable volume
-            console.log('Set audio volume to: ' + defaultVolume);
-            */
-            // end of setting audio volume
-
-            if (this.getPropertyValue('autoplay') === 'true')
-            {
-                if (this.getPropertyValue('alreadyPlayed') !== 'true') {
-
-                    this.play();
-
-                    window.dispatchEvent(new CustomEvent('IQB.unit.audioElementAutoplayed', {
-                        detail: {'elementID': this.getElementID()}
-                    }));
-                }
-            }
-
-            this.showAudioLocation();
-        };
-
         audioElement.onplay = () => {
             window.dispatchEvent(new CustomEvent('IQB.unit.audioElementStarted', {
                 detail: {'elementID': this.getElementID()}
@@ -367,12 +320,6 @@ export class AudioElement extends UnitElement {
             this.setPropertyValue('currentTime', audioElement.currentTime);
 
             this.showAudioLocation();
-
-            /*
-            window.dispatchEvent(new CustomEvent('IQB.unit.audioElementTick', {
-                detail: {'elementID': this.getElementID()}
-            }));
-            */
         });
 
         audioElement.onpause = () => {
@@ -382,7 +329,6 @@ export class AudioElement extends UnitElement {
         };
 
         audioElement.onended = () => {
-
             playButton.style.display = 'inline';
             pauseButton.style.display = 'none';
 
@@ -419,7 +365,6 @@ export class AudioElement extends UnitElement {
         // react to other audios being played and stop, by hiding / showing audio controls
 
         window.addEventListener('IQB.unit.audioElementStarted', (e) => {
-            console.log(e.detail.elementID + ' vs ' + this.elementID);
             if (e.detail.elementID !== this.elementID) {
                 audioControls.style.visibility = 'hidden';
             }
@@ -435,22 +380,54 @@ export class AudioElement extends UnitElement {
 
         // end of reacting to other audios being played / stopped
 
-        // todo - customizable volume
-        /*
-        // reach to unit volume changes
-        window.addEventListener('IQB.unit.newVolume', (e) => {
-            const newVolume = e.detail.newVolume;
-
-            // todo - customizable volume
-            // audioElement.volume = parseFloat(newVolume);
-
-            this.setPropertyValue('defaultVolume', newVolume);
-         });
-        // finished the reaction to unit volume changes
-        */
+        // after load functionality
+        if (audioElement.readyState < 4)
+        {
+            // if not yet completely loaded, do after loaded behaviour when it's ready
+            audioElement.oncanplaythrough = () => {
+                this.doAfterLoadedBehaviour();
+            };
+        }
+        else
+        {
+            // if audio is completely loaded, do afterloaded behaviour now
+            this.doAfterLoadedBehaviour();
+        }
+        // end of after loaded functionality
 
         this.dispatchNewElementDrawnEvent();
        }
+    }
+
+    private doAfterLoadedBehaviour(): void {
+        const audioElementVisualLocation = document.getElementById(this.elementID + '_audio_visualLocation') as HTMLAudioElement;
+        const playButton = document.getElementById(this.elementID + '_audio_btnPlay') as HTMLImageElement;
+        const pauseButton = document.getElementById(this.elementID + '_audio_btnPause') as HTMLImageElement;
+
+        playButton.style.display = 'inline';
+        pauseButton.style.display = 'none';
+
+        audioElementVisualLocation.style.width = '0%';
+
+        this.showAudioLocation();
+
+        this.doAutoplayBehaviour();
+    }
+
+    private doAutoplayBehaviour(): void {
+        const audioElement = document.getElementById(this.elementID + '_audio') as HTMLAudioElement;
+        if (this.getPropertyValue('autoplay') === 'true')
+        {
+            if (this.getPropertyValue('alreadyPlayed') !== 'true') {
+                if (audioElement.paused) {
+                    this.play();
+
+                    window.dispatchEvent(new CustomEvent('IQB.unit.audioElementAutoplayed', {
+                        detail: {'elementID': this.getElementID()}
+                    }));
+                }
+            }
+        }
     }
 
     play(): void {

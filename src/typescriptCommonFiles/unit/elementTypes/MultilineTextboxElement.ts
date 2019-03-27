@@ -135,7 +135,7 @@ export class MultilineTextboxElement extends UnitElement {
                                 <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer" style="border: none !important">
                                     <div id="${this.elementID}_selectableDiv" style="height: 100%; width: 100%; background-color: transparent; display: none; position: absolute;"></div>
                                     <span id="${this.elementID}_style">
-                                        <textarea id="${this.elementID}_textbox" type="text" autocomplete="off" spellcheck="false" style="width: 100%; height: 100%;" class=" ${this.elementID}_tabIndexable"></textarea>
+                                        <textarea id="${this.elementID}_textbox" type="text" autocomplete="off" spellcheck="false" style="width: 100%; height: 100%; resize: none;" class=" ${this.elementID}_tabIndexable"></textarea>
                                     </span>
                                 </div>
                         </div>`;

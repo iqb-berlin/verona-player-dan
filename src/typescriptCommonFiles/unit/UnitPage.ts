@@ -222,6 +222,8 @@ export class UnitPage extends ObjectWithProperties {
     }
 
     public responseGivenForMultipleChoiceGroup(groupName: string) {
+        let dispatchEvent = false;
+
         this.elements.forEach((element) => {
             const elementID: string = element.getElementID();
             const elementType: string = element.getElementType();
@@ -231,13 +233,18 @@ export class UnitPage extends ObjectWithProperties {
                 if (multipleChoiceElement.getPropertyValue('groupName') === groupName) {
                     if (multipleChoiceElement.responseGiven === false) {
                         multipleChoiceElement.responseGiven = true;
-                        window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
-                            detail: {'elementID': elementID}
-                        }));
+                        dispatchEvent = true;
                     }
                 }
             }
         });
+
+        if (dispatchEvent) {
+            // this event is used to notify a change in the response given property of the multiple choice elements belonging to the group
+            window.dispatchEvent(new CustomEvent('IQB.unit.responseGiven', {
+                detail: {}
+            }));
+        }
     }
 
     public refreshCheckedPropertyForAllElements() {
