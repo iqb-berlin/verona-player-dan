@@ -22,6 +22,12 @@ A live demo of the Unit Authoring Tool is available at: https://dan-barbulescu-d
 
 You can also use one of our previous releases directly, which are located in the "releases" folder.
 
+# Testing
+
+The following technology is / will be used in the development of this project:
+
+![Browserstack logo](https://ocba2.iqb.hu-berlin.de/browserstack/logo-smaller.png)
+
 # License
 
 MIT License
