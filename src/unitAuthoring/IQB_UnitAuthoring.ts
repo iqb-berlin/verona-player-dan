@@ -460,8 +460,8 @@ class IQB_UnitAuthoringTool
             this.currentUnit.newElement('viewpoint');
         });
 
-        (document.getElementById('btnAddEndButton') as HTMLButtonElement).addEventListener('click', (e) => {
-            this.currentUnit.newElement('endButton');
+        (document.getElementById('btnAddButton') as HTMLButtonElement).addEventListener('click', (e) => {
+            this.currentUnit.newElement('button');
         });
 
         const btnSpreadfont = document.getElementById('btnSpreadFont') as HTMLElement;
@@ -861,12 +861,12 @@ class IQB_UnitAuthoringTool
                 });
             }
 
-            if (elementType === 'endButton')
+            if (elementType === 'button')
             {
                 newPopupMenu.addPopupMenuItem({
                     'triggerOnMouseOverElementID' : elementID,
                     'containerElementID': '',
-                    'innerHTML': 'Klicken Sie hier, um den End-Button zu ziehen.',
+                    'innerHTML': 'Klicken Sie hier, um den Button zu ziehen.',
                     'tooltip': '',
                     'type': 'mover',
                     'position': 'beforeend'

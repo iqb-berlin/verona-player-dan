@@ -255,11 +255,11 @@ class IQB_UnitPlayer {
                     });
                 });
 
-                window.addEventListener('IQB.unit.endTestButtonClicked', (e) => {
+                window.addEventListener('IQB.unit.UnitNavigationRequest', (e) => {
                     this.sendMessageToParent({
                         type: 'vo.FromPlayer.UnitNavigationRequest',
                         sessionId: this.sessionId,
-                        navigationTarget: '#end'
+                        navigationTarget: e.detail.navigationTarget
                     });
                 });
                 // end of preparing to handle navigation requests that come from inside the unit player

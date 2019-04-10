@@ -7,7 +7,10 @@ import {UnitElement} from '../UnitElement.js';
 import {Property, Properties} from '../Properties.js';
 import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../../models/Data.js';
 
-export class EndButtonElement extends UnitElement {
+export class ButtonElement extends UnitElement {
+
+    arrowForwardSrc = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAa0lEQVR4Ae3RAQaAQBhE4cACEHvQRQBpAehwQdjb1I/AEEIa7XsMAB8z0N+bY9UFU2LHtckHY4BKsaagr1EZFKgXULsbagQFqhfUdodyA1Wny1Z3DBgw2Q3TwIB5UHLAaMUDIygHjLYIhugEZkaqyaxtmsIAAAAASUVORK5CYII=`; 
+    arrowBackSrc = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAQAAABLCVATAAAAZklEQVR4AWMYqSCZQY8axqQy/Gf4yGBBBWPA8BuDGYXGQOFeBg7yjcmhtTGjxpTAjTlMLWO4hosxDdQxppsyYxCgBt0geoTQqFE56FmEHpl21KhU2hjFRq0K0nTAq2wESAE2IkYBAPwljFlzjrZTAAAAAElFTkSuQmCC`;
 
     constructor(public elementID: string, public pageHTMLElementID: string)
     {
@@ -17,7 +20,7 @@ export class EndButtonElement extends UnitElement {
         this.setPropertyValue('height', 50);
 
         this.properties.addProperty('type', {
-            value: 'endButton',
+            value: 'button',
             userAdjustable: false,
             propertyType: 'text',
             hidden: false,
@@ -25,18 +28,8 @@ export class EndButtonElement extends UnitElement {
             tooltip: 'Was für ein Element dieses Element ist.'
         });
 
-        this.properties.addProperty('navigateToPage', {
-            value: '',
-            userAdjustable: true,
-            propertyType: 'dropdown',
-            propertyData: {},
-            hidden: false,
-            caption: 'Navigate to',
-            tooltip: 'Zeige eine andere Seite, wenn jemand auf dem Element doppelklickt'
-        });
-
         this.properties.addProperty('text', {
-            value: 'Klicken Sie hier, um den Test zu beenden.',
+            value: 'neuer Button',
             userAdjustable: true,
             propertyType: 'text',
             hidden: false,
@@ -48,8 +41,8 @@ export class EndButtonElement extends UnitElement {
             const textToShow: string = propertyValue;
             // const HTMLTextToShow: string = textToShow.replace(new RegExp(' ', 'g'), '&nbsp;');
             const HTMLTextToShow: string = textToShow;
-            const buttonHTMLElement = (document.getElementById(this.elementID + '_button') as HTMLElement);
-            buttonHTMLElement.innerHTML = HTMLTextToShow; // bug: modifying the entire innerhtml removes resize stuff (todo)
+            const buttonTextHTMLElement = (document.getElementById(this.elementID + '_button_textSpan') as HTMLElement);
+            buttonTextHTMLElement.innerHTML = HTMLTextToShow; // bug: modifying the entire innerhtml removes resize stuff (todo)
         });
 
         this.properties.addProperty('underlined', {
@@ -187,6 +180,59 @@ export class EndButtonElement extends UnitElement {
             }
         });
 
+        this.properties.addProperty('onClick', {
+            value: 'end',
+            userAdjustable: true,
+            propertyType: 'dropdown',
+            propertyData: {
+                'End': 'end',
+                'Previous unit': 'previous',
+                'Next unit': 'next'
+            },
+            hidden: false,
+            caption: 'Verhalten',
+            tooltip: 'Was soll der Button machen, wenn geklickt'
+        });
+
+        this.properties.addPropertyRenderer('onClick', 'buttonRenderer', (propertyValue: string) => {
+
+        });
+
+        this.properties.addProperty('look', {
+            value: 'end',
+            userAdjustable: true,
+            propertyType: 'dropdown',
+            propertyData: {
+                'text': 'text',
+                'Previous icon': 'imgPrevious',
+                'Next icon': 'imgNext'
+            },
+            hidden: false,
+            caption: 'Aussehen',
+            tooltip: 'Wie soll der Button aussehen?'
+        });
+
+        this.properties.addPropertyRenderer('look', 'buttonRenderer', (propertyValue: string) => {
+            const textSpan = document.getElementById(this.elementID + '_button_textSpan') as HTMLSpanElement;
+            const imageSpan = document.getElementById(this.elementID + '_button_imageSpan') as HTMLSpanElement;
+            if (propertyValue === 'text') {
+                textSpan.style.display = 'inline';
+                imageSpan.style.display = 'none';
+                imageSpan.innerHTML = '';
+            }
+            if (propertyValue === 'imgPrevious') {
+                textSpan.style.display = 'none';
+                imageSpan.style.display = 'inline';
+                imageSpan.innerHTML = `<img src="${this.arrowBackSrc}" style="position: relative; left: 7px;">`;
+            }
+            if (propertyValue === 'imgNext') {
+                textSpan.style.display = 'none';
+                imageSpan.style.display = 'inline';
+                imageSpan.innerHTML = `<img src="${this.arrowForwardSrc}" style="position: relative; left: 2px;">`;
+            }
+        });
+
+
         // other property renderers for properties inherited from UnitElement
 
         this.properties.addPropertyRenderer('font-size', 'fontSizeRenderer', (propertyValue: string) => {
@@ -218,7 +264,6 @@ export class EndButtonElement extends UnitElement {
         });
 
         this.properties.removeProperty('style');
-        this.properties.removeProperty('navigateToPage');
         this.properties.removeProperty('visible');
 
         // set default button color to a very light gray
@@ -231,8 +276,7 @@ export class EndButtonElement extends UnitElement {
                             <div class="itemElement" id="${this.elementID}" style="${this.elementCommonStyle}">
                                 <div id="${this.elementID}_zIndexContainer" class="unitElementZIndexContainer" style="height: 100%; width: 100%;">
                                     <div id="${this.elementID}_divContainer" style="width: 100%; height: 100%; text-align: left; overflow: visible;">
-                                        <button id="${this.elementID}_button" style="height: 100%; width: 100%">
-                                        </button>
+                                        <button id="${this.elementID}_button" style="height: 100%; width: 100%"><span id="${this.elementID}_button_textSpan"></span><span id="${this.elementID}_button_imageSpan"></span></button>
                                     </div>
                                 </div>
                             </div>`;
@@ -245,9 +289,14 @@ export class EndButtonElement extends UnitElement {
 
             const buttonElement = document.getElementById(this.elementID + '_button') as HTMLButtonElement;
             buttonElement.addEventListener('click', () => {
-                window.dispatchEvent(new CustomEvent('IQB.unit.endTestButtonClicked', {
-                    detail: {'elementID': this.getElementID()}
-                }));
+                const onClickBehaviour = this.getPropertyValue('onClick');
+                if ((onClickBehaviour === 'previous') || (onClickBehaviour === 'next') || (onClickBehaviour === 'end')) {
+                    window.dispatchEvent(new CustomEvent('IQB.unit.UnitNavigationRequest', {
+                        detail: {'elementID': this.getElementID(),
+                                 'navigationTarget': '#' + onClickBehaviour
+                    }
+                    }));
+                }
             });
             this.dispatchNewElementDrawnEvent();
         }

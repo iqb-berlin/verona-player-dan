@@ -20,7 +20,7 @@ import {TextElement} from './elementTypes/TextElement.js';
 import {MultilineTextboxElement} from './elementTypes/MultilineTextboxElement.js';
 import {VideoElement} from './elementTypes/VideoElement.js';
 import {ViewpointElement} from './elementTypes/ViewpointElement.js';
-import {EndButtonElement} from './elementTypes/EndButtonElement.js';
+import {ButtonElement} from './elementTypes/ButtonElement.js';
 
 // todo - customizable volume
 // import {VolumePickerElement} from './elementTypes/VolumePicker.js';
@@ -28,7 +28,7 @@ import {EndButtonElement} from './elementTypes/EndButtonElement.js';
 import {colorsObject} from '../models/Colors.js';
 
 export type SupportedUnitElementType = 'text' | 'image' | 'audio' | 'video' | 'textbox' | 'multilineTextbox' | 'checkbox' |
-'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html' | 'viewpoint' | 'endButton';
+'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html' | 'viewpoint' | 'button';
 
 export interface NewElementOptions {
     elementID: string;
@@ -206,7 +206,9 @@ export class UnitPage extends ObjectWithProperties {
                     elementContent = unitPageData.elements[elementID].properties.src;
                 }
                 const newElement =  this.newElement(elementID, elementType, elementContent);
-                newElement.loadData(unitPageData.elements[elementID]);
+                if (newElement !== null) {
+                    newElement.loadData(unitPageData.elements[elementID]);
+                }
             }
         }
     }
@@ -528,11 +530,11 @@ export class UnitPage extends ObjectWithProperties {
      /* end of functions that handle rendering page properties */
 
 
-    public newElement(elementID: string, elementType: SupportedUnitElementType, elementContent: string = ''): UnitElement
+    public newElement(elementID: string, elementType: SupportedUnitElementType, elementContent: string = ''): UnitElement | null
     {
-        let element: UnitElement;
+        let element: UnitElement | null;
 
-        element = new UnitElement(elementID, this.getPageHTMLElementID());
+        element = null;
 
         if (elementType === 'text') {
           element = new TextElement(elementID, this.getPageHTMLElementID());
@@ -597,12 +599,17 @@ export class UnitPage extends ObjectWithProperties {
          element = new ViewpointElement(elementID, this.getPageHTMLElementID());
         }
 
-        if (elementType === 'endButton')
+        if (elementType === 'button')
         {
-         element = new EndButtonElement(elementID, this.getPageHTMLElementID());
+         element = new ButtonElement(elementID, this.getPageHTMLElementID());
         }
 
-        this.elements.set(elementID, element);
+        if (element !== null) {
+         this.elements.set(elementID, element);
+        }
+        else {
+            console.error('IQB Visual Unit: Could not create new element ' + elementID + ' with type ' + elementType + '. Type not recognized.');
+        }
 
         return element;
     }
