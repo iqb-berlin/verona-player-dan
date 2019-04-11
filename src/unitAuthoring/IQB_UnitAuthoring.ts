@@ -33,7 +33,7 @@ import { VideoElement } from '../typescriptCommonFiles/unit/elementTypes/VideoEl
 
 const vo_UnitAuthoringInterface =
 {
-    player: 'IQBVisualUnitPlayerV1',
+    player: 'IQBVisualUnitPlayerV2',
     containerWindow: window.parent,
     checkOrigin: false,
     acceptedOrigin: '*',
