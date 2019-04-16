@@ -551,6 +551,13 @@ class IQB_UnitAuthoringTool
             }
         });
 
+        (document.getElementById('btnSaveUnit') as HTMLButtonElement).addEventListener('click', (e) => {
+            // unselect elements if any are selected
+            this.selectObject(this.currentUnit.getCurrentPage());
+
+            this.saveUnitToFile();
+        });
+
         (document.getElementById('btnOpenUnit') as HTMLButtonElement).addEventListener('click', (e) => {
             // unselect elements if any are selected
             this.selectObject(this.currentUnit.getCurrentPage());
