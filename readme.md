@@ -2,17 +2,17 @@
 
 This repository contains v2.1.0 of the IQB Unit Authoring Tool and the IQB Unit Player.
 
-# Tech
+# Source code
 
-The IQB Unit Authoring Tool and the IQB Unit Player share most of their code with each other. They are both programmed in Typescript, with a bit of HTML and CSS added to package everything neatly. The entry point for the IQB Unit Authoring Tool bundle is "src/unitAuthoring/IQB_UnitAuthoring.ts". For the IQB Unit Player bundle, the entry point is "src/unitPlayer/IQB_UnitPlayer.ts". The .js bundles are generated using Webpack. Additional files needed for the build are located in "src/unitAuthoring" (for the Unit Authoring Tool), in "src/unitPlayer" (for the Unit Player) and in "src/typescriptCommonFiles" (source files used by both the Unit Authoring Tool and by the Unit Player).
+The IQB Unit Authoring Tool and the IQB Unit Player share most of their code with each other. They are both programmed in Typescript, with a bit of HTML and CSS added to package everything neatly. The entry point for the IQB Unit Authoring Tool bundle is "src/unitAuthoring/IQB_UnitAuthoring.ts". For the IQB Unit Player bundle, the entry point is "src/unitPlayer/IQB_UnitPlayer.ts". Additional files needed for the build are located in "src/unitAuthoring" (for the Unit Authoring Tool), in "src/unitPlayer" (for the Unit Player) and in "src/typescriptCommonFiles" (source files used by both the Unit Authoring Tool and by the Unit Player).
 
 # Build
 
-Currently the build process is only set up to work on Windows.
+Currently the build process is only set up to work on Windows (7 or higher) and uses NPM (Node Package Manager).
 
-To build the project, you will need the Typescript Compiler and the Webpack CLI (see package.json for the the versions currently used to make the build). If these are available on your system, you can use "custom_build.bat" to build the project. This will create a "build" folder with the current build and a "compilation" folder with the intermediary files that are needed in order to create the build.
+You can use "npm install" to install the build dependencies which are needed. After that, you can use "npm run-script build" to do a build. This will create a "build" folder with the current build and a "compilation" folder with the intermediary files that are needed in order to create the build.
 
-Alternatively, you can also do the whole build process by using the Node Package Manager (first "npm install" and then "npm run-script build").
+The build process is described in "custom_build.bat", using the Windows batch file syntax.
 
 # Demo
 
