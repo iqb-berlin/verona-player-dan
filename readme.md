@@ -14,13 +14,13 @@ You can use "npm install" to install the build dependencies which are needed. Af
 
 The build process is described in "custom_build.bat", using the Windows batch file syntax.
 
+# Releases
+
+You can also use one of our previous releases directly, which are located in the "releases" folder.
+
 # Demo
 
 A live demo of the Unit Authoring Tool is available at: https://dan-barbulescu-dev.github.io/unitAuthoringDemo/
-
-# Release
-
-You can also use one of our previous releases directly, which are located in the "releases" folder.
 
 # Testing
 
