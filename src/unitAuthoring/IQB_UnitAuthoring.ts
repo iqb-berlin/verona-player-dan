@@ -844,6 +844,19 @@ class IQB_UnitAuthoringTool
                 });
             }
 
+            if (elementType === 'html')
+            {
+                newPopupMenu.addPopupMenuItem({
+                    'triggerOnMouseOverElementID' : elementID,
+                    'containerElementID': '',
+                    'innerHTML': 'Klicken Sie hier, um das HTML-Element zu ziehen.',
+                    'tooltip': '',
+                    'type': 'mover',
+                    'position': 'beforeend'
+                });
+            }
+
+
             if (elementType === 'multilineTextbox')
             {
                 newPopupMenu.addPopupMenuItem({
