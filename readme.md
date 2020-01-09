@@ -1,6 +1,6 @@
 # Intro
 
-This repository contains v2.1.0 of the IQB Unit Authoring Tool and the IQB Unit Player.
+This repository contains v2.1.1 of the IQB Unit Authoring Tool and the IQB Unit Player.
 
 # Source code
 
