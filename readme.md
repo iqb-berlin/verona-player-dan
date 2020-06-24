@@ -1,3 +1,6 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+
+
 # Intro
 
 This repository contains v2.1.0 of the IQB Unit Authoring Tool and the IQB Unit Player.
@@ -20,13 +23,9 @@ You can also use one of our previous releases directly, which are located in the
 
 # Demo
 
-A live demo of the Unit Authoring Tool is available at: https://dan-barbulescu-dev.github.io/unitAuthoringDemo/
-
 # Testing
 
-The following technology is / will be used in the development of this project:
-
-![Browserstack logo](https://ocba2.iqb.hu-berlin.de/browserstack/logo-smaller.png)
+*No Tests available yet*
 
 # License
 
