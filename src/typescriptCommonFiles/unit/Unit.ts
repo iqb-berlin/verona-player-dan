@@ -25,6 +25,11 @@ import { ViewpointElement } from './elementTypes/ViewpointElement.js';
 
 export type ElementFunction = (element: UnitElement) => any;
 export type ViewpointFunction = (viewpoint: ViewpointElement) => any;
+export enum AlwaysOnPagePropertyValueType {
+    NO = 'no',
+    TOP = 'top',
+    LEFT = 'left'
+}
 
 export class Unit extends ObjectWithProperties {
     private pages: Map<string, UnitPage> = new Map();
@@ -119,7 +124,7 @@ export class Unit extends ObjectWithProperties {
         {
             if (pageID in unitData.pages) {
 
-                let alwaysOnPagePropertyValue: string = 'no'; // default to no
+                let alwaysOnPagePropertyValue: AlwaysOnPagePropertyValueType = AlwaysOnPagePropertyValueType.NO; // default to no
                 if ('alwaysOn' in unitData.pages[pageID].properties) {
                     // if the data specifies an alwaysOn property for the page, use that instead
                     alwaysOnPagePropertyValue = unitData.pages[pageID].properties['alwaysOn'];
@@ -162,7 +167,8 @@ export class Unit extends ObjectWithProperties {
         return JSON.stringify(this.getData());
     }
 
-    public newPage(pageID?: string, alwaysOn: 'no' | 'top' | 'left' = 'no'): UnitPage
+
+    public newPage(pageID?: string, alwaysOn: AlwaysOnPagePropertyValueType = AlwaysOnPagePropertyValueType.NO  ): UnitPage
     {
         console.log('Creating new page; pageID: ' + pageID + ' ; alwaysOn: ' + alwaysOn);
 
@@ -202,7 +208,10 @@ export class Unit extends ObjectWithProperties {
             // undraw current page
             if (this.currentPageID !== '')
             {
-                this.getCurrentPage().undrawPage();
+                const currentPage = this.getCurrentPage();
+                if (currentPage) {
+                    currentPage.undrawPage();
+                }
             }
 
             // change page
@@ -226,7 +235,10 @@ export class Unit extends ObjectWithProperties {
             // if page is currently being shown, undraw it
             if (this.currentPageID === pageID)
             {
-                this.getCurrentPage().undrawPage();
+                const currentPage = this.getCurrentPage();
+                if (currentPage) {
+                    currentPage.undrawPage();
+                }
             }
 
             // then delete the page
@@ -398,7 +410,12 @@ export class Unit extends ObjectWithProperties {
 
     public getCanvasID(): string
     {
-        return this.getCurrentPage().getPageHTMLElementID();
+        const currentPage = this.getCurrentPage();
+        if (currentPage) {
+            return currentPage.getPageHTMLElementID();
+        } else {
+            return '';
+        }
     }
 
     public getCurrentPage(): UnitPage | undefined
@@ -417,9 +434,14 @@ export class Unit extends ObjectWithProperties {
         return this.pages;
     }
 
-    public getCurrentPageHTMLElement(): HTMLDivElement
+    public getCurrentPageHTMLElement(): HTMLDivElement | undefined
     {
-        return document.getElementById(this.getCurrentPage().getPageHTMLElementID()) as HTMLDivElement;
+        const currentPage = this.getCurrentPage();
+        if (currentPage) {
+            return document.getElementById(currentPage.getPageHTMLElementID()) as HTMLDivElement;
+        } else {
+            return undefined;
+        }
     }
 
     public newElement(elementType: SupportedUnitElementType, elementContent: string = ''): UnitElement | undefined
@@ -431,13 +453,18 @@ export class Unit extends ObjectWithProperties {
 
             const elementID: string = 'canvasElement' + newElementsCounter;
 
-            this.getCurrentPage().newElement(elementID, elementType, elementContent);
-            const newElement = this.element(elementID);
-            if (typeof newElement !== 'undefined') {
-                newElement.render();
-            }
+            const currentPage = this.getCurrentPage();
+            if (currentPage) {
+                currentPage.newElement(elementID, elementType, elementContent);
+                const newElement = this.element(elementID);
+                if (typeof newElement !== 'undefined') {
+                    newElement.render();
+                }
 
-            return newElement;
+                return newElement;
+            } else {
+                return undefined
+            }
         }
         else
         {

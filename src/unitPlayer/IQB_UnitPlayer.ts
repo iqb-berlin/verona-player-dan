@@ -1,26 +1,14 @@
-/*
-IQB Unit Player Entry Point
-*/
-
-// www.IQB.hu-berlin.de
-// Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
-// 2019
-// license: MIT
-
-import { VO } from '../typescriptCommonFiles/interfaces/iqb.js';
-
-import { Property } from '../typescriptCommonFiles/unit/Properties.js';
-import { ObjectWithProperties } from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
-import { UnitElement } from '../typescriptCommonFiles/unit/UnitElement.js';
-import { UnitPage } from '../typescriptCommonFiles/unit/UnitPage.js';
-import { Unit } from '../typescriptCommonFiles/unit/Unit.js';
-import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
-import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
-import { ViewpointElement } from '../typescriptCommonFiles/unit/elementTypes/ViewpointElement.js';
-import { MultipleChoiceElement } from '../typescriptCommonFiles/unit/elementTypes/MultipleChoiceElement.js';
-import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/TextboxElement.js';
-import { MultilineTextboxElement } from '../typescriptCommonFiles/unit/elementTypes/MultilineTextboxElement.js';
-import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement.js';
+import { VO } from '../typescriptCommonFiles/interfaces/iqb';
+import { UnitElement } from '../typescriptCommonFiles/unit/UnitElement';
+import { UnitPage } from '../typescriptCommonFiles/unit/UnitPage';
+import { Unit } from '../typescriptCommonFiles/unit/Unit';
+import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement';
+import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioElement';
+import { ViewpointElement } from '../typescriptCommonFiles/unit/elementTypes/ViewpointElement';
+import { MultipleChoiceElement } from '../typescriptCommonFiles/unit/elementTypes/MultipleChoiceElement';
+import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/TextboxElement';
+import { MultilineTextboxElement } from '../typescriptCommonFiles/unit/elementTypes/MultilineTextboxElement';
+import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement';
 
 /*     IQB specific implementation of the unit player       */
 
@@ -31,27 +19,16 @@ interface ResponsesObject
 }
 
 class IQB_UnitPlayer {
-    // the main class that implements the IQB Unit Player functionality
     private responseConverter = 'VERAOnlineV1';
-
     private currentUnit: Unit;
-
-    public sessionId: string;
-
-    private validPageIDs: string[] = [];
-
+    private readonly validPageIDs: string[] = [];
     private responsesGiven: 'yes' | 'no' | 'all';
     private environmentVariables: {[environmentVariableName: string]: string} = {};
-
+    public sessionId: string;
     public unitLoaded: boolean;
 
     constructor (initData: VO.ToPlayer_DataTransfer)    {
-
-        console.log('Constructing IQB_UnitPlayer class...');
-        // console.log(initData);
-
         this.unitLoaded = false;
-
         if ('sessionId' in initData)
         {
             this.sessionId = initData.sessionId;
@@ -110,24 +87,17 @@ class IQB_UnitPlayer {
                 const normalPageContainerDiv = document.getElementById('normalPageContainer') as HTMLDivElement;
 
                 if (typeof alwaysOnPage !== 'undefined') {
-
                     const alwaysOnPagePosition = alwaysOnPage.getPropertyValue('alwaysOn');
-
                     if (alwaysOnPagePosition === 'top') {
-
                         alwaysOnPageShown = true;
-
                         unitCanvasContainerDiv.style.display = 'flex';
                         unitCanvasContainerDiv.style.flexDirection = 'column';
-
                         alwaysOnPageContainerDiv.style.display = 'inline-block';
                         alwaysOnPageContainerDiv.style.textAlign = 'center';
                         alwaysOnPageContainerDiv.style.overflow = 'auto';
                         alwaysOnPageContainerDiv.style.height = '50%';
-
                         alwaysOnPageDiv.style.overflow = 'auto';
                         alwaysOnPageDiv.style.display = 'inline-block';
-
                         normalPageContainerDiv.style.display = 'inline-block';
                         normalPageContainerDiv.style.textAlign = 'center';
                         normalPageContainerDiv.style.overflow = 'auto';
@@ -135,7 +105,6 @@ class IQB_UnitPlayer {
                         normalPageContainerDiv.style.borderTopColor = 'black';
                         normalPageContainerDiv.style.borderTopWidth = '1px';
                         normalPageContainerDiv.style.borderTopStyle = 'solid';
-
                         normalPageDiv.style.overflow = 'auto';
                         normalPageDiv.style.display = 'inline-block';
                     }
@@ -251,7 +220,7 @@ class IQB_UnitPlayer {
                     this.sendMessageToParent({
                         type: 'vo.FromPlayer.PageNavigationRequest',
                         sessionId: this.sessionId,
-                        newPage: e.detail.pageID
+                        newPage: (e as CustomEvent).detail.pageID
                     });
                 });
 
@@ -259,7 +228,7 @@ class IQB_UnitPlayer {
                     this.sendMessageToParent({
                         type: 'vo.FromPlayer.UnitNavigationRequest',
                         sessionId: this.sessionId,
-                        navigationTarget: e.detail.navigationTarget
+                        navigationTarget: (e as CustomEvent).detail.navigationTarget
                     });
                 });
                 // end of preparing to handle navigation requests that come from inside the unit player
