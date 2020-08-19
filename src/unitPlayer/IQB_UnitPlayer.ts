@@ -9,8 +9,10 @@ import { MultipleChoiceElement } from '../typescriptCommonFiles/unit/elementType
 import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/TextboxElement';
 import { MultilineTextboxElement } from '../typescriptCommonFiles/unit/elementTypes/MultilineTextboxElement';
 import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement';
+import KeyValuePairString = VO.KeyValuePairString;
 
 /*     IQB specific implementation of the unit player       */
+//    parent.window.postMessage(message, '*');
 
 interface ResponsesObject
 {
@@ -26,6 +28,13 @@ class IQB_UnitPlayer {
     private environmentVariables: {[environmentVariableName: string]: string} = {};
     public sessionId: string;
     public unitLoaded: boolean;
+    get validPagesDict(): KeyValuePairString {
+        let myReturn: KeyValuePairString = {};
+        this.validPageIDs.forEach((pageId: string) => {
+            myReturn[pageId] = pageId
+        });
+        return myReturn
+    }
 
     constructor (initData: VO.ToPlayer_DataTransfer)    {
         this.unitLoaded = false;
@@ -57,7 +66,7 @@ class IQB_UnitPlayer {
                 this.currentUnit.importDataFromJSON(initData.unitDefinition);
 
                 // load the unit restore point if given
-                if (typeof initData.restorePoint === 'string') {
+                if (initData.restorePoint) {
                      this.loadRestorePoint(initData.restorePoint);
                 }
 
@@ -133,7 +142,7 @@ class IQB_UnitPlayer {
                     }
                 }
 
-                if (alwaysOnPageShown === false) {
+                if (!alwaysOnPageShown) {
                     unitCanvasContainerDiv.style.display = 'flex';
                     unitCanvasContainerDiv.style.justifyContent = 'center';
 
@@ -146,16 +155,6 @@ class IQB_UnitPlayer {
                     normalPageContainerDiv.style.textAlign = 'center';
 
                     normalPageDiv.style.display = 'inline-block';
-
-
-                    /*
-                    alwaysOnPageContainerDiv.style.overflow = 'auto';
-                    normalPageContainerDiv.style.overflow = 'auto';
-
-                    alwaysOnPageDiv.style.overflow = 'auto';
-                    normalPageDiv.style.overflow = 'auto';
-                    */
-
                 }
 
                 const currentPage = this.currentUnit.getCurrentPage();
@@ -179,22 +178,28 @@ class IQB_UnitPlayer {
 
                 window.addEventListener('IQB.unit.viewpointViewed', (e) => {
                     // send the signal to the parent that the unit can be left at anytime
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
+                    parent.window.postMessage({
+                        type: 'vopStateChangedNotification',
                         sessionId: this.sessionId,
-                        presentationComplete: this.getPresentationCompleteStatus(),
-                        restorePoint: this.getRestorePoint()
-                    });
+                        timeStamp: Date.now().toString(),
+                        unitState: {
+                            presentationProgress: this.getPresentationCompleteStatus(),
+                            responses: this.getRestorePoint()
+                        }
+                    }, '*');
                 });
 
                 window.addEventListener('IQB.unit.audioElementEnded', (e) => {
                     // send the signal to the parent that the unit can be left at anytime
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
+                    parent.window.postMessage({
+                        type: 'vopStateChangedNotification',
                         sessionId: this.sessionId,
-                        presentationComplete: this.getPresentationCompleteStatus(),
-                        restorePoint: this.getRestorePoint()
-                    });
+                        timeStamp: Date.now().toString(),
+                        unitState: {
+                            presentationProgress: this.getPresentationCompleteStatus(),
+                            responses: this.getRestorePoint()
+                        }
+                    }, '*');
                 });
 
                 // end of listening for events that signal a change in the presentation status
@@ -203,54 +208,59 @@ class IQB_UnitPlayer {
 
                 window.addEventListener('IQB.unit.responseGiven', (e) => {
                     // send the signal to the parent that the unit can be left at anytime
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.ChangedDataTransfer',
+                    parent.window.postMessage({
+                        type: 'vopStateChangedNotification',
                         sessionId: this.sessionId,
-                        responsesGiven: this.getResponsesGivenStatus(),
-                        restorePoint: this.getRestorePoint(),
-                        response: this.getResponses(),
-                        responseConverter: this.responseConverter
-                    });
+                        timeStamp: Date.now().toString(),
+                        unitState: {
+                            responseProgress: this.getResponsesGivenStatus(),
+                            presentationProgress: this.getPresentationCompleteStatus(),
+                            responses: this.getRestorePoint()
+                        }
+                    }, '*');
                 });
 
                 // end of listening for events that signal a change in the response status
 
                 // prepare to handle navigation requests that come from inside the unit player
                 window.addEventListener('IQB.unit.navigateToPage', (e) => {
-                    this.sendMessageToParent({
+                    /* this.sendMessageToParent({
                         type: 'vo.FromPlayer.PageNavigationRequest',
                         sessionId: this.sessionId,
                         newPage: (e as CustomEvent).detail.pageID
                     });
+                     */
+                    // TODO PageNavigationRequest
+                    console.warn('IQB Unit Player Warning: Page Navigation Request not implemented')
                 });
 
                 window.addEventListener('IQB.unit.UnitNavigationRequest', (e) => {
-                    this.sendMessageToParent({
-                        type: 'vo.FromPlayer.UnitNavigationRequest',
+                    parent.window.postMessage({
+                        type: 'vopUnitNavigationRequestedNotification',
                         sessionId: this.sessionId,
-                        navigationTarget: (e as CustomEvent).detail.navigationTarget
-                    });
+                        targetRelative: (e as CustomEvent).detail.navigationTarget
+                    }, '*');
                 });
                 // end of preparing to handle navigation requests that come from inside the unit player
 
                 console.log('IQB Unit Player: sent the following validPages: ');
                 console.log(this.validPageIDs);
 
-                this.sendMessageToParent({
-                    'type': 'vo.FromPlayer.StartedNotification',
-                    'sessionId': this.sessionId,
-                    'currentPage': currentPageAsString,
-                    'validPages': this.validPageIDs,
-                    'presentationComplete': this.getPresentationCompleteStatus(),
-                    'responsesGiven': this.getResponsesGivenStatus()
-                });
-
-                // send the first restore point, to mark that the unit has been played
-                this.sendMessageToParent({
-                    type: 'vo.FromPlayer.ChangedDataTransfer',
+                parent.window.postMessage({
+                    type: 'vopStateChangedNotification',
                     sessionId: this.sessionId,
-                    restorePoint: this.getRestorePoint()
-                });
+                    timeStamp: Date.now().toString(),
+                    unitState: {
+                        responseProgress: this.getResponsesGivenStatus(),
+                        presentationProgress: this.getPresentationCompleteStatus(),
+                        responses: this.getRestorePoint()
+                    },
+                    playerState: {
+                        state: 'running',
+                        currentPage: currentPageAsString,
+                        validPages: this.validPagesDict
+                    }
+                }, '*');
            }
            else
            {
@@ -263,24 +273,24 @@ class IQB_UnitPlayer {
         }
     }
 
-    private sendMessageToParent(message: VO.UnitPlayerMessageData)
-    {
-        console.log('IQB Unit Player sent the following message to its parent:');
-        console.log(message);
-        parent.window.postMessage(message, '*');
-    }
-
     navigateToPage(pageID: string): void {
-        if (this.unitLoaded = true) {
+        if (this.unitLoaded) {
             this.currentUnit.navigateToPage(pageID);
-
-            this.sendMessageToParent({
-                type: 'vo.FromPlayer.ChangedDataTransfer',
+            parent.window.postMessage({
+                type: 'vopStateChangedNotification',
                 sessionId: this.sessionId,
-                currentPage: pageID,
-                presentationComplete: this.getPresentationCompleteStatus(),
-                restorePoint: this.getRestorePoint()
-            });
+                timeStamp: Date.now().toString(),
+                unitState: {
+                    responseProgress: this.getResponsesGivenStatus(),
+                    presentationProgress: this.getPresentationCompleteStatus(),
+                    responses: this.getRestorePoint()
+                },
+                playerState: {
+                    state: 'running',
+                    currentPage: pageID,
+                    validPages: this.validPagesDict
+                }
+            }, '*');
         }
         else {
             console.error('IQB Unit Player: cannot navigate to page ' + pageID + '. The current unit has not yet finished loading.');
@@ -363,7 +373,7 @@ class IQB_UnitPlayer {
                     if (checkboxElement.responseGiven) {
                         aResponseGiven = true;
                     }
-                    if (checkboxElement.responseGiven === false) {
+                    if (!checkboxElement.responseGiven) {
                         allResponsesGiven = false;
                     }
                 }
@@ -436,7 +446,7 @@ class IQB_UnitPlayer {
         return responsesGiven;
     }
 
-    private getRestorePoint(): string {
+    private getRestorePoint(): KeyValuePairString {
         // this function computes the restore point at a certain moment for the unit, in the form of a javascript object
         // it then stringifies the object into JSON and returns the JSON string
         const unitStatus: any = {};
@@ -496,13 +506,19 @@ class IQB_UnitPlayer {
             unitStatus.pagesViewed[page.pageID] = page.viewed;
         });
 
-        return JSON.stringify(unitStatus);
+        let restorePoints: KeyValuePairString = {};
+        restorePoints['all'] = JSON.stringify(unitStatus);
+        console.log(restorePoints);
+        return restorePoints;
     }
 
-    private loadRestorePoint(restorePoint: string): boolean
-    {
+    private loadRestorePoint(restorePoints: KeyValuePairString): boolean  {
         //  loads the restore point contents into the unit
         //  receives as input a restorePoint JSON string
+        let restorePoint = "";
+        if (restorePoints && restorePoints.hasOwnProperty('all')) {
+            restorePoint = restorePoints['all'];
+        }
         console.log('Unit Player: loading restore point...');
         console.log(restorePoint);
 
@@ -659,129 +675,50 @@ class IQB_UnitPlayer {
         });
 
         return JSON.stringify(responses);
-
-
-        // old code
-        // for (const variableName in this.variables) // go variable by variable, and look for their value
-        // {
-        //     if (variableName in this.variables) {
-        //         const variableType = this.variables[variableName].type;
-        //         if (variableType === 'simpleInput')
-        //         {
-        //             responses[variableName] = ''; // if no response is found variable is set as ""
-        //             const matchingElements = document.getElementsByName(variableName);
-        //             if (matchingElements.length > 0) {
-        //                 responses[variableName] = (matchingElements[0] as HTMLInputElement).value;
-        //             }
-        //         }
-        //         else if ((variableType === 'checkbox') ||  (variableType === 'multipleChoice'))
-        //         {
-        //             responses[variableName] = '-1'; // if no response is found variable is set as -1
-        //             const matchingElements = document.getElementsByName(variableName);
-        //             matchingElements.forEach((matchingElement) => {
-        //                 if ((matchingElement as HTMLInputElement).checked) {
-        //                     responses[variableName] = (matchingElement as HTMLInputElement).value;
-        //                 }
-        //             });
-        //         }
-        //     }
-        // }
     }
+}
 
-    /*
-    end(): boolean {
-        // makeshift unload unit function that probably doesn't completely and most efficiently dispose of an unit
-        // made to serve as an example for an end function
+// the code below handles the processing of postMessages received from the Test Controller
 
-       let cleaningLoopsDone = 0;
-       while ((document.body.childElementCount > 0) && (cleaningLoopsDone < 10000)) {
-            document.body.childNodes.forEach(function (childNode) {
-                document.body.removeChild(childNode);
-            });
-            cleaningLoopsDone++;
-       }
+let unitPlayerInstance: IQB_UnitPlayer | undefined = undefined;
 
-       document.body.innerHTML = '';
-
-       return true;
-     }
-    */
-
+window.addEventListener('message', (event: MessageEvent) => {
+  if ('data' in event) {
+      if ('type' in event.data) {
+          if (event.data.type === 'vopStartCommand') {
+              const initData: VO.ToPlayer_DataTransfer = {
+                  type: 'vo.ToPlayer.DataTransfer',
+                  sessionId: event.data.sessionId,
+                  unitDefinition: event.data.unitDefinition,
+                  restorePoint: event.data.responses
+              };
+              unitPlayerInstance = new IQB_UnitPlayer(initData);
+          } else if ((event.data.type === 'vopPageNavigationCommand') && unitPlayerInstance) {
+              if (unitPlayerInstance.sessionId === event.data.sessionId) {
+                  if ('target' in event.data) {
+                      unitPlayerInstance.navigateToPage(event.data.target);
+                  } else {
+                      console.error('IQB Unit Player Error: target page"' + event.data.target + '" invalid in vopPageNavigationCommand');
+                  }
+              } else {
+                  console.error('IQB Unit Player Error: invalid sessionId. Expected ' + unitPlayerInstance.sessionId +
+                      ' but received ' + event.data.sessionId);
+              }
+          } else {
+              console.error('IQB Unit Player Error: message type "' + event.data.type + '" not supported');
+          }
+      } else {
+          console.error('IQB Unit Player Error: Message does not contain event.data.type');
+      }
+  } else {
+      console.error('IQB Unit Player Error: event.data is not set');
   }
+});
 
-  // the code below handles the processing of postMessages received from the Test Controller
+parent.window.postMessage({
+  'type': 'vopReadyNotification',
+  'apiVersion': '2.1.0',
+  'responseType': 'IQBVisualUnitPlayerV2.1.0'
+}, '*');
 
-  let unitPlayerInstance: IQB_UnitPlayer | undefined = undefined;
-
-  const dataTransferHandler = (event: MessageEvent) => {
-    // handles sending data transfer messages (init data) to the Unit Player
-    const initData = <VO.ToPlayer_DataTransfer>event.data;
-
-    unitPlayerInstance = new IQB_UnitPlayer(initData);
-  };
-
-  const pageNavigationRequestHandler = (event: MessageEvent) => {
-    // handles sending page navigation requests to the Unit Player
-
-    if (typeof unitPlayerInstance !== 'undefined') {
-        if ('sessionId' in event.data) {
-            if (unitPlayerInstance.sessionId === event.data.sessionId) {
-                if ('newPage' in event.data) {
-                    unitPlayerInstance.navigateToPage(event.data.newPage);
-                }
-                else
-                {
-                    console.error('IQB Unit Player Error: newPage not specified in the PageNavigationRequest');
-                }
-            }
-            else
-            {
-                console.error('IQB Unit Player Error: invalid sessionId. Expected ' + unitPlayerInstance.sessionId +
-                              ' but received ' + event.data.sessionId);
-            }
-        }
-        else {
-            console.error('IQB Unit Player Error: no sessionId provided in the page navigation request message');
-        }
-    }
-    else {
-        console.error('IQB Unit Player Error: no Unit Player initialized, so cannot navigate to new page');
-    }
-  };
-
-
-  const postMessageListener = (event: MessageEvent) =>
-  {
-    console.log('The IQB Unit Player has received a message.');
-    // console.log(event);
-
-    if ('data' in event) {
-        // event.data is set
-        if ('type' in event.data) {
-            if (event.data.type === 'vo.ToPlayer.DataTransfer') {
-                dataTransferHandler(event);
-            }
-            else if (event.data.type === 'vo.ToPlayer.NavigateToPage') {
-                pageNavigationRequestHandler(event);
-            }
-            else  {
-                console.error('IQB Unit Player Error: the message type was not recognized');
-                console.log(event.data);
-            }
-        }
-        else {
-            console.error('IQB Unit Player Error: Message does not contain event.data.type');
-        }
-    }
-    else {
-        console.error('IQB Unit Player Error: event.data is not set');
-    }
-  };
-
-  window.addEventListener('message', postMessageListener);
-
-  const readyNotificationMessage: VO.FromPlayer_ReadyNotification = {
-      'type': 'vo.FromPlayer.ReadyNotification',
-      'version': 1
-  };
-  parent.window.postMessage(readyNotificationMessage, '*');
+console.log('d2p: vopReadyNotification sent')

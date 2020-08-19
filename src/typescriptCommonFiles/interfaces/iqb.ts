@@ -64,6 +64,10 @@ export namespace VO {
         version: number;
     }
 
+    export interface KeyValuePairString {
+        [K: string]: string;
+    }
+
     export interface ToPlayer_DataTransfer {
         // Host -> Player
         // Answering 'vo.FromPlayer.ReadyNotification', sending start data
@@ -71,7 +75,7 @@ export namespace VO {
         type: 'vo.ToPlayer.DataTransfer';
         sessionId: string;
         unitDefinition: string;
-        restorePoint?: string;
+        restorePoint?: KeyValuePairString;
         unitNumber?: string;
         unitTitle?: string;
     }
