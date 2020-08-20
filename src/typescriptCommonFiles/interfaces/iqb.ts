@@ -75,7 +75,7 @@ export namespace VO {
         type: 'vo.ToPlayer.DataTransfer';
         sessionId: string;
         unitDefinition: string;
-        restorePoint?: KeyValuePairString;
+        responses?: KeyValuePairString;
         unitNumber?: string;
         unitTitle?: string;
     }

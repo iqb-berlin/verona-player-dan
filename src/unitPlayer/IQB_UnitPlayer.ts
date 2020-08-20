@@ -14,18 +14,12 @@ import KeyValuePairString = VO.KeyValuePairString;
 /*     IQB specific implementation of the unit player       */
 //    parent.window.postMessage(message, '*');
 
-interface ResponsesObject
-{
-    // describes the object that holds all the responses for an unit
-    [variableName: string]: string;
-}
+const responseType = 'IQBVisualUnitPlayerV2.1.0';
 
 class IQB_UnitPlayer {
-    private responseConverter = 'VERAOnlineV1';
     private currentUnit: Unit;
     private readonly validPageIDs: string[] = [];
     private responsesGiven: 'yes' | 'no' | 'all';
-    private environmentVariables: {[environmentVariableName: string]: string} = {};
     public sessionId: string;
     public unitLoaded: boolean;
     get validPagesDict(): KeyValuePairString {
@@ -66,8 +60,8 @@ class IQB_UnitPlayer {
                 this.currentUnit.importDataFromJSON(initData.unitDefinition);
 
                 // load the unit restore point if given
-                if (initData.restorePoint) {
-                     this.loadRestorePoint(initData.restorePoint);
+                if (initData.responses) {
+                     this.restoreResponses(initData.responses);
                 }
 
                 const supportAlwaysOnPositions = ['top', 'left'];
@@ -176,28 +170,28 @@ class IQB_UnitPlayer {
 
                 // listen for events that signal changes in the presentation status
 
-                window.addEventListener('IQB.unit.viewpointViewed', (e) => {
+                window.addEventListener('IQB.unit.viewpointViewed', () => {
                     // send the signal to the parent that the unit can be left at anytime
                     parent.window.postMessage({
                         type: 'vopStateChangedNotification',
                         sessionId: this.sessionId,
                         timeStamp: Date.now().toString(),
                         unitState: {
-                            presentationProgress: this.getPresentationCompleteStatus(),
-                            responses: this.getRestorePoint()
+                            presentationProgress: this.getPresentationProgress(),
+                            responses: this.getResponses()
                         }
                     }, '*');
                 });
 
-                window.addEventListener('IQB.unit.audioElementEnded', (e) => {
+                window.addEventListener('IQB.unit.audioElementEnded', () => {
                     // send the signal to the parent that the unit can be left at anytime
                     parent.window.postMessage({
                         type: 'vopStateChangedNotification',
                         sessionId: this.sessionId,
                         timeStamp: Date.now().toString(),
                         unitState: {
-                            presentationProgress: this.getPresentationCompleteStatus(),
-                            responses: this.getRestorePoint()
+                            presentationProgress: this.getPresentationProgress(),
+                            responses: this.getResponses()
                         }
                     }, '*');
                 });
@@ -206,16 +200,16 @@ class IQB_UnitPlayer {
 
                 // listen for events that signal a change in the response status
 
-                window.addEventListener('IQB.unit.responseGiven', (e) => {
+                window.addEventListener('IQB.unit.responseGiven', () => {
                     // send the signal to the parent that the unit can be left at anytime
                     parent.window.postMessage({
                         type: 'vopStateChangedNotification',
                         sessionId: this.sessionId,
                         timeStamp: Date.now().toString(),
                         unitState: {
-                            responseProgress: this.getResponsesGivenStatus(),
-                            presentationProgress: this.getPresentationCompleteStatus(),
-                            responses: this.getRestorePoint()
+                            responseProgress: this.getResponseProgress(),
+                            presentationProgress: this.getPresentationProgress(),
+                            responses: this.getResponses()
                         }
                     }, '*');
                 });
@@ -223,7 +217,7 @@ class IQB_UnitPlayer {
                 // end of listening for events that signal a change in the response status
 
                 // prepare to handle navigation requests that come from inside the unit player
-                window.addEventListener('IQB.unit.navigateToPage', (e) => {
+                window.addEventListener('IQB.unit.navigateToPage', () => {
                     /* this.sendMessageToParent({
                         type: 'vo.FromPlayer.PageNavigationRequest',
                         sessionId: this.sessionId,
@@ -251,9 +245,9 @@ class IQB_UnitPlayer {
                     sessionId: this.sessionId,
                     timeStamp: Date.now().toString(),
                     unitState: {
-                        responseProgress: this.getResponsesGivenStatus(),
-                        presentationProgress: this.getPresentationCompleteStatus(),
-                        responses: this.getRestorePoint()
+                        responseProgress: this.getResponseProgress(),
+                        presentationProgress: this.getPresentationProgress(),
+                        responses: this.getResponses()
                     },
                     playerState: {
                         state: 'running',
@@ -281,9 +275,9 @@ class IQB_UnitPlayer {
                 sessionId: this.sessionId,
                 timeStamp: Date.now().toString(),
                 unitState: {
-                    responseProgress: this.getResponsesGivenStatus(),
-                    presentationProgress: this.getPresentationCompleteStatus(),
-                    responses: this.getRestorePoint()
+                    responseProgress: this.getResponseProgress(),
+                    presentationProgress: this.getPresentationProgress(),
+                    responses: this.getResponses()
                 },
                 playerState: {
                     state: 'running',
@@ -297,156 +291,125 @@ class IQB_UnitPlayer {
         }
     }
 
-    private getPresentationCompleteStatus(): 'yes' | 'no' {
-        let presentationComplete: 'yes' | 'no' = 'yes';
-
-        // check if there are unfinished audio elements that are part of the presentation
+    private getPresentationProgress(): 'none' | 'some' | 'complete' {
+        let thereArePresentedElements = false;
+        let thereAreUnPresentedElements = false;
         this.currentUnit.mapToElements((element) => {
-            if (element.getElementType() === 'audio') {
-                const audioElement = element as AudioElement;
-                if (audioElement.properties.hasProperty('partOfPresentation'))
-                {
-                    if (audioElement.getPropertyValue('partOfPresentation') === 'true')
-                    {
-                        // console.log('Presentation check. Detected ' + element.elementID + ' as part of the presentation.');
-                        // console.log('Has the audio been played yet: ' + element.getPropertyValue('playedOnce'));
-
-                        if (audioElement.playedOnce === false)
-                        {
-                            presentationComplete = 'no';
-                            // console.log('Detected unfinished audio ' + audioElement.elementID + '. Therefore the presentation is not complete.');
+            if (!thereAreUnPresentedElements || !thereArePresentedElements) {
+                if (element.getElementType() === 'audio') {
+                    const audioElement = element as AudioElement;
+                    if (audioElement.properties.hasProperty('partOfPresentation')) {
+                        if (audioElement.getPropertyValue('partOfPresentation') === 'true') {
+                            if (audioElement.playedOnce) {
+                                thereArePresentedElements = true;
+                            } else {
+                                thereAreUnPresentedElements = true;
+                            }
+                        }
+                    }
+                } else if (element.getElementType() === 'viewpoint') {
+                    const viewpoint = element as ViewpointElement;
+                    if (viewpoint.properties.hasProperty('partOfPresentation')) {
+                        if (viewpoint.getPropertyValue('partOfPresentation') === 'true') {
+                            // console.log('Presentation check. Detected ' + element.elementID + ' as part of the presentation.');
+                            if (viewpoint.viewed) {
+                                thereArePresentedElements = true;
+                            } else {
+                                thereAreUnPresentedElements = true;
+                            }
                         }
                     }
                 }
             }
         });
-        // end of checking if there are unfinished audio elements that are part of the presentation
-
-        // check if there are unviewed viewpoint elements that are part of the presentation
-        this.currentUnit.mapToElements((element) => {
-            if (element.getElementType() === 'viewpoint') {
-                const viewpoint = element as ViewpointElement;
-
-                if (viewpoint.properties.hasProperty('partOfPresentation'))
-                {
-                    if (viewpoint.getPropertyValue('partOfPresentation') === 'true')
-                    {
-                        // console.log('Presentation check. Detected ' + element.elementID + ' as part of the presentation.');
-
-                        if (viewpoint.viewed === false)
-                        {
-                            presentationComplete = 'no';
-                            // console.log('Detected unviewed viewpoint ' + element.elementID + '. Therefore the presentation is not complete.');
-                        }
-                    }
+        if (!thereAreUnPresentedElements || !thereArePresentedElements) {
+            this.currentUnit.getPagesMap().forEach((page) => {
+                if (page.viewed) {
+                    thereArePresentedElements = true;
+                } else {
+                    thereAreUnPresentedElements = true;
                 }
-            }
-        });
-        // end of checking if there are unviewed viewpoint elements that are part of the presentation
-
-        // check if all pages have been viewed
-        this.currentUnit.getPagesMap().forEach((page) => {
-            if (page.viewed === false) {
-                presentationComplete = 'no';
-                // console.log('Detected unviewed page ' + page.pageID + '. Therefore the presentation is not complete.');
-            }
-        });
-        // end of checking if all pages have been viewed
-        return presentationComplete;
+            });
+        }
+        if (thereArePresentedElements) {
+            return thereAreUnPresentedElements ? 'some' : 'complete';
+        } else {
+            return 'none';
+        }
     }
 
-    private getResponsesGivenStatus(): 'yes' | 'no' | 'all' {
+    private getResponseProgress(): 'none' | 'some' | 'complete' {
         // checkboxes must at least be seen
         // multiple choices, at least one in the groupName must be selected
         // dropdown elements, one of the options must be selected
         // textbox, something must be typed
-
-        let allResponsesGiven: boolean = true;
-        let aResponseGiven: boolean = false;
-
-        let responsesGiven: 'yes' | 'no' | 'all' = 'no';
+        let thereAreRespondedElements = false;
+        let thereAreUnRespondedElements = false;
 
         this.currentUnit.mapToElements((element) => {
-            if (element.getElementType() === 'checkbox') {
-                if (element.getPropertyValue('disabled') === 'false') {
-                    const checkboxElement = element as CheckboxElement;
-                    if (checkboxElement.responseGiven) {
-                        aResponseGiven = true;
-                    }
-                    if (!checkboxElement.responseGiven) {
-                        allResponsesGiven = false;
-                    }
+            if (!thereAreRespondedElements || !thereAreUnRespondedElements) {
+                switch (element.getElementType()) {
+                    case 'checkbox':
+                        if (element.getPropertyValue('disabled') === 'false') {
+                            const checkboxElement = element as CheckboxElement;
+                            if (checkboxElement.responseGiven) {
+                                thereAreRespondedElements = true;
+                            } else {
+                                thereAreUnRespondedElements = true;
+                            }
+                        }
+                        break;
+                    case 'multipleChoice':
+                        if (element.getPropertyValue('disabled') === 'false') {
+                            const multipleChoiceElement = element as MultipleChoiceElement;
+                            if (multipleChoiceElement.responseGiven) {
+                                thereAreRespondedElements = true;
+                            } else {
+                                thereAreUnRespondedElements = true;
+                            }
+                        }
+                        break;
+                    case 'textbox':
+                        if (element.getPropertyValue('disabled') === 'false') {
+                            const textboxElement = element as TextboxElement;
+                            if (textboxElement.responseGiven) {
+                                thereAreRespondedElements = true;
+                            } else {
+                                thereAreUnRespondedElements = true;
+                            }
+                        }
+                        break;
+                    case 'multilineTextbox':
+                        if (element.getPropertyValue('disabled') === 'false') {
+                            const textboxElement = element as MultilineTextboxElement;
+                            if (textboxElement.responseGiven) {
+                                thereAreRespondedElements = true;
+                            } else {
+                                thereAreUnRespondedElements = true;
+                            }
+                        }
+                        break;
+                    case 'dropdown':
+                        if (element.getPropertyValue('disabled') === 'false') {
+                            const dropdownElement = element as DropdownElement;
+                            if (dropdownElement.responseGiven) {
+                                thereAreRespondedElements = true;
+                            } else {
+                                thereAreUnRespondedElements = true;
+                            }
+                        }
+                        break;
                 }
             }
-
-            if (element.getElementType() === 'multipleChoice') {
-                if (element.getPropertyValue('disabled') === 'false') {
-                    const multipleChoiceElement = element as MultipleChoiceElement;
-                    if (multipleChoiceElement.responseGiven) {
-                        aResponseGiven = true;
-                    }
-                    if (multipleChoiceElement.responseGiven === false) {
-                        allResponsesGiven = false;
-                    }
-                }
-            }
-
-            if (element.getElementType() === 'textbox') {
-                if (element.getPropertyValue('disabled') === 'false') {
-                    const textboxElement = element as TextboxElement;
-                    if (textboxElement.responseGiven) {
-                        aResponseGiven = true;
-                    }
-                    if (textboxElement.responseGiven === false) {
-                        allResponsesGiven = false;
-                    }
-                }
-            }
-
-            if (element.getElementType() === 'multilineTextbox')  {
-                if (element.getPropertyValue('disabled') === 'false') {
-                    const textboxElement = element as MultilineTextboxElement;
-                    if (textboxElement.responseGiven) {
-                        aResponseGiven = true;
-                    }
-                    if (textboxElement.responseGiven === false) {
-                        allResponsesGiven = false;
-                    }
-                }
-            }
-
-
-            if (element.getElementType() === 'dropdown') {
-                if (element.getPropertyValue('disabled') === 'false') {
-                    const dropdownElement = element as DropdownElement;
-                    if (dropdownElement.responseGiven) {
-                        aResponseGiven = true;
-                    }
-                    if (dropdownElement.responseGiven === false) {
-                        allResponsesGiven = false;
-                    }
-                }
-            }
-
         });
-
-        if (allResponsesGiven) {
-            responsesGiven = 'all';
+        if (thereAreRespondedElements) {
+            return thereAreUnRespondedElements ? 'some' : 'complete';
+        } else {
+            return 'none';
         }
-        else
-        {
-            if (aResponseGiven) {
-                responsesGiven = 'yes';
-            }
-            else {
-                responsesGiven = 'no';
-            }
-        }
-
-        return responsesGiven;
     }
 
-    private getRestorePoint(): KeyValuePairString {
+    private getResponses(): KeyValuePairString {
         // this function computes the restore point at a certain moment for the unit, in the form of a javascript object
         // it then stringifies the object into JSON and returns the JSON string
         const unitStatus: any = {};
@@ -454,162 +417,117 @@ class IQB_UnitPlayer {
         unitStatus.pagesViewed = {};
 
         this.currentUnit.mapToElements((element: UnitElement) => {
-                const elementID = element.getElementID();
-                const elementType = element.getElementType();
-
-                if (elementType === 'checkbox') {
+            const elementID = element.getElementID();
+            switch (element.getElementType()) {
+                case 'checkbox':
                     const checkboxElement = element as CheckboxElement;
-
                     unitStatus[elementID] = checkboxElement.getPropertyValue('checked');
                     unitStatus.responsesGiven[elementID] = checkboxElement.responseGiven;
-                }
-
-                if (elementType === 'multipleChoice') {
+                    break;
+                case 'multipleChoice':
                     const multipleChoiceElement = element as MultipleChoiceElement;
-
                     unitStatus[elementID] = multipleChoiceElement.getPropertyValue('checked');
                     unitStatus.responsesGiven[elementID] = multipleChoiceElement.responseGiven;
-                }
-
-                if (elementType === 'dropdown') {
+                    break;
+                case 'dropdown':
                     const dropdownElement = element as DropdownElement;
-
                     unitStatus[elementID] = dropdownElement.getPropertyValue('selectedOption');
                     unitStatus.responsesGiven[elementID] = dropdownElement.responseGiven;
-                }
-
-                if (elementType === 'textbox') {
+                    break;
+                case 'textbox':
                     const textboxElement = element as TextboxElement;
-
                     unitStatus[elementID] = textboxElement.getPropertyValue('text');
                     unitStatus.responsesGiven[elementID] = textboxElement.responseGiven;
-                }
-
-                if (elementType === 'multilineTextbox') {
-                    const textboxElement = element as MultilineTextboxElement;
-
-                    unitStatus[elementID] = textboxElement.getPropertyValue('text');
-                    unitStatus.responsesGiven[elementID] = textboxElement.responseGiven;
-                }
-
-                if (elementType === 'audio') {
+                    break;
+                case 'multilineTextbox':
+                    const multiTextboxElement = element as MultilineTextboxElement;
+                    unitStatus[elementID] = multiTextboxElement.getPropertyValue('text');
+                    unitStatus.responsesGiven[elementID] = multiTextboxElement.responseGiven;
+                    break;
+                case 'audio':
                     // if the element is of the audio type, mark it as already played
                     unitStatus[elementID] = -1;
-                }
+                    break;
+            }
         });
-
         this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
             unitStatus[viewpoint.elementID] = viewpoint.viewed;
         });
-
         this.currentUnit.getPagesMap().forEach((page) => {
             unitStatus.pagesViewed[page.pageID] = page.viewed;
         });
 
-        let restorePoints: KeyValuePairString = {};
-        restorePoints['all'] = JSON.stringify(unitStatus);
-        console.log(restorePoints);
-        return restorePoints;
+        let allResponses: KeyValuePairString = {};
+        allResponses['all'] = JSON.stringify(unitStatus);
+        return allResponses;
     }
 
-    private loadRestorePoint(restorePoints: KeyValuePairString): boolean  {
+    private restoreResponses(allResponses: KeyValuePairString): boolean  {
         //  loads the restore point contents into the unit
         //  receives as input a restorePoint JSON string
-        let restorePoint = "";
-        if (restorePoints && restorePoints.hasOwnProperty('all')) {
-            restorePoint = restorePoints['all'];
-        }
-        console.log('Unit Player: loading restore point...');
-        console.log(restorePoint);
+        if (allResponses && allResponses.hasOwnProperty('all')) {
+            const restorePoint = allResponses['all'];
+            try {
+                if (restorePoint !== null) {
+                    if (restorePoint.length > 0) {
+                        const unitStatus: any = JSON.parse(restorePoint);
 
-        try
-        {
-            if (restorePoint !== null) {
-                if (restorePoint.length > 0) {
-                    const unitStatus: any = JSON.parse(restorePoint);
-
-                    // update each HTML Input Element with the value available in its status
-                    this.currentUnit.mapToElements((element: UnitElement) => {
+                        // update each HTML Input Element with the value available in its status
+                        this.currentUnit.mapToElements((element: UnitElement) => {
                             const elementID = element.getElementID();
-                            const elementType = element.getElementType();
-
-                            if (elementID in unitStatus)
-                            {
-                                // console.log('Loading restore point data into ' + elementID + '(of type ' + elementType + '): ' + unitStatus[elementID]);
-
+                            if (elementID in unitStatus) {
                                 let responseGiven = false;
                                 if ('responsesGiven' in unitStatus) {
                                     if (elementID in unitStatus.responsesGiven) {
                                         responseGiven = unitStatus.responsesGiven[elementID];
                                     }
                                 }
-
-                                if (elementType === 'checkbox') {
-                                    const checkboxElement = element as CheckboxElement;
-
-                                    checkboxElement.setPropertyValue('checked', unitStatus[elementID]);
-                                    checkboxElement.responseGiven = responseGiven;
-                                }
-
-                                if (elementType === 'multipleChoice') {
-                                    const multiplechoiceElement = element as MultipleChoiceElement;
-
-                                    multiplechoiceElement.setPropertyValue('checked', unitStatus[elementID]);
-                                    multiplechoiceElement.responseGiven = responseGiven;
-                                }
-
-                                if (elementType === 'dropdown') {
-                                    const dropdownElement = element as DropdownElement;
-
-                                    dropdownElement.setPropertyValue('selectedOption', unitStatus[elementID]);
-                                    dropdownElement.responseGiven = responseGiven;
-                                }
-
-                                if (elementType === 'textbox') {
-                                    const textboxElement = element as TextboxElement;
-
-                                    textboxElement.setPropertyValue('text', unitStatus[elementID]);
-                                    textboxElement.responseGiven = responseGiven;
-                                }
-
-                                if (elementType === 'multilineTextbox') {
-                                    const textboxElement = element as MultilineTextboxElement;
-
-                                    textboxElement.setPropertyValue('text', unitStatus[elementID]);
-                                    textboxElement.responseGiven = responseGiven;
-                                }
-
-                                if (elementType === 'audio') {
-                                    const audioElement = element as AudioElement;
-                                    if (unitStatus[elementID] === -1)
-                                    {
-                                        if (audioElement.getPropertyValue('playOnlyOnce') === 'true') {
-                                            audioElement.setPropertyValue('alreadyPlayed', 'true');
-                                            audioElement.playedOnce = true;
-                                            // console.log('Set alreadyPlayed property to true for element ' + elementID);
+                                switch (element.getElementType()) {
+                                    case 'checkbox':
+                                        const checkboxElement = element as CheckboxElement;
+                                        checkboxElement.setPropertyValue('checked', unitStatus[elementID]);
+                                        checkboxElement.responseGiven = responseGiven;
+                                        break;
+                                    case 'multipleChoice':
+                                        const multiplechoiceElement = element as MultipleChoiceElement;
+                                        multiplechoiceElement.setPropertyValue('checked', unitStatus[elementID]);
+                                        multiplechoiceElement.responseGiven = responseGiven;
+                                        break;
+                                    case 'dropdown':
+                                        const dropdownElement = element as DropdownElement;
+                                        dropdownElement.setPropertyValue('selectedOption', unitStatus[elementID]);
+                                        dropdownElement.responseGiven = responseGiven;
+                                        break;
+                                    case 'textbox':
+                                        const textboxElement = element as TextboxElement;
+                                        textboxElement.setPropertyValue('text', unitStatus[elementID]);
+                                        textboxElement.responseGiven = responseGiven;
+                                        break;
+                                    case 'multilineTextbox':
+                                        const multiTextboxElement = element as MultilineTextboxElement;
+                                        multiTextboxElement.setPropertyValue('text', unitStatus[elementID]);
+                                        multiTextboxElement.responseGiven = responseGiven;
+                                        break;
+                                    case 'audio':
+                                        const audioElement = element as AudioElement;
+                                        if (unitStatus[elementID] === -1) {
+                                            if (audioElement.getPropertyValue('playOnlyOnce') === 'true') {
+                                                audioElement.setPropertyValue('alreadyPlayed', 'true');
+                                                audioElement.playedOnce = true;
+                                                // console.log('Set alreadyPlayed property to true for element ' + elementID);
+                                            }
                                         }
-                                    }
+                                        break;
+                                    case 'viewpoint':
+                                        const viewpointElement = element as ViewpointElement;
+                                        viewpointElement.viewed = !!unitStatus[elementID];
                                 }
-
-                                if (elementType === 'viewpoint') {
-                                    const viewpointElement = element as ViewpointElement;
-                                    // console.log('Loading restore point data into viewpoint ' + viewpointElement.elementID);
-                                    if (unitStatus[elementID]) {
-                                        viewpointElement.viewed = true;
-                                    }
-                                    else
-                                    {
-                                        viewpointElement.viewed = false;
-                                    }
-                                }
-
                                 if (element.getIsDrawn()) {
                                     // console.log(elementID + ' detected as drawn during restore point load; re-rendering it...');
                                     // if the element is currently drawn on the screen, also re-render it with the updated properties
                                     element.render();
                                 }
                             }
-
                         });
 
                         // load pages viewed info
@@ -619,64 +537,16 @@ class IQB_UnitPlayer {
                             });
                         }
                         // finished loading pages viewed info
+                    }
                 }
+            } catch (e) {
+                console.error(e);
+                return false;
             }
-            return true;
         }
-        catch (e)
-        {
-            console.error(e);
-            return false;
-        }
+        return true;
     }
-
-    private getResponses(): string {
-        // computes the responses based on the current state of an unit
-        const responses: ResponsesObject = {};
-
-        this.currentUnit.mapToElements((element: UnitElement) => {
-                const elementID = element.getElementID();
-                const elementType = element.getElementType();
-
-                if ((elementType === 'checkbox') || (elementType === 'multipleChoice') ||
-                    (elementType === 'dropdown') || (elementType === 'textbox') || (elementType === 'multilineTextbox'))
-                {
-                    if (elementType === 'checkbox') {
-                        responses[elementID] = element.getPropertyValue('checked');
-                    }
-
-                    if (elementType === 'multipleChoice') {
-                        responses[elementID] = element.getPropertyValue('checked');
-                    }
-
-                    if (elementType === 'dropdown') {
-                        responses[elementID] = element.getPropertyValue('selectedOption');
-                    }
-
-                    if (elementType === 'textbox') {
-                        responses[elementID] = element.getPropertyValue('text');
-                    }
-
-                    if (elementType === 'multilineTextbox') {
-                        responses[elementID] = element.getPropertyValue('text');
-                    }
-                }
-        });
-
-        this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
-            if (viewpoint.getPropertyValue('sendsResponses') === 'true') {
-                if (viewpoint.viewed) {
-                    responses[viewpoint.elementID] = 'viewed';
-                }
-                else {
-                    responses[viewpoint.elementID] = 'not viewed';
-                }
-            }
-        });
-
-        return JSON.stringify(responses);
-    }
-}
+} // end of class IQB_UnitPlayer
 
 // the code below handles the processing of postMessages received from the Test Controller
 
@@ -690,7 +560,7 @@ window.addEventListener('message', (event: MessageEvent) => {
                   type: 'vo.ToPlayer.DataTransfer',
                   sessionId: event.data.sessionId,
                   unitDefinition: event.data.unitDefinition,
-                  restorePoint: event.data.responses
+                  responses: event.data.responses
               };
               unitPlayerInstance = new IQB_UnitPlayer(initData);
           } else if ((event.data.type === 'vopPageNavigationCommand') && unitPlayerInstance) {
@@ -718,7 +588,7 @@ window.addEventListener('message', (event: MessageEvent) => {
 parent.window.postMessage({
   'type': 'vopReadyNotification',
   'apiVersion': '2.1.0',
-  'responseType': 'IQBVisualUnitPlayerV2.1.0'
+  'responseType': responseType
 }, '*');
 
-console.log('d2p: vopReadyNotification sent')
+console.log('d2p: vopReadyNotification sent');
