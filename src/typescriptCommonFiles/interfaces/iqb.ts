@@ -68,16 +68,29 @@ export namespace VO {
         [K: string]: string;
     }
 
-    export interface ToPlayer_DataTransfer {
-        // Host -> Player
-        // Answering 'vo.FromPlayer.ReadyNotification', sending start data
+    export interface UnitState {
+        dataParts?: KeyValuePairString;
+        presentationProgress?: string;
+        responseProgress?: string;
+        unitStateDataType?: string;
+    }
 
-        type: 'vo.ToPlayer.DataTransfer';
+    export interface PlayerConfig {
+        unitNumber: number;
+        unitTitle: string;
+        unitId: string;
+        stateReportPolicy: string;
+        logPolicy: string;
+        pagingMode: string
+    }
+
+    export interface StartCommandData {
+        type: string;
         sessionId: string;
         unitDefinition: string;
-        responses?: KeyValuePairString;
-        unitNumber?: string;
-        unitTitle?: string;
+        unitDefinitionType: string;
+        unitState?: UnitState;
+        playerConfig?: PlayerConfig;
     }
 
     export interface FromPlayer_StartedNotification {
@@ -144,7 +157,7 @@ export namespace VO {
                                            FromAuthoringModule_ChangedNotification | ToAuthoringModule_DataRequest |
                                            FromAuthoringModule_DataTransfer;
 
-    export type UnitPlayerMessageData = FromPlayer_ReadyNotification | ToPlayer_DataTransfer |
+    export type UnitPlayerMessageData = FromPlayer_ReadyNotification | StartCommandData |
                                         FromPlayer_StartedNotification | FromPlayer_ChangedDataTransfer |
                                         ToPlayer_NavigateToPage | FromPlayer_PageNavigationRequest |
                                         FromPlayer_UnitNavigationRequest;

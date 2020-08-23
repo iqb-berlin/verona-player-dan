@@ -319,32 +319,34 @@ export class UnitPage extends ObjectWithProperties {
 
     public drawPage()
     {
-       console.log('Drawing page ' + this.pageID);
-       console.log('Page container: ' + this.containerDivID);
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Drawing page ' + this.pageID + '; Page container: ' + this.containerDivID}
+        }));
+        this.viewed = true;
 
-       this.viewed = true;
+        const pageStyle = `display: inline-block; position: relative; margin-left: auto; margin-right: auto; text-align: left;`;
+        // the position needs to be relative, so that it is considered positioned,
+        // so that its children with absolute coordinates get drawn in reference to it
+        // see https://developer.mozilla.org/en-US/docs/Web/CSS/position for reference
 
-       const pageStyle = `display: inline-block; position: relative; margin-left: auto; margin-right: auto; text-align: left;`;
-       // the position needs to be relative, so that it is considered positioned,
-       // so that its children with absolute coordinates get drawn in reference to it
-       // see https://developer.mozilla.org/en-US/docs/Web/CSS/position for reference
+        this.removeElementChildren(this.containerDiv);
 
-       this.removeElementChildren(this.containerDiv);
+        this.containerDiv.innerHTML = `<div id="${this.pageID}" class="UnitPage" style="${pageStyle}"></div>`;
 
-       this.containerDiv.innerHTML = `<div id="${this.pageID}" class="UnitPage" style="${pageStyle}"></div>`;
-
-       this.initializePagePropertyRenderers();
+        this.initializePagePropertyRenderers();
     }
 
     public undrawPage()
     {
-        console.log('Undrawing page ' + this.pageID + ' ...');
-
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Undrawing page ' + this.pageID + ' ...'}
+        }));
         this.elements.forEach( (element: UnitElement) => {
             if ((element.getElementType() === 'audio') || (element.getElementType() === 'video')) {
                 // if the element is an audio or video, empty it's contents before removing it from the DOM
-               console.log('emptying source for ' + element.getElementID());
-
+                window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                    detail: {'msgType': 'info', 'msg': 'emptying source for ' + element.getElementID()}
+                }));
                // element.setPropertyValue('src', '');
 
                let elementNode: HTMLElement | null;
@@ -369,8 +371,9 @@ export class UnitPage extends ObjectWithProperties {
 
     public render()
     {
-        console.log('----------------------------------------------------------------------------');
-        console.log('Rendering page ' + this.pageID + ' (already drawn: ' + this.isDrawn + ' )');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': '---------------------------------Rendering page ' + this.pageID + ' (already drawn: ' + this.isDrawn + ' )'}
+        }));
 
         if (this.isDrawn === false)
         {
@@ -447,14 +450,16 @@ export class UnitPage extends ObjectWithProperties {
         });
 
         // finished applying proper tab order to drawn elements
-
-        console.log('Render of page ' + this.pageID + ' complete.');
-        console.log('----------------------------------------------------------------------------');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Render of page ' + this.pageID + ' complete.--------------------------------'}
+        }));
     }
 
      public renderElementProperties()
      {
-        console.log('Rendering properties of the elements on  page ' + this.pageID);
+         window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+             detail: {'msgType': 'info', 'msg': 'Rendering properties of the elements on  page ' + this.pageID}
+         }));
         this.elements.forEach((element: UnitElement, elementID: string) =>
         {
             element.properties.renderProperties();
@@ -507,8 +512,9 @@ export class UnitPage extends ObjectWithProperties {
             {
                 this.setPropertyValue('padding', '0');
             }
-
-            console.log('Der Seitenrand von ' + propertyValue + 'px ist zu groß! Der wird stattdessen auf 0px gesetzt.');
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+             detail: {'msgType': 'info', 'msg': 'Der Seitenrand von ' + propertyValue + 'px ist zu groß! Der wird stattdessen auf 0px gesetzt.'}
+            }));
          });
 
          // whenever a canvas property is rendered, re-render also element properties
@@ -608,7 +614,9 @@ export class UnitPage extends ObjectWithProperties {
          this.elements.set(elementID, element);
         }
         else {
-            console.error('IQB Visual Unit: Could not create new element ' + elementID + ' with type ' + elementType + '. Type not recognized.');
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'error', 'msg': 'IQB Visual Unit: Could not create new element ' + elementID + ' with type ' + elementType + '. Type not recognized.'}
+            }));
         }
 
         return element;

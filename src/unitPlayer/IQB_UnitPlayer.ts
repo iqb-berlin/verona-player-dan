@@ -10,17 +10,18 @@ import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/Textb
 import { MultilineTextboxElement } from '../typescriptCommonFiles/unit/elementTypes/MultilineTextboxElement';
 import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement';
 import KeyValuePairString = VO.KeyValuePairString;
+import UnitState = VO.UnitState;
 
 /*     IQB specific implementation of the unit player       */
 //    parent.window.postMessage(message, '*');
 
-const responseType = 'IQBVisualUnitPlayerV2.1.0';
+const unitDataType = 'IQBVisualUnitPlayerV2.1.0';
 
 class IQB_UnitPlayer {
-    private currentUnit: Unit;
+    private readonly currentUnit: Unit | null = null;
     private readonly validPageIDs: string[] = [];
-    private responsesGiven: 'yes' | 'no' | 'all';
-    public sessionId: string;
+    private suppressDebugInfo = true;
+    public sessionId = '';
     public unitLoaded: boolean;
     get validPagesDict(): KeyValuePairString {
         let myReturn: KeyValuePairString = {};
@@ -30,15 +31,11 @@ class IQB_UnitPlayer {
         return myReturn
     }
 
-    constructor (initData: VO.ToPlayer_DataTransfer)    {
+    constructor (initData: VO.StartCommandData)    {
         this.unitLoaded = false;
-        if ('sessionId' in initData)
-        {
+        if ('sessionId' in initData) {
             this.sessionId = initData.sessionId;
-            if ('unitDefinition' in initData)
-            {
-                this.responsesGiven = 'no';
-
+            if ('unitDefinition' in initData) {
                 // prepare response input events for when a page will be drawn
 
                 // render the unit
@@ -60,8 +57,10 @@ class IQB_UnitPlayer {
                 this.currentUnit.importDataFromJSON(initData.unitDefinition);
 
                 // load the unit restore point if given
-                if (initData.responses) {
-                     this.restoreResponses(initData.responses);
+                if (initData.unitState) {
+                    if (initData.unitState.dataParts) {
+                        this.restoreUnitState(initData.unitState.dataParts);
+                    }
                 }
 
                 const supportAlwaysOnPositions = ['top', 'left'];
@@ -169,50 +168,60 @@ class IQB_UnitPlayer {
                 // once the unit has loaded, start listening for changes
 
                 // listen for events that signal changes in the presentation status
+                if (initData.playerConfig) {
+                    if (initData.playerConfig.stateReportPolicy !== 'none') {
+                        window.addEventListener('IQB.unit.viewpointViewed', () => {
+                            // send the signal to the parent that the unit can be left at anytime
+                            parent.window.postMessage({
+                                type: 'vopStateChangedNotification',
+                                sessionId: this.sessionId,
+                                timeStamp: Date.now().toString(),
+                                unitState: <UnitState>{
+                                    presentationProgress: this.getPresentationProgress(),
+                                    responseProgress: this.getResponseProgress()
+                                }
+                            }, '*');
+                        });
 
-                window.addEventListener('IQB.unit.viewpointViewed', () => {
-                    // send the signal to the parent that the unit can be left at anytime
-                    parent.window.postMessage({
-                        type: 'vopStateChangedNotification',
-                        sessionId: this.sessionId,
-                        timeStamp: Date.now().toString(),
-                        unitState: {
-                            presentationProgress: this.getPresentationProgress(),
-                            responses: this.getResponses()
-                        }
-                    }, '*');
-                });
+                        window.addEventListener('IQB.unit.audioElementEnded', () => {
+                            // send the signal to the parent that the unit can be left at anytime
+                            parent.window.postMessage({
+                                type: 'vopStateChangedNotification',
+                                sessionId: this.sessionId,
+                                timeStamp: Date.now().toString(),
+                                unitState: <UnitState>{
+                                    presentationProgress: this.getPresentationProgress(),
+                                    responseProgress: this.getResponseProgress()
+                                }
+                            }, '*');
+                        });
 
-                window.addEventListener('IQB.unit.audioElementEnded', () => {
-                    // send the signal to the parent that the unit can be left at anytime
-                    parent.window.postMessage({
-                        type: 'vopStateChangedNotification',
-                        sessionId: this.sessionId,
-                        timeStamp: Date.now().toString(),
-                        unitState: {
-                            presentationProgress: this.getPresentationProgress(),
-                            responses: this.getResponses()
-                        }
-                    }, '*');
-                });
+                        // end of listening for events that signal a change in the presentation status
 
-                // end of listening for events that signal a change in the presentation status
+                        // listen for events that signal a change in the response status
 
-                // listen for events that signal a change in the response status
-
-                window.addEventListener('IQB.unit.responseGiven', () => {
-                    // send the signal to the parent that the unit can be left at anytime
-                    parent.window.postMessage({
-                        type: 'vopStateChangedNotification',
-                        sessionId: this.sessionId,
-                        timeStamp: Date.now().toString(),
-                        unitState: {
-                            responseProgress: this.getResponseProgress(),
-                            presentationProgress: this.getPresentationProgress(),
-                            responses: this.getResponses()
-                        }
-                    }, '*');
-                });
+                        window.addEventListener('IQB.unit.responseGiven', () => {
+                            // send the signal to the parent that the unit can be left at anytime
+                            parent.window.postMessage({
+                                type: 'vopStateChangedNotification',
+                                sessionId: this.sessionId,
+                                timeStamp: Date.now().toString(),
+                                unitState: <UnitState>{
+                                    presentationProgress: this.getPresentationProgress(),
+                                    responseProgress: this.getResponseProgress(),
+                                    dataParts: this.getUnitStateData(),
+                                    unitStateDataType: unitDataType
+                                }
+                            }, '*');
+                        });
+                    }
+                    if (initData.playerConfig.logPolicy === 'debug') {
+                        this.suppressDebugInfo = false;
+                        window.addEventListener('IQB.unit.debugMessage', (e) => {
+                            this.sendDebugMessage((e as CustomEvent).detail.msgType, (e as CustomEvent).detail.msg)
+                        });
+                    }
+                }
 
                 // end of listening for events that signal a change in the response status
 
@@ -224,8 +233,8 @@ class IQB_UnitPlayer {
                         newPage: (e as CustomEvent).detail.pageID
                     });
                      */
-                    // TODO PageNavigationRequest
-                    console.warn('IQB Unit Player Warning: Page Navigation Request not implemented')
+                    // TODO PageNavigationRequest; by now, the unit cannot send page nagigation requests
+                    this.sendDebugMessage('warn', 'IQB Unit Player Warning: Page Navigation Request not implemented')
                 });
 
                 window.addEventListener('IQB.unit.UnitNavigationRequest', (e) => {
@@ -237,17 +246,16 @@ class IQB_UnitPlayer {
                 });
                 // end of preparing to handle navigation requests that come from inside the unit player
 
-                console.log('IQB Unit Player: sent the following validPages: ');
-                console.log(this.validPageIDs);
+                this.sendDebugMessage('info', 'IQB Unit Player: sent the following validPages: ');
+                this.sendDebugMessage('info', this.validPageIDs);
 
                 parent.window.postMessage({
                     type: 'vopStateChangedNotification',
                     sessionId: this.sessionId,
                     timeStamp: Date.now().toString(),
-                    unitState: {
+                    unitState: <UnitState>{
                         responseProgress: this.getResponseProgress(),
-                        presentationProgress: this.getPresentationProgress(),
-                        responses: this.getResponses()
+                        presentationProgress: this.getPresentationProgress()
                     },
                     playerState: {
                         state: 'running',
@@ -255,30 +263,21 @@ class IQB_UnitPlayer {
                         validPages: this.validPagesDict
                     }
                 }, '*');
+           } else {
+             this.sendDebugMessage('warn', 'IQB Unit Player: no unitDefinition provided in the initialization data');
            }
-           else
-           {
-            throw(new Error('IQB Unit Player: no unitDefinition provided in the initialization data'));
-           }
-        }
-        else
-        {
-            throw(new Error('IQB Unit Player: no sessionId provided in the initialization data'));
+        } else {
+            this.sendDebugMessage('error', 'IQB Unit Player: no sessionId provided in the initialization data');
         }
     }
 
     navigateToPage(pageID: string): void {
-        if (this.unitLoaded) {
+        if (this.unitLoaded && this.currentUnit) {
             this.currentUnit.navigateToPage(pageID);
             parent.window.postMessage({
                 type: 'vopStateChangedNotification',
                 sessionId: this.sessionId,
                 timeStamp: Date.now().toString(),
-                unitState: {
-                    responseProgress: this.getResponseProgress(),
-                    presentationProgress: this.getPresentationProgress(),
-                    responses: this.getResponses()
-                },
                 playerState: {
                     state: 'running',
                     currentPage: pageID,
@@ -287,49 +286,51 @@ class IQB_UnitPlayer {
             }, '*');
         }
         else {
-            console.error('IQB Unit Player: cannot navigate to page ' + pageID + '. The current unit has not yet finished loading.');
+            this.sendDebugMessage('error', 'IQB Unit Player: cannot navigate to page ' + pageID + '. The current unit has not yet finished loading.');
         }
     }
 
     private getPresentationProgress(): 'none' | 'some' | 'complete' {
         let thereArePresentedElements = false;
         let thereAreUnPresentedElements = false;
-        this.currentUnit.mapToElements((element) => {
-            if (!thereAreUnPresentedElements || !thereArePresentedElements) {
-                if (element.getElementType() === 'audio') {
-                    const audioElement = element as AudioElement;
-                    if (audioElement.properties.hasProperty('partOfPresentation')) {
-                        if (audioElement.getPropertyValue('partOfPresentation') === 'true') {
-                            if (audioElement.playedOnce) {
-                                thereArePresentedElements = true;
-                            } else {
-                                thereAreUnPresentedElements = true;
+        if (this.currentUnit) {
+            this.currentUnit.mapToElements((element) => {
+                if (!thereAreUnPresentedElements || !thereArePresentedElements) {
+                    if (element.getElementType() === 'audio') {
+                        const audioElement = element as AudioElement;
+                        if (audioElement.properties.hasProperty('partOfPresentation')) {
+                            if (audioElement.getPropertyValue('partOfPresentation') === 'true') {
+                                if (audioElement.playedOnce) {
+                                    thereArePresentedElements = true;
+                                } else {
+                                    thereAreUnPresentedElements = true;
+                                }
+                            }
+                        }
+                    } else if (element.getElementType() === 'viewpoint') {
+                        const viewpoint = element as ViewpointElement;
+                        if (viewpoint.properties.hasProperty('partOfPresentation')) {
+                            if (viewpoint.getPropertyValue('partOfPresentation') === 'true') {
+                                // console.log('Presentation check. Detected ' + element.elementID + ' as part of the presentation.');
+                                if (viewpoint.viewed) {
+                                    thereArePresentedElements = true;
+                                } else {
+                                    thereAreUnPresentedElements = true;
+                                }
                             }
                         }
                     }
-                } else if (element.getElementType() === 'viewpoint') {
-                    const viewpoint = element as ViewpointElement;
-                    if (viewpoint.properties.hasProperty('partOfPresentation')) {
-                        if (viewpoint.getPropertyValue('partOfPresentation') === 'true') {
-                            // console.log('Presentation check. Detected ' + element.elementID + ' as part of the presentation.');
-                            if (viewpoint.viewed) {
-                                thereArePresentedElements = true;
-                            } else {
-                                thereAreUnPresentedElements = true;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        if (!thereAreUnPresentedElements || !thereArePresentedElements) {
-            this.currentUnit.getPagesMap().forEach((page) => {
-                if (page.viewed) {
-                    thereArePresentedElements = true;
-                } else {
-                    thereAreUnPresentedElements = true;
                 }
             });
+            if (!thereAreUnPresentedElements || !thereArePresentedElements) {
+                this.currentUnit.getPagesMap().forEach((page) => {
+                    if (page.viewed) {
+                        thereArePresentedElements = true;
+                    } else {
+                        thereAreUnPresentedElements = true;
+                    }
+                });
+            }
         }
         if (thereArePresentedElements) {
             return thereAreUnPresentedElements ? 'some' : 'complete';
@@ -346,62 +347,64 @@ class IQB_UnitPlayer {
         let thereAreRespondedElements = false;
         let thereAreUnRespondedElements = false;
 
-        this.currentUnit.mapToElements((element) => {
-            if (!thereAreRespondedElements || !thereAreUnRespondedElements) {
-                switch (element.getElementType()) {
-                    case 'checkbox':
-                        if (element.getPropertyValue('disabled') === 'false') {
-                            const checkboxElement = element as CheckboxElement;
-                            if (checkboxElement.responseGiven) {
-                                thereAreRespondedElements = true;
-                            } else {
-                                thereAreUnRespondedElements = true;
+        if (this.currentUnit) {
+            this.currentUnit.mapToElements((element) => {
+                if (!thereAreRespondedElements || !thereAreUnRespondedElements) {
+                    switch (element.getElementType()) {
+                        case 'checkbox':
+                            if (element.getPropertyValue('disabled') === 'false') {
+                                const checkboxElement = element as CheckboxElement;
+                                if (checkboxElement.responseGiven) {
+                                    thereAreRespondedElements = true;
+                                } else {
+                                    thereAreUnRespondedElements = true;
+                                }
                             }
-                        }
-                        break;
-                    case 'multipleChoice':
-                        if (element.getPropertyValue('disabled') === 'false') {
-                            const multipleChoiceElement = element as MultipleChoiceElement;
-                            if (multipleChoiceElement.responseGiven) {
-                                thereAreRespondedElements = true;
-                            } else {
-                                thereAreUnRespondedElements = true;
+                            break;
+                        case 'multipleChoice':
+                            if (element.getPropertyValue('disabled') === 'false') {
+                                const multipleChoiceElement = element as MultipleChoiceElement;
+                                if (multipleChoiceElement.responseGiven) {
+                                    thereAreRespondedElements = true;
+                                } else {
+                                    thereAreUnRespondedElements = true;
+                                }
                             }
-                        }
-                        break;
-                    case 'textbox':
-                        if (element.getPropertyValue('disabled') === 'false') {
-                            const textboxElement = element as TextboxElement;
-                            if (textboxElement.responseGiven) {
-                                thereAreRespondedElements = true;
-                            } else {
-                                thereAreUnRespondedElements = true;
+                            break;
+                        case 'textbox':
+                            if (element.getPropertyValue('disabled') === 'false') {
+                                const textboxElement = element as TextboxElement;
+                                if (textboxElement.responseGiven) {
+                                    thereAreRespondedElements = true;
+                                } else {
+                                    thereAreUnRespondedElements = true;
+                                }
                             }
-                        }
-                        break;
-                    case 'multilineTextbox':
-                        if (element.getPropertyValue('disabled') === 'false') {
-                            const textboxElement = element as MultilineTextboxElement;
-                            if (textboxElement.responseGiven) {
-                                thereAreRespondedElements = true;
-                            } else {
-                                thereAreUnRespondedElements = true;
+                            break;
+                        case 'multilineTextbox':
+                            if (element.getPropertyValue('disabled') === 'false') {
+                                const textboxElement = element as MultilineTextboxElement;
+                                if (textboxElement.responseGiven) {
+                                    thereAreRespondedElements = true;
+                                } else {
+                                    thereAreUnRespondedElements = true;
+                                }
                             }
-                        }
-                        break;
-                    case 'dropdown':
-                        if (element.getPropertyValue('disabled') === 'false') {
-                            const dropdownElement = element as DropdownElement;
-                            if (dropdownElement.responseGiven) {
-                                thereAreRespondedElements = true;
-                            } else {
-                                thereAreUnRespondedElements = true;
+                            break;
+                        case 'dropdown':
+                            if (element.getPropertyValue('disabled') === 'false') {
+                                const dropdownElement = element as DropdownElement;
+                                if (dropdownElement.responseGiven) {
+                                    thereAreRespondedElements = true;
+                                } else {
+                                    thereAreUnRespondedElements = true;
+                                }
                             }
-                        }
-                        break;
+                            break;
+                    }
                 }
-            }
-        });
+            });
+        }
         if (thereAreRespondedElements) {
             return thereAreUnRespondedElements ? 'some' : 'complete';
         } else {
@@ -409,63 +412,64 @@ class IQB_UnitPlayer {
         }
     }
 
-    private getResponses(): KeyValuePairString {
+    private getUnitStateData(): KeyValuePairString {
         // this function computes the restore point at a certain moment for the unit, in the form of a javascript object
         // it then stringifies the object into JSON and returns the JSON string
         const unitStatus: any = {};
         unitStatus.responsesGiven = {};
         unitStatus.pagesViewed = {};
 
-        this.currentUnit.mapToElements((element: UnitElement) => {
-            const elementID = element.getElementID();
-            switch (element.getElementType()) {
-                case 'checkbox':
-                    const checkboxElement = element as CheckboxElement;
-                    unitStatus[elementID] = checkboxElement.getPropertyValue('checked');
-                    unitStatus.responsesGiven[elementID] = checkboxElement.responseGiven;
-                    break;
-                case 'multipleChoice':
-                    const multipleChoiceElement = element as MultipleChoiceElement;
-                    unitStatus[elementID] = multipleChoiceElement.getPropertyValue('checked');
-                    unitStatus.responsesGiven[elementID] = multipleChoiceElement.responseGiven;
-                    break;
-                case 'dropdown':
-                    const dropdownElement = element as DropdownElement;
-                    unitStatus[elementID] = dropdownElement.getPropertyValue('selectedOption');
-                    unitStatus.responsesGiven[elementID] = dropdownElement.responseGiven;
-                    break;
-                case 'textbox':
-                    const textboxElement = element as TextboxElement;
-                    unitStatus[elementID] = textboxElement.getPropertyValue('text');
-                    unitStatus.responsesGiven[elementID] = textboxElement.responseGiven;
-                    break;
-                case 'multilineTextbox':
-                    const multiTextboxElement = element as MultilineTextboxElement;
-                    unitStatus[elementID] = multiTextboxElement.getPropertyValue('text');
-                    unitStatus.responsesGiven[elementID] = multiTextboxElement.responseGiven;
-                    break;
-                case 'audio':
-                    // if the element is of the audio type, mark it as already played
-                    unitStatus[elementID] = -1;
-                    break;
-            }
-        });
-        this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
-            unitStatus[viewpoint.elementID] = viewpoint.viewed;
-        });
-        this.currentUnit.getPagesMap().forEach((page) => {
-            unitStatus.pagesViewed[page.pageID] = page.viewed;
-        });
-
+        if (this.currentUnit) {
+            this.currentUnit.mapToElements((element: UnitElement) => {
+                const elementID = element.getElementID();
+                switch (element.getElementType()) {
+                    case 'checkbox':
+                        const checkboxElement = element as CheckboxElement;
+                        unitStatus[elementID] = checkboxElement.getPropertyValue('checked');
+                        unitStatus.responsesGiven[elementID] = checkboxElement.responseGiven;
+                        break;
+                    case 'multipleChoice':
+                        const multipleChoiceElement = element as MultipleChoiceElement;
+                        unitStatus[elementID] = multipleChoiceElement.getPropertyValue('checked');
+                        unitStatus.responsesGiven[elementID] = multipleChoiceElement.responseGiven;
+                        break;
+                    case 'dropdown':
+                        const dropdownElement = element as DropdownElement;
+                        unitStatus[elementID] = dropdownElement.getPropertyValue('selectedOption');
+                        unitStatus.responsesGiven[elementID] = dropdownElement.responseGiven;
+                        break;
+                    case 'textbox':
+                        const textboxElement = element as TextboxElement;
+                        unitStatus[elementID] = textboxElement.getPropertyValue('text');
+                        unitStatus.responsesGiven[elementID] = textboxElement.responseGiven;
+                        break;
+                    case 'multilineTextbox':
+                        const multiTextboxElement = element as MultilineTextboxElement;
+                        unitStatus[elementID] = multiTextboxElement.getPropertyValue('text');
+                        unitStatus.responsesGiven[elementID] = multiTextboxElement.responseGiven;
+                        break;
+                    case 'audio':
+                        // if the element is of the audio type, mark it as already played
+                        unitStatus[elementID] = -1;
+                        break;
+                }
+            });
+            this.currentUnit.mapToViewpoints((viewpoint: ViewpointElement) => {
+                unitStatus[viewpoint.elementID] = viewpoint.viewed;
+            });
+            this.currentUnit.getPagesMap().forEach((page) => {
+                unitStatus.pagesViewed[page.pageID] = page.viewed;
+            });
+        }
         let allResponses: KeyValuePairString = {};
         allResponses['all'] = JSON.stringify(unitStatus);
         return allResponses;
     }
 
-    private restoreResponses(allResponses: KeyValuePairString): boolean  {
+    private restoreUnitState(allResponses: KeyValuePairString): boolean  {
         //  loads the restore point contents into the unit
         //  receives as input a restorePoint JSON string
-        if (allResponses && allResponses.hasOwnProperty('all')) {
+        if (allResponses && allResponses.hasOwnProperty('all') && this.currentUnit) {
             const restorePoint = allResponses['all'];
             try {
                 if (restorePoint !== null) {
@@ -546,6 +550,23 @@ class IQB_UnitPlayer {
         }
         return true;
     }
+
+    sendDebugMessage(msgType: 'info' | 'warn' | 'error', msg: any) {
+        // TODO do not console... here; instead send log msg to host
+        switch (msgType) {
+            case 'info':
+                if (!this.suppressDebugInfo) {
+                    console.log(msg)
+                }
+                break;
+            case 'warn':
+                console.warn(msg);
+                break;
+            case 'error':
+                console.error(msg);
+                break;
+        }
+    }
 } // end of class IQB_UnitPlayer
 
 // the code below handles the processing of postMessages received from the Test Controller
@@ -556,13 +577,7 @@ window.addEventListener('message', (event: MessageEvent) => {
   if ('data' in event) {
       if ('type' in event.data) {
           if (event.data.type === 'vopStartCommand') {
-              const initData: VO.ToPlayer_DataTransfer = {
-                  type: 'vo.ToPlayer.DataTransfer',
-                  sessionId: event.data.sessionId,
-                  unitDefinition: event.data.unitDefinition,
-                  responses: event.data.responses
-              };
-              unitPlayerInstance = new IQB_UnitPlayer(initData);
+              unitPlayerInstance = new IQB_UnitPlayer(event.data);
           } else if ((event.data.type === 'vopPageNavigationCommand') && unitPlayerInstance) {
               if (unitPlayerInstance.sessionId === event.data.sessionId) {
                   if ('target' in event.data) {
@@ -585,10 +600,29 @@ window.addEventListener('message', (event: MessageEvent) => {
   }
 });
 
+const notifyFocusVisibilityChange = (hasFocus: boolean) => {
+    let sessionId = '';
+    if (unitPlayerInstance) {
+        sessionId = unitPlayerInstance.sessionId;
+    }
+    parent.window.postMessage({
+        'type': 'vopWindowsFocusChangedNotification',
+        'timeStamp': Date.now().toString(),
+        'hasFocus': hasFocus
+    }, '*');
+};
+window.addEventListener('blur', (event: FocusEvent) => {
+    // @ts-ignore
+    notifyFocusVisibilityChange(document.hasFocus());
+});
+window.addEventListener('focus', (event: FocusEvent) => {
+    // @ts-ignore
+    notifyFocusVisibilityChange( document.hasFocus());
+});
+
+
 parent.window.postMessage({
   'type': 'vopReadyNotification',
-  'apiVersion': '2.1.0',
-  'responseType': responseType
+  'apiVersion': '2.1.0'
 }, '*');
 
-console.log('d2p: vopReadyNotification sent');

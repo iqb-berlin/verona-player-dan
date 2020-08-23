@@ -47,7 +47,9 @@ export class Unit extends ObjectWithProperties {
 
         if (containerDiv !== null)
         {
-            console.log(`IQB Unit Canvas: Container DIV (${containerDivID}) found. Initializing...`);
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': `IQB Unit Canvas: Container DIV (${containerDivID}) found. Initializing...`}
+            }));
 
             this.properties.addProperty('elementsCounter', {
                 value: 0,
@@ -76,12 +78,15 @@ export class Unit extends ObjectWithProperties {
 
             const firstPage = this.newPage().getID();
             this.currentPageID = firstPage;
-
-            console.log('IQB Unit Canvas: Initialized.');
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': 'IQB Unit Canvas: Initialized.'}
+            }));
         }
         else
         {
-            console.log('IQB Unit Canvas: Error. No container DIV found. Initialization halted.');
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': 'IQB Unit Canvas: Error. No container DIV found. Initialization halted.'}
+            }));
         }
     }
 
@@ -101,21 +106,29 @@ export class Unit extends ObjectWithProperties {
 
     public loadData(unitData: UnitData)
     {
-        console.log('################## Loading new unit ################');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': '################## Loading new unit ################'}
+        }));
         // console.log('Unit data: ');
         // console.log(unitData);
 
         // before loading a new unit, first, clear this one
-        console.log('Clearing up the old unit...');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Clearing up the old unit...'}
+        }));
         this.pages.forEach((page: UnitPage, pageID: string) => {
-            console.log('Deleting page ' + pageID);
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': 'Deleting page ' + pageID}
+            }));
             this.deletePage(pageID);
         });
 
         this.currentPageID  = '';
 
         // then load the new unit
-        console.log('Loading the new unit...');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Loading the new unit...'}
+        }));
         this.properties.loadData(unitData.properties);
 
         this.pages = new Map();
@@ -144,12 +157,15 @@ export class Unit extends ObjectWithProperties {
 
         if (this.currentPageID === '') {
             // if there is no main page to show, create an empty one;
-            console.log('No non-alwayson page identified while loading unit; creating a new normal page to show as a main page.');
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': 'No non-alwayson page identified while loading unit; creating a new normal page to show as a main page.'}
+            }));
             const newPageID: string = this.newPage().getID();
             this.currentPageID = newPageID;
         }
-
-        console.log('Loaded unit.');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Loaded unit.'}
+        }));
         // console.log('It now looks like this:');
         // console.log(this);
         this.render();
@@ -170,8 +186,9 @@ export class Unit extends ObjectWithProperties {
 
     public newPage(pageID?: string, alwaysOn: AlwaysOnPagePropertyValueType = AlwaysOnPagePropertyValueType.NO  ): UnitPage
     {
-        console.log('Creating new page; pageID: ' + pageID + ' ; alwaysOn: ' + alwaysOn);
-
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Creating new page; pageID: ' + pageID + ' ; alwaysOn: ' + alwaysOn}
+        }));
         let newPageID = '';
 
         if (typeof pageID === 'undefined')
@@ -202,7 +219,9 @@ export class Unit extends ObjectWithProperties {
 
     public navigateToPage(pageID: string): boolean
     {
-        console.log('Attempting to navigate to page ' + pageID);
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Attempting to navigate to page ' + pageID}
+        }));
         if (this.pages.has(pageID))
         {
             // undraw current page
@@ -374,8 +393,9 @@ export class Unit extends ObjectWithProperties {
 
     public renderCurrentPage(): void
     {
-        console.log('### Unit -> rendering current page...');
-
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': '### Unit -> rendering current page...'}
+        }));
         const currentPage = this.getCurrentPage();
 
         if (typeof currentPage !== 'undefined') {
@@ -398,11 +418,9 @@ export class Unit extends ObjectWithProperties {
             });
 
             if (typeof alwaysOnPage !== 'undefined') {
-
-                console.log('Decided that an alwaysOn page is also to be shown');
-                console.log('Using as always on page...');
-                console.log(alwaysOnPage);
-
+                window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                    detail: {'msgType': 'info', 'msg': 'Decided that an alwaysOn page is also to be shown; Using as always on page...' + alwaysOnPage}
+                }));
                 alwaysOnPage.render();
             }
         }
