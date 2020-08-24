@@ -601,22 +601,16 @@ window.addEventListener('message', (event: MessageEvent) => {
 });
 
 const notifyFocusVisibilityChange = (hasFocus: boolean) => {
-    let sessionId = '';
-    if (unitPlayerInstance) {
-        sessionId = unitPlayerInstance.sessionId;
-    }
     parent.window.postMessage({
-        'type': 'vopWindowsFocusChangedNotification',
+        'type': 'vopWindowFocusChangedNotification',
         'timeStamp': Date.now().toString(),
         'hasFocus': hasFocus
     }, '*');
 };
-window.addEventListener('blur', (event: FocusEvent) => {
-    // @ts-ignore
+window.addEventListener('blur', () => {
     notifyFocusVisibilityChange(document.hasFocus());
 });
-window.addEventListener('focus', (event: FocusEvent) => {
-    // @ts-ignore
+window.addEventListener('focus', () => {
     notifyFocusVisibilityChange( document.hasFocus());
 });
 
