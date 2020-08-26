@@ -1,3 +1,5 @@
 node_modules/
 compilation/
 build/
+/verona-dan.iml
+.idea/

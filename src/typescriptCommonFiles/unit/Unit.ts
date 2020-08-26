@@ -25,6 +25,11 @@ import { ViewpointElement } from './elementTypes/ViewpointElement.js';
 
 export type ElementFunction = (element: UnitElement) => any;
 export type ViewpointFunction = (viewpoint: ViewpointElement) => any;
+export enum AlwaysOnPagePropertyValueType {
+    NO = 'no',
+    TOP = 'top',
+    LEFT = 'left'
+}
 
 export class Unit extends ObjectWithProperties {
     private pages: Map<string, UnitPage> = new Map();
@@ -42,7 +47,9 @@ export class Unit extends ObjectWithProperties {
 
         if (containerDiv !== null)
         {
-            console.log(`IQB Unit Canvas: Container DIV (${containerDivID}) found. Initializing...`);
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': `IQB Unit Canvas: Container DIV (${containerDivID}) found. Initializing...`}
+            }));
 
             this.properties.addProperty('elementsCounter', {
                 value: 0,
@@ -71,12 +78,15 @@ export class Unit extends ObjectWithProperties {
 
             const firstPage = this.newPage().getID();
             this.currentPageID = firstPage;
-
-            console.log('IQB Unit Canvas: Initialized.');
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': 'IQB Unit Canvas: Initialized.'}
+            }));
         }
         else
         {
-            console.log('IQB Unit Canvas: Error. No container DIV found. Initialization halted.');
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': 'IQB Unit Canvas: Error. No container DIV found. Initialization halted.'}
+            }));
         }
     }
 
@@ -96,21 +106,29 @@ export class Unit extends ObjectWithProperties {
 
     public loadData(unitData: UnitData)
     {
-        console.log('################## Loading new unit ################');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': '################## Loading new unit ################'}
+        }));
         // console.log('Unit data: ');
         // console.log(unitData);
 
         // before loading a new unit, first, clear this one
-        console.log('Clearing up the old unit...');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Clearing up the old unit...'}
+        }));
         this.pages.forEach((page: UnitPage, pageID: string) => {
-            console.log('Deleting page ' + pageID);
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': 'Deleting page ' + pageID}
+            }));
             this.deletePage(pageID);
         });
 
         this.currentPageID  = '';
 
         // then load the new unit
-        console.log('Loading the new unit...');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Loading the new unit...'}
+        }));
         this.properties.loadData(unitData.properties);
 
         this.pages = new Map();
@@ -119,7 +137,7 @@ export class Unit extends ObjectWithProperties {
         {
             if (pageID in unitData.pages) {
 
-                let alwaysOnPagePropertyValue: string = 'no'; // default to no
+                let alwaysOnPagePropertyValue: AlwaysOnPagePropertyValueType = AlwaysOnPagePropertyValueType.NO; // default to no
                 if ('alwaysOn' in unitData.pages[pageID].properties) {
                     // if the data specifies an alwaysOn property for the page, use that instead
                     alwaysOnPagePropertyValue = unitData.pages[pageID].properties['alwaysOn'];
@@ -139,12 +157,15 @@ export class Unit extends ObjectWithProperties {
 
         if (this.currentPageID === '') {
             // if there is no main page to show, create an empty one;
-            console.log('No non-alwayson page identified while loading unit; creating a new normal page to show as a main page.');
+            window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                detail: {'msgType': 'info', 'msg': 'No non-alwayson page identified while loading unit; creating a new normal page to show as a main page.'}
+            }));
             const newPageID: string = this.newPage().getID();
             this.currentPageID = newPageID;
         }
-
-        console.log('Loaded unit.');
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Loaded unit.'}
+        }));
         // console.log('It now looks like this:');
         // console.log(this);
         this.render();
@@ -162,10 +183,12 @@ export class Unit extends ObjectWithProperties {
         return JSON.stringify(this.getData());
     }
 
-    public newPage(pageID?: string, alwaysOn: 'no' | 'top' | 'left' = 'no'): UnitPage
-    {
-        console.log('Creating new page; pageID: ' + pageID + ' ; alwaysOn: ' + alwaysOn);
 
+    public newPage(pageID?: string, alwaysOn: AlwaysOnPagePropertyValueType = AlwaysOnPagePropertyValueType.NO  ): UnitPage
+    {
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Creating new page; pageID: ' + pageID + ' ; alwaysOn: ' + alwaysOn}
+        }));
         let newPageID = '';
 
         if (typeof pageID === 'undefined')
@@ -196,13 +219,18 @@ export class Unit extends ObjectWithProperties {
 
     public navigateToPage(pageID: string): boolean
     {
-        console.log('Attempting to navigate to page ' + pageID);
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': 'Attempting to navigate to page ' + pageID}
+        }));
         if (this.pages.has(pageID))
         {
             // undraw current page
             if (this.currentPageID !== '')
             {
-                this.getCurrentPage().undrawPage();
+                const currentPage = this.getCurrentPage();
+                if (currentPage) {
+                    currentPage.undrawPage();
+                }
             }
 
             // change page
@@ -226,7 +254,10 @@ export class Unit extends ObjectWithProperties {
             // if page is currently being shown, undraw it
             if (this.currentPageID === pageID)
             {
-                this.getCurrentPage().undrawPage();
+                const currentPage = this.getCurrentPage();
+                if (currentPage) {
+                    currentPage.undrawPage();
+                }
             }
 
             // then delete the page
@@ -362,8 +393,9 @@ export class Unit extends ObjectWithProperties {
 
     public renderCurrentPage(): void
     {
-        console.log('### Unit -> rendering current page...');
-
+        window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+            detail: {'msgType': 'info', 'msg': '### Unit -> rendering current page...'}
+        }));
         const currentPage = this.getCurrentPage();
 
         if (typeof currentPage !== 'undefined') {
@@ -386,11 +418,9 @@ export class Unit extends ObjectWithProperties {
             });
 
             if (typeof alwaysOnPage !== 'undefined') {
-
-                console.log('Decided that an alwaysOn page is also to be shown');
-                console.log('Using as always on page...');
-                console.log(alwaysOnPage);
-
+                window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                    detail: {'msgType': 'info', 'msg': 'Decided that an alwaysOn page is also to be shown; Using as always on page...' + alwaysOnPage}
+                }));
                 alwaysOnPage.render();
             }
         }
@@ -398,7 +428,12 @@ export class Unit extends ObjectWithProperties {
 
     public getCanvasID(): string
     {
-        return this.getCurrentPage().getPageHTMLElementID();
+        const currentPage = this.getCurrentPage();
+        if (currentPage) {
+            return currentPage.getPageHTMLElementID();
+        } else {
+            return '';
+        }
     }
 
     public getCurrentPage(): UnitPage | undefined
@@ -417,9 +452,14 @@ export class Unit extends ObjectWithProperties {
         return this.pages;
     }
 
-    public getCurrentPageHTMLElement(): HTMLDivElement
+    public getCurrentPageHTMLElement(): HTMLDivElement | undefined
     {
-        return document.getElementById(this.getCurrentPage().getPageHTMLElementID()) as HTMLDivElement;
+        const currentPage = this.getCurrentPage();
+        if (currentPage) {
+            return document.getElementById(currentPage.getPageHTMLElementID()) as HTMLDivElement;
+        } else {
+            return undefined;
+        }
     }
 
     public newElement(elementType: SupportedUnitElementType, elementContent: string = ''): UnitElement | undefined
@@ -431,13 +471,18 @@ export class Unit extends ObjectWithProperties {
 
             const elementID: string = 'canvasElement' + newElementsCounter;
 
-            this.getCurrentPage().newElement(elementID, elementType, elementContent);
-            const newElement = this.element(elementID);
-            if (typeof newElement !== 'undefined') {
-                newElement.render();
-            }
+            const currentPage = this.getCurrentPage();
+            if (currentPage) {
+                currentPage.newElement(elementID, elementType, elementContent);
+                const newElement = this.element(elementID);
+                if (typeof newElement !== 'undefined') {
+                    newElement.render();
+                }
 
-            return newElement;
+                return newElement;
+            } else {
+                return undefined
+            }
         }
         else
         {

@@ -169,7 +169,9 @@ export class AudioElement extends UnitElement {
                 const audioElementVisualLocation = document.getElementById(this.elementID + '_audio_visualLocation') as HTMLAudioElement;
                 const audioElementTextLocation = document.getElementById(this.elementID + '_audio_textLocation') as HTMLAudioElement;
 
-                console.log('Alreadyplayed property detected as true for ' + this.elementID + '. Thus, removing audio.');
+                window.dispatchEvent(new CustomEvent('IQB.unit.debugMessage', {
+                    detail: {'msgType': 'info', 'msg': 'Alreadyplayed property detected as true for ' + this.elementID + '. Thus, removing audio.'}
+                }));
                 audioElement.src = '';
 
                 const audioControls = document.getElementById(this.elementID + '_audio_controls') as HTMLSpanElement;
@@ -365,13 +367,13 @@ export class AudioElement extends UnitElement {
         // react to other audios being played and stop, by hiding / showing audio controls
 
         window.addEventListener('IQB.unit.audioElementStarted', (e) => {
-            if (e.detail.elementID !== this.elementID) {
+            if ((e as CustomEvent).detail.elementID !== this.elementID) {
                 audioControls.style.visibility = 'hidden';
             }
         });
 
         window.addEventListener('IQB.unit.audioElementStopped', (e) => {
-            if (e.detail.elementID !== this.elementID) {
+            if ((e as CustomEvent).detail.elementID !== this.elementID) {
                 if (this.getPropertyValue('alreadyPlayed') !== 'true') {
                     audioControls.style.visibility = 'visible';
                 }
