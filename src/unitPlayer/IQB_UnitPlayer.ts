@@ -12,9 +12,6 @@ import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/Drop
 import KeyValuePairString = VO.KeyValuePairString;
 import UnitState = VO.UnitState;
 
-/*     IQB specific implementation of the unit player       */
-//    parent.window.postMessage(message, '*');
-
 const unitDataType = 'IQBVisualUnitPlayerV2.1.0';
 
 class IQB_UnitPlayer {
