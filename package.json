@@ -1,6 +1,6 @@
 {
-  "name": "iqb-verona-player-dan",
-  "version": "2.99.0",
+  "name": "itemmodule-iqb-main",
+  "version": "2.1.0",
   "description": "IQB Unit Authoring and IQB Unit Player",
   "main": "",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iqb-berlin/verona-player-dan"
+    "url": "https://github.com/veraonline/itemmodule-iqb-main"
   },
   "author": "IQB",
   "license": "MIT",
