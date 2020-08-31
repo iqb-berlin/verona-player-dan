@@ -188,7 +188,9 @@ class IQB_UnitPlayer {
                                 timeStamp: Date.now().toString(),
                                 unitState: <UnitState>{
                                     presentationProgress: this.getPresentationProgress(),
-                                    responseProgress: this.getResponseProgress()
+                                    responseProgress: this.getResponseProgress(),
+                                    dataParts: this.getUnitStateData(),
+                                    unitStateDataType: unitDataType
                                 }
                             }, '*');
                         });
