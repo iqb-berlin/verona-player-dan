@@ -33,4 +33,4 @@ rem finishing up unitPlayer
 copy "src\polyfills\custom-event-polyfill.js" + "src\polyfills\nodeList-forEach.js" + "src\polyfills\intersection-observer.js" "compilation\polyfills.js"
 copy "src\unitPlayer\misc\firstPart.html" + "src\unitPlayer\misc\scriptStart.txt" + "compilation\polyfills.js" + "src\unitPlayer\misc\scriptEnd.txt" + "src\unitPlayer\misc\scriptStart.txt" + "src\unitPlayer\includes\jquery.js" + "src\unitPlayer\misc\scriptEnd.txt" + "src\unitPlayer\misc\scriptStart.txt" + "compilation\final_bundles_files\IQB_unitPlayer_Bundled.js" + "src\unitPlayer\misc\scriptEnd.txt" + "src\unitPlayer\misc\styleStart.txt" + "src\unitPlayer\includes\pretty-checkbox.css" + "src\unitPlayer\misc\styleEnd.txt" + "src\unitPlayer\misc\secondPart.html" "build\unitPlayer\unitPlayer.html"
 rem renaming the unitPlayer to the current release
-move /Y "build\unitPlayer\unitPlayer.html" "build\unitPlayer\IQBVisualUnitPlayerV2.99.0.html"
+move /Y "build\unitPlayer\unitPlayer.html" "build\unitPlayer\IQBVisualUnitPlayerV2.99.2.html"
