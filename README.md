@@ -3,7 +3,7 @@
 
 # Intro
 
-The current default IQB Item for computer based accessment: The Dan-Player. 
+The current default IQB Item for computer based assessment: The Dan-Player. 
 Contains: 
 * Player-Plugin
 * Editor-Plugin (formally known as IQB Unit Authoring Tool)
@@ -40,4 +40,4 @@ www.IQB.hu-berlin.de
 
 Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
 
-2019
+2021
