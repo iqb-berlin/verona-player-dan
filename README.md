@@ -16,21 +16,19 @@ The Editor-Plugin and the Player-Plugin share most of their code with each other
 
 # Build
 
-Currently the build process is only set up to work on Windows (7 or higher) and uses NPM (Node Package Manager).
+Install dependencies via NPM
+```
+npm install
+```
 
-You can use "npm install" to install the build dependencies which are needed. After that, you can use "npm run-script build" to do a build. This will create a "build" folder with the current build and a "compilation" folder with the intermediary files that are needed in order to create the build.
-
+After that, you can use `npm run-script build` to do a build. This will create a "build" folder with the current build and a "compilation" folder with the intermediary files that are needed in order to create the build.
 The build process is described in "custom_build.bat", using the Windows batch file syntax.
+
+For Linux there is a bash script, which you have to execure directly, `./build.sh`.
 
 # Releases
 
 You can also use one of our previous releases directly, which are located in the "releases" folder.
-
-# Demo
-
-# Testing
-
-*No Tests available yet*
 
 # License
 
@@ -38,6 +36,6 @@ MIT License
 
 www.IQB.hu-berlin.de
 
-Dan Bărbulescu, Martin Mechtel, Andrei Stroescu
+Dan Bărbulescu, Martin Mechtel, Andrei Stroescu, Richard Henck
 
 2021
