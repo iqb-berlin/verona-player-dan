@@ -1,11 +1,10 @@
 {
-  "name": "iqb-verona-player-dan",
-  "version": "2.99.2",
-  "description": "IQB Unit Authoring and IQB Unit Player",
+  "name": "iqb-player-dan",
+  "version": "3.0.0",
+  "description": "This Verona Player uses a specific undocumented unit definition format. You can place elements for display or interaction purposes freely on one or more pages.",
   "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "custom_build.bat"
+    "build-windows": "custom_build.bat %npm_package_name%@%npm_package_version%.html"
   },
   "repository": {
     "type": "git",
