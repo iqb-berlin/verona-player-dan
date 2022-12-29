@@ -30,7 +30,7 @@
     "pretty-checkbox": "^3.0.3",
     "tslint": "^5.11.0",
     "typescript": "^3.0.1",
-    "webpack": "^4.19.0",
-    "webpack-cli": "^3.1.0"
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   }
 }
