@@ -21,11 +21,11 @@ class IQB_UnitPlayer {
     public sessionId = '';
     public unitLoaded: boolean;
     get validPagesDict(): KeyValuePairString {
-        let myReturn: KeyValuePairString = {};
+        const myReturn: KeyValuePairString = {};
         this.validPageIDs.forEach((pageId: string) => {
-            myReturn[pageId] = pageId
+            myReturn[pageId] = pageId;
         });
-        return myReturn
+        return myReturn;
     }
 
     constructor (initData: VO.StartCommandData)    {
@@ -217,7 +217,7 @@ class IQB_UnitPlayer {
                     if (initData.playerConfig.logPolicy === 'debug') {
                         this.suppressDebugInfo = false;
                         window.addEventListener('IQB.unit.debugMessage', (e) => {
-                            this.sendDebugMessage((e as CustomEvent).detail.msgType, (e as CustomEvent).detail.msg)
+                            this.sendDebugMessage((e as CustomEvent).detail.msgType, (e as CustomEvent).detail.msg);
                         });
                     }
                 }
@@ -233,7 +233,7 @@ class IQB_UnitPlayer {
                     });
                      */
                     // TODO PageNavigationRequest; by now, the unit cannot send page nagigation requests
-                    this.sendDebugMessage('warn', 'IQB Unit Player Warning: Page Navigation Request not implemented')
+                    this.sendDebugMessage('warn', 'IQB Unit Player Warning: Page Navigation Request not implemented');
                 });
 
                 window.addEventListener('IQB.unit.UnitNavigationRequest', (e) => {
@@ -460,7 +460,7 @@ class IQB_UnitPlayer {
                 unitStatus.pagesViewed[page.pageID] = page.viewed;
             });
         }
-        let allResponses: KeyValuePairString = {};
+        const allResponses: KeyValuePairString = {};
         allResponses['all'] = JSON.stringify(unitStatus);
         return allResponses;
     }
@@ -555,7 +555,7 @@ class IQB_UnitPlayer {
         switch (msgType) {
             case 'info':
                 if (!this.suppressDebugInfo) {
-                    console.log(msg)
+                    console.log(msg);
                 }
                 break;
             case 'warn':
@@ -570,7 +570,7 @@ class IQB_UnitPlayer {
 
 // the code below handles the processing of postMessages received from the Test Controller
 
-let unitPlayerInstance: IQB_UnitPlayer | undefined = undefined;
+let unitPlayerInstance: IQB_UnitPlayer | undefined;
 
 window.addEventListener('message', (event: MessageEvent) => {
   if ('data' in event) {

@@ -5,36 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>iqb verona player dan</title>
-    <script type="application/ld+json">
+    <script id="verona-metadata" type="application/ld+json">
         {
-            "@context": "https://w3id.org/iqb/verona-modules",
-            "@type": "player",
-            "@id": "iqb-player-dan",
-            "name": {
-                "de": "IQB-Player für komplexe Testaufgaben (Dan)",
-                "en": "IQB player for complex assessment units"
-            },
-            "maintainer": {
-                "name": {
-                    "de": "IQB - Institut zur Qualitätsentwicklung im Bildungswesen",
-                    "en": "IQB - Institute for Educational Quality Improvement"
+            "$schema": "https://raw.githubusercontent.com/verona-interfaces/metadata/master/verona-module-metadata.json",
+            "id": "iqb-player-dan",
+            "version": "3.1.0-beta",
+            "specVersion": "5.0",
+            "metadataVersion": "2.0",
+            "type": "player",
+            "name": [
+                {
+                    "lang": "en",
+                    "value": "IQB player for static assessment units (dan)"
                 },
+                {
+                    "lang": "de",
+                    "value": "IQB-Player für statische Testaufgaben (Dan)"
+                }
+            ],
+            "description": [
+                {
+                    "lang": "de",
+                    "value": "Dieser Player interpretiert Aufgabendefinitionen in einem eigenen, undokumentierten Format. Anzeige- und Interaktionselemente können frei positioniert werden auf einer oder über mehreren Seiten."
+                },
+                {
+                    "lang": "en",
+                    "value": "This Verona Player uses a specific undocumented unit definition format. You can place elements for display or interaction purposes freely on one or more pages."
+                }
+            ],
+            "notSupportedFeatures": [
+                "log-policy",
+                "paging-mode"
+            ],
+            "maintainer": {
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "IQB - Institute for Educational Quality Improvement."
+                    },
+                    {
+                        "lang": "de",
+                        "value": "IQB - Institut zur Qualitätsentwicklung im Bildungswesen."
+                    }
+                ],
                 "url": "https://www.iqb.hu-berlin.de",
                 "email": "iqb-tbadev@hu-berlin.de"
             },
-            "description": {
-                "de": "Dieser Player interpretiert Aufgabendefinitionen in einem eigenen, undokumentierten Format. Anzeige- und Interaktionselemente können frei positioniert werden auf einer oder über mehreren Seiten.",
-                "en": "This Verona Player uses a specific undocumented unit definition format. You can place elements for display or interaction purposes freely on one or more pages."
-            },
-            "version": "3.0.0",
-            "apiVersion": "2.1",
-            "repository": {
-                "type": "git",
-                "url": "https://github.com/iqb-berlin/verona-player-abi"
-            },
-            "notSupportedFeatures": []
+            "code": {
+                "repositoryType": "git",
+                "licenseType": "MIT",
+                "licenseUrl": "https://opensource.org/licenses/MIT",
+                "repositoryUrl": "https://github.com/iqb-berlin/verona-player-dan"
+            }
         }
     </script>
+
     <style>
         html {
             height: 100%;
