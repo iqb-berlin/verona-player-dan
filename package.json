@@ -1,6 +1,6 @@
 {
   "name": "iqb-player-dan",
-  "version": "3.1.0-beta",
+  "version": "3.1.0",
   "description": "This Verona Player uses a specific undocumented unit definition format. You can place elements for display or interaction purposes freely on one or more pages.",
   "main": "",
   "scripts": {

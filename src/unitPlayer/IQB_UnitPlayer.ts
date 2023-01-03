@@ -613,9 +613,13 @@ window.addEventListener('focus', () => {
     notifyFocusVisibilityChange( document.hasFocus());
 });
 
+const playerMetadataScriptElement = document.querySelector('#verona-metadata') as HTMLElement;
+if (playerMetadataScriptElement) {
+    const playerMetaData = JSON.parse(playerMetadataScriptElement.innerText);
 
-parent.window.postMessage({
-  'type': 'vopReadyNotification',
-  'apiVersion': '2.1.0'
-}, '*');
-
+    parent.window.postMessage({
+        type: 'vopReadyNotification',
+        metadata: playerMetaData,
+        apiVersion: '4' // to be backwards-compatible with the Teststudio-lite as of January 22  'apiVersion': '2.1.0'
+    }, '*');
+}
