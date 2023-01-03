@@ -106,7 +106,9 @@ export class PropertiesToolbox
             }
 
             // sort alphabetically according to property captions
-            if (propertiesDisplayed.get(a).caption >= propertiesDisplayed.get(b).caption) {
+            const propA = propertiesDisplayed.get(a);
+            const propB = propertiesDisplayed.get(b);
+            if (propA && propB && propA.caption >= propB.caption) {
                 return 1;
             }
             else {

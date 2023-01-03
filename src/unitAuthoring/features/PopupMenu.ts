@@ -26,7 +26,7 @@ export class PopupMenu
    private popupMenuDivID: string;
    private popupMenuItemsCounter = 0;
    private popupMenuItems: Map<string, PopupMenuItem> = new Map();
-   private hideMenuItemTimeoutIDs: Array<number> = [];
+   private hideMenuItemTimeoutIDs: Array<NodeJS.Timeout> = [];
 
    constructor(public attachedToElement: UnitElement)
    {
@@ -47,20 +47,12 @@ export class PopupMenu
     window.addEventListener('IQB.unitAuthoring.popupMenuShown', (e) => {
         // console.log('IQB.unitAuthoring.popupMenuShown event received');
         // console.log(e);
-
-        if ('detail' in e)
+        const detail = (e as CustomEvent).detail;
+        if (detail && detail.popupMenuDivID)
         {
-            if ('popupMenuDivID' in e.detail) {
-                if (e.detail.popupMenuDivID !== this.popupMenuDivID) {
-                    this.hidePopupMenu();
-                }
+            if (detail.popupMenuDivID !== this.popupMenuDivID) {
+                this.hidePopupMenu();
             }
-            else {
-                console.error('IQB.unitAuthoring.popupMenuShown does not contain detail.popupMenuDivID property');
-            }
-        }
-        else {
-            console.error('IQB.unitAuthoring.popupMenuShown does not contain detail property');
         }
     });
 
@@ -148,7 +140,7 @@ export class PopupMenu
         jQuery('#' + this.popupMenuDivID).css('display', 'inline');
 
         // cancel any hide menu item timeouts
-        this.hideMenuItemTimeoutIDs.forEach((timeoutID: number) => {
+        this.hideMenuItemTimeoutIDs.forEach((timeoutID) => {
             clearTimeout(timeoutID);
         });
 

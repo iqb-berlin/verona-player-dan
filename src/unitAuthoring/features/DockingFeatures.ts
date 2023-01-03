@@ -215,9 +215,10 @@ export class DockingFeatures
             // console.log('Container element ID' + containerObjectID);
             if (containerObjectID !== '')
             {
-                const containerObject = this.currentUnit.getCurrentPage().getTableCell(containerObjectID);
+                const currentPage = this.currentUnit.getCurrentPage();
+                const containerObject = currentPage ? currentPage.getTableCell(containerObjectID) : null;
 
-                if (typeof containerObject !== 'undefined') {
+                if (containerObject) {
                     // console.log('Container element identified as:');
                     // console.log(containerObject);
 

@@ -7,29 +7,22 @@ IQB Unit Authoring Entry Point
 // 2019
 // license: MIT
 
-import { VO } from '../typescriptCommonFiles/interfaces/iqb.js';
+import {VO} from '../typescriptCommonFiles/interfaces/iqb.js';
 
-import { Property } from '../typescriptCommonFiles/unit/Properties.js';
-import { ObjectWithProperties } from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
-import { ObjectWithSpatialProperties } from '../typescriptCommonFiles/unit/ObjectWithSpatialProperties.js';
-import { UnitElement } from '../typescriptCommonFiles/unit/UnitElement.js';
-import { UnitElementData } from '../typescriptCommonFiles/models/Data.js';
-import { UnitPage, SupportedUnitElementType } from '../typescriptCommonFiles/unit/UnitPage.js';
-import { Unit } from '../typescriptCommonFiles/unit/Unit.js';
-import { PropertiesToolbox } from './features/PropertiesToolbox.js';
-import { PopupMenu } from './features/PopupMenu.js';
-import { DockingFeatures } from './features/DockingFeatures.js';
+import {Property} from '../typescriptCommonFiles/unit/Properties.js';
+import {ObjectWithProperties} from '../typescriptCommonFiles/unit/ObjectWithProperties.js';
+import {ObjectWithSpatialProperties} from '../typescriptCommonFiles/unit/ObjectWithSpatialProperties.js';
+import {UnitElement} from '../typescriptCommonFiles/unit/UnitElement.js';
+import {UnitElementData} from '../typescriptCommonFiles/models/Data.js';
+import {SupportedUnitElementType, UnitPage} from '../typescriptCommonFiles/unit/UnitPage.js';
+import {Unit} from '../typescriptCommonFiles/unit/Unit.js';
+import {PropertiesToolbox} from './features/PropertiesToolbox.js';
+import {PopupMenu} from './features/PopupMenu.js';
+import {DockingFeatures} from './features/DockingFeatures.js';
 
-import { AudioElement } from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
-import { CheckboxElement } from '../typescriptCommonFiles/unit/elementTypes/CheckboxElement.js';
-import { DropdownElement } from '../typescriptCommonFiles/unit/elementTypes/DropdownElement.js';
-import { HtmlUnitElement } from '../typescriptCommonFiles/unit/elementTypes/HtmlElement.js';
-import { ImageElement } from '../typescriptCommonFiles/unit/elementTypes/ImageElement.js';
-import { MultipleChoiceElement } from '../typescriptCommonFiles/unit/elementTypes/MultipleChoiceElement.js';
-import { TableCell, TableElement } from '../typescriptCommonFiles/unit/elementTypes/TableElement.js';
-import { TextboxElement } from '../typescriptCommonFiles/unit/elementTypes/TextboxElement.js';
-import { TextElement } from '../typescriptCommonFiles/unit/elementTypes/TextElement.js';
-import { VideoElement } from '../typescriptCommonFiles/unit/elementTypes/VideoElement.js';
+import {AudioElement} from '../typescriptCommonFiles/unit/elementTypes/AudioElement.js';
+import {TableCell, TableElement} from '../typescriptCommonFiles/unit/elementTypes/TableElement.js';
+import {saveAs} from 'file-saver';
 
 const vo_UnitAuthoringInterface =
 {
@@ -89,21 +82,24 @@ class IQB_UnitAuthoringTool
         });
 
         window.addEventListener('IQB.unit.navigateToPage', (e) => {
-            this.currentUnit.navigateToPage(e.detail.pageID);
+            const detail = (e as CustomEvent).detail;
+            this.currentUnit.navigateToPage(detail.pageID);
 
             this.updateCurrentPageSelect();
         });
 
         window.addEventListener('IQB.unit.audioElementAutoplayed', (e) => {
             // if element is audio or video element, pause it (so as not to autoplay)
-            const elementID: string = e.detail.elementID;
+            const detail = (e as CustomEvent).detail;
+            const elementID: string = detail.elementID;
             const audioElement = this.currentUnit.element(elementID) as AudioElement;
             audioElement.pause();
         });
 
         window.addEventListener('IQB.unit.videoElementStarted', (e) => {
             // if element is audio or video element, pause it (so as not to autoplay)
-            const videoElement = document.getElementById(e.detail.elementID + '_video') as HTMLVideoElement | null;
+            const detail = (e as CustomEvent).detail;
+            const videoElement = document.getElementById(detail.elementID + '_video') as HTMLVideoElement | null;
             if (videoElement !== null) {
                videoElement.pause();
             }
@@ -115,7 +111,8 @@ class IQB_UnitAuthoringTool
         // when clicking outside the page, select nothing
         const containerHTMLElement = document.getElementById(this.containerDivID) as HTMLDivElement;
         containerHTMLElement.addEventListener('mousedown', (e) => {
-            if (e.target.id === this.containerDivID)
+            const target = e.target as HTMLElement;
+            if (target && target.id === this.containerDivID)
             {
                 this.selectObject(this.nothingSelectedObject);
             }
@@ -235,7 +232,7 @@ class IQB_UnitAuthoringTool
                             validValue = true;
                         }
                     }
-                    if (validValue === false) {
+                    if (!validValue) {
                         property.value = '';
                         propertiesOwner.render();
                     }
@@ -250,7 +247,8 @@ class IQB_UnitAuthoringTool
         const pagesMap = this.currentUnit.getPagesMap();
         pagesMap.forEach( (page: UnitPage, pageName: string) => {
             let selectedAttribute = '';
-            if (this.currentUnit.getCurrentPage().getID() === pageName) {
+            const currentPage = this.currentUnit.getCurrentPage();
+            if (currentPage && currentPage.getID() === pageName) {
                 selectedAttribute = 'selected';
             }
 
@@ -260,19 +258,20 @@ class IQB_UnitAuthoringTool
         currentPageSelectHTMLElement.innerHTML = newSelectInnerHTML;
 
         // also update properties where the value is one of the pages that belong to the unit
-        const pagesObject = {'': ''};
+        const pages: { [key: string]: string} = {};
+        pages[''] = '';
         pagesMap.forEach((page: UnitPage, pageName: string) => {
-            pagesObject[pageName] = pageName;
+            pages[pageName] = pageName;
         });
 
         // console.log(pagesObject);
 
         pagesMap.forEach((page: UnitPage, pageName: string) => {
-            updatePropertiesWithPagesAsDropdownOptions(page.getPropertiesMap(), pagesObject, page); // update page properties
+            updatePropertiesWithPagesAsDropdownOptions(page.getPropertiesMap(), pages, page); // update page properties
 
             page.getElementsMap().forEach( (element: UnitElement, elementName: string) => {
                 // update element properties
-                updatePropertiesWithPagesAsDropdownOptions(element.getPropertiesMap(), pagesObject, element);
+                updatePropertiesWithPagesAsDropdownOptions(element.getPropertiesMap(), pages, element);
             });
         });
     }
@@ -294,59 +293,64 @@ class IQB_UnitAuthoringTool
         }));
     }
 
-    public UnitHasLoadedListener(e)
+    public UnitHasLoadedListener(e: Event)
     {
         this.isLoaded = true;
     }
 
-    private newPageDrawnListener(e)
+    private newPageDrawnListener(e: Event)
     {
         // listens for the rendering of new elements
-        const pageID = e.detail.pageID; // when a new element is rendered, its elementID is provided in e.detail.elementID
+        const detail = (e as CustomEvent).detail;
+        const pageID = detail.pageID; // when a new element is rendered, its elementID is provided in e.detail.elementID
         this.drawPageAuthoringTools(pageID);
     }
 
 
-    private newElementDrawnListener(e)
+    private newElementDrawnListener(e: Event)
     {
         // console.log('New element rendered:');
         // console.log(e);
 
         // listens for the rendering of new elements
-        const elementID = e.detail.elementID; // when a new element is rendered, its elementID is provided in e.detail.elementID
+        const detail = (e as CustomEvent).detail;
+        const elementID = detail.elementID; // when a new element is rendered, its elementID is provided in e.detail.elementID
 
         this.drawElementAuthoringTools(elementID);
     }
 
-    private newTableCellDrawnListener(e)
+    private newTableCellDrawnListener(e: Event)
     {
         // console.log('New table cell rendered:');
         // console.log(e);
 
         // listens for the rendering of new table cells
-        const tableCell = e.detail.tableCell; // when a new table cell is rendered, a reference to it is provided in e.detail.tableCell
+        const detail = (e as CustomEvent).detail;
+        const tableCell = detail.tableCell; // when a new table cell is rendered, a reference to it is provided in e.detail.tableCell
         this.drawTableCellAuthoringTools(tableCell);
     }
 
-    private tableCellDeletedListener(e)
+    private tableCellDeletedListener(e: Event)
     {
         // listens for the deletion of table cells so as to also delete their contents
-        const tableCell = e.detail.tableCell; // when a new table cell is deleted, a reference to it is provided in e.detail.tableCell
+        const detail = (e as CustomEvent).detail;
+        const tableCell = detail.tableCell; // when a new table cell is deleted, a reference to it is provided in e.detail.tableCell
         this.dockingFeatures.getAllDockedElements(tableCell).forEach((dockedElement: UnitElement) => {
             this.currentUnit.deleteElement(dockedElement.getElementID());
         });
     }
 
 
-    private propertyUpdatedListener(e)
+    private propertyUpdatedListener(e: Event)
     {
         // console.log(e);
 
         // listens for the rendering of new elements
-        const propertyOwner = e.detail.propertyOwner;
-        const propertyOwnerID: string = e.detail.propertyOwnerID;
-        const propertyOwnerType: string = e.detail.propertyOwnerType;
-        const propertyName: string = e.detail.propertyName;
+        const detail = (e as CustomEvent).detail;
+        const propertyOwner = detail.propertyOwner;
+        const propertyOwnerID: string = detail.propertyOwnerID;
+        const propertyOwnerType: string = detail.propertyOwnerType;
+        const propertyName: string = detail.propertyName;
 
         if (typeof this.selectedObjectWithProperties !== 'undefined')
         {
@@ -536,11 +540,12 @@ class IQB_UnitAuthoringTool
 
         window.addEventListener('keydown', (e) => {
             let considerKey = true;
-            if (e.srcElement !== null) {
-                if (e.srcElement.classList.contains('propertyInput')) {
+            const sourceElement = e.target as HTMLElement;
+            if (sourceElement) {
+                if (sourceElement.classList.contains('propertyInput')) {
                     considerKey = false;
                 }
-                if ((e.srcElement.tagName === 'INPUT') || (e.srcElement.tagName === 'SELECT')) {
+                if ((sourceElement.tagName === 'INPUT') || (sourceElement.tagName === 'SELECT')) {
                     considerKey = false;
                 }
             }
@@ -553,28 +558,34 @@ class IQB_UnitAuthoringTool
 
         (document.getElementById('btnSaveUnit') as HTMLButtonElement).addEventListener('click', (e) => {
             // unselect elements if any are selected
-            this.selectObject(this.currentUnit.getCurrentPage());
-
-            this.saveUnitToFile();
+            const currentPage = this.currentUnit.getCurrentPage();
+            if (currentPage) {
+                this.selectObject(currentPage);
+                this.saveUnitToFile();
+            }
         });
 
         (document.getElementById('btnOpenUnit') as HTMLButtonElement).addEventListener('click', (e) => {
             // unselect elements if any are selected
-            this.selectObject(this.currentUnit.getCurrentPage());
+            const currentPage = this.currentUnit.getCurrentPage();
+            if (currentPage) {
+                this.selectObject(currentPage);
 
-            this.AddFile('Aufgabe importieren', (uploadedFileContent: string) =>
-            {
-                this.loadUnitFromJson(uploadedFileContent);
-                this.dispatchUnitHasChangedEvent();
-            }, 'text');
+                this.AddFile('Aufgabe importieren', (uploadedFileContent: string) => {
+                    this.loadUnitFromJson(uploadedFileContent);
+                    this.dispatchUnitHasChangedEvent();
+                }, 'text');
+            }
         });
 
 
         (document.getElementById('btnSaveUnit') as HTMLButtonElement).addEventListener('click', (e) => {
             // unselect elements if any are selected
-            this.selectObject(this.currentUnit.getCurrentPage());
-
-            this.saveUnitToFile();
+            const currentPage = this.currentUnit.getCurrentPage();
+            if (currentPage) {
+                this.selectObject(currentPage);
+                this.saveUnitToFile();
+            }
         });
 
         if (this.standAloneMode) {
@@ -644,36 +655,38 @@ class IQB_UnitAuthoringTool
     {
         console.log('Rendering canvas authoring tools for page ' + pageID);
 
-        const pageElementID = this.currentUnit.getCurrentPage().getPageHTMLElementID();
-        const pageElement = document.getElementById(pageElementID) as HTMLElement;
-        const $pageElement = jQuery('#' + pageElementID);
+        const currentPage = this.currentUnit.getCurrentPage();
+        if (currentPage) {
+            const pageElementID = currentPage.getPageHTMLElementID();
+            const pageElement = document.getElementById(pageElementID) as HTMLElement;
+            const $pageElement = jQuery('#' + pageElementID);
 
-        pageElement.addEventListener('mousedown', (e) => {
-            if (e.target.id === pageElementID)
-            {
-                this.selectObject(this.currentUnit.getCurrentPage());
-            }
-        });
+            pageElement.addEventListener('mousedown', (e) => {
+                const targetElement = e.target as HTMLElement;
+                if (targetElement.id === pageElementID) {
+                    this.selectObject(currentPage);
+                }
+            });
 
-        this.selectObject(this.currentUnit.getCurrentPage());
+            this.selectObject(currentPage);
+            const pageElementSelector = '#' + pageElementID;
+            jQuery(pageElementSelector).resizable({
+                grid: 10,
+                handles: 'se'
+            });
 
-        jQuery('#' + pageElementID).resizable({
-            grid: 10,
-            handles: 'se'
-        });
+            jQuery(pageElementSelector).on('resizestop', (event, ui) => {
+                if (event.target.id === pageElementID) {
+                    const canvasWidth = jQuery(pageElementSelector).width();
+                    const canvasHeight = jQuery(pageElementSelector).height();
 
-        jQuery('#' + pageElementID).on('resizestop', (event, ui) => {
-            if (event.target.id === pageElementID)
-            {
-                const canvasWidth = jQuery('#' + pageElementID).width();
-                const canvasHeight = jQuery('#' + pageElementID).height();
+                    currentPage.properties.setPropertyValue('width', canvasWidth);
+                    currentPage.properties.setPropertyValue('height', canvasHeight);
 
-                this.currentUnit.getCurrentPage().properties.setPropertyValue('width', canvasWidth);
-                this.currentUnit.getCurrentPage().properties.setPropertyValue('height', canvasHeight);
-
-                this.currentUnit.render();
-            }
-        });
+                    this.currentUnit.render();
+                }
+            });
+        }
     }
 
     public drawElementAuthoringTools(elementID: string)
@@ -696,12 +709,12 @@ class IQB_UnitAuthoringTool
             if (elementType !== 'tableCell')
             {
                 // all elements except table cells are draggable;
-
-                if (elementType !== 'table')
+                const currentPage = this.currentUnit.getCurrentPage();
+                if (currentPage && elementType !== 'table')
                 {
                     // normal elements are moved directly
                     jQuery('#' + elementID).draggable({
-                        containment: '#' + this.currentUnit.getCurrentPage().getPageHTMLElementID(),
+                        containment: '#' + currentPage.getPageHTMLElementID(),
                         grid: [10, 10],
                         stop: (e, ui) => {
 
@@ -768,20 +781,22 @@ class IQB_UnitAuthoringTool
             }
 
             // add resizable functionality
+            const elementSelector = '#' + elementID;
             if ((elementType !== 'table') && (elementType !== 'viewpoint'))
             {
                 // all elements are resizable, except tables (where the resizing happens at the individual cell level) and viewpoints
 
-                if (elementType !== 'tableCell')
+                const currentPage = this.currentUnit.getCurrentPage();
+                if (currentPage && elementType !== 'tableCell')
                 {
                     // if the element is not a table cell, then apply the usual resize function
-                    jQuery('#' + elementID).resizable({
-                        containment: '#' + this.currentUnit.getCurrentPage().getPageHTMLElementID(),
+                    jQuery(elementSelector).resizable({
+                        containment: '#' + currentPage.getPageHTMLElementID(),
                         grid: 10,
                         handles: 'se'
                     });
 
-                    jQuery('#' + elementID).on('resizestop', (event, ui) => {
+                    jQuery(elementSelector).on('resizestop', (event, ui) => {
                         element.updateSizePropertiesBasedOn(element.pageHTMLElementID, element.getElementID());
 
                         this.updateAllPopupMenuItemsConcerningDocking();
@@ -799,7 +814,7 @@ class IQB_UnitAuthoringTool
             */
 
             // add selectable functionality
-            jQuery('#' + elementID).on('mousedown', (e) => {
+            jQuery(elementSelector).on('mousedown', (e) => {
                 this.selectObject(element);
             });
 
@@ -929,15 +944,16 @@ class IQB_UnitAuthoringTool
 
     private drawTableCellAuthoringTools(tableCell: TableCell) {
         const tableCellID: string = tableCell.getID();
+        const elementSelector = '#' + tableCellID;
 
         // make it resizable
-        jQuery('#' + tableCellID).resizable({
+        jQuery(elementSelector).resizable({
             helper: 'ui-resizable-helper',
             grid: 10,
             handles: 'se'
         });
 
-        jQuery('#' + tableCellID).on('resizestop', (event, ui) => {
+        jQuery(elementSelector).on('resizestop', (event, ui) => {
             // when resizing the cells, update their size properties
             tableCell.resize(ui.size.width, ui.size.height);
 
@@ -1084,13 +1100,11 @@ class IQB_UnitAuthoringTool
                 // if the object is an element
                 const selectedElement = this.selectedObjectWithProperties as UnitElement;
 
-                const elementJSON = JSON.stringify({
+                return JSON.stringify({
                     elementData: selectedElement.getData(),
                     elementType: selectedElement.getElementType(),
                     thisIs: 'UnitElementJSON'
                 });
-
-                return elementJSON;
             }
             else {
                 alert('Error: Only elements can be copied');
@@ -1101,8 +1115,6 @@ class IQB_UnitAuthoringTool
             alert('Error: nothing currently selected');
             return undefined;
         }
-
-        return undefined;
     }
 
     private newElementBasedOnElementJSON(elementJSON: string): void {
@@ -1174,10 +1186,12 @@ class IQB_UnitAuthoringTool
             catch (e)
             {
                 console.log(e);
-                let errorText = 'Element konnte nicht kopiert werden.';
-                if (e.toString().indexOf('QuotaExceededError') !== -1) {
+                const errorText = 'Element konnte nicht kopiert werden.';
+                /*
+                if (e.message.indexOf('QuotaExceededError') !== -1) {
                     errorText += ' Die Elementdaten sind zu groß.';
                 }
+                 */
                 alert(errorText);
             }
         }
@@ -1291,7 +1305,8 @@ class IQB_UnitAuthoringTool
                     this.currentUnit.deleteElement(elementID);
 
                     // when done, select the page canvas
-                    this.selectObject(this.currentUnit.getCurrentPage());
+                    const currentPage = this.currentUnit.getCurrentPage();
+                    if (currentPage) { this.selectObject(currentPage); }
 
                     // trigger unit has changed event
                     this.dispatchUnitHasChangedEvent();
@@ -1393,8 +1408,7 @@ class IQB_UnitAuthoringTool
     public saveUnitToFile(): void {
         // estimate file size
         const estimatedFileSizeHTMLElement = (document.getElementById('spanEstimatedItemFileSize') as HTMLSpanElement);
-        const estimatedFileSize = this.currentUnit.exportDataToJSON().length.toLocaleString('DE');
-        estimatedFileSizeHTMLElement.innerHTML = estimatedFileSize;
+        estimatedFileSizeHTMLElement.innerHTML = this.currentUnit.exportDataToJSON().length.toLocaleString('DE');
 
         // open save item dialog
         jQuery('#saveItemDialog').dialog({
@@ -1513,9 +1527,12 @@ class IQB_UnitAuthoringTool
                         const uploadedFile = uploadedFiles[0];
                         const myReader = new FileReader();
                         myReader.onload =  (e) => {
-                            const uploadedFileContent = e.target.result;
-                            // console.log(e);
-                            callback(uploadedFileContent);
+                            const targetElement = e.target;
+                            if (targetElement) {
+                                const uploadedFileContent = targetElement.result;
+                                // console.log(e);
+                                callback(uploadedFileContent);
+                            }
                         };
 
                         if (dataType === 'text') {

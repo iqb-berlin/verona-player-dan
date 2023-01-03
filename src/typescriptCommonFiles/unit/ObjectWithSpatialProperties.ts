@@ -3,8 +3,6 @@
 // 2018
 // license: MIT
 
-import {Property, Properties} from './Properties.js';
-import {PropertiesValue, UnitElementData, UnitPageData, UnitData} from '../models/Data.js';
 import {ObjectWithProperties} from './ObjectWithProperties.js';
 
 export class ObjectWithSpatialProperties extends ObjectWithProperties {
@@ -23,20 +21,21 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
 
         this.properties.addPropertyRenderer('left', 'basicRenderer', (propertyValue: any) => {
             const element =  document.getElementById(this.getID());
-            if (element !== null)
-            {
-                let newLeft =  this.getPageJQueryElement().offset().left + parseInt(propertyValue, 10);
-                const maxLeft =  this.getPageJQueryElement().offset().left +  this.getPageJQueryElement().width() -  this.getPropertyValue('width');
+            const jQueryElementWidth = this.getPageJQueryElement().width();
+            const jQueryElementOffset = this.getPageJQueryElement().offset();
+            if (element && jQueryElementOffset && jQueryElementWidth) {
+                let newLeft =  jQueryElementOffset.left + parseInt(propertyValue, 10);
+                const maxLeft =  jQueryElementOffset.left +  jQueryElementWidth -  this.getPropertyValue('width');
 
                 if (newLeft > maxLeft) {
                     newLeft = maxLeft;
                 }
 
-                if (newLeft <  this.getPageJQueryElement().offset().left) {
-                    newLeft =  this.getPageJQueryElement().offset().left;
+                if (newLeft <  jQueryElementOffset.left) {
+                    newLeft =  jQueryElementOffset.left;
                 }
 
-                const newLeftPropertyValue = newLeft -  this.getPageJQueryElement().offset().left;
+                const newLeftPropertyValue = newLeft -  jQueryElementOffset.left;
                 this.properties.setPropertyValue('left', newLeftPropertyValue);
                 element.style.left =  this.properties.getPropertyValue('left')  + 'px';
             }
@@ -53,18 +52,20 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
 
         this.properties.addPropertyRenderer('top', 'basicRenderer', (propertyValue: any) => {
             const element =  document.getElementById(this.getID());
-            if (element !== null)
+            const jQueryElementHeight = this.getPageJQueryElement().height();
+            const jQueryElementOffset = this.getPageJQueryElement().offset();
+            if (element && jQueryElementHeight && jQueryElementOffset)
             {
-                let newTop = this.getPageJQueryElement().offset().top + parseInt(propertyValue, 10);
-                const maxTop = this.getPageJQueryElement().offset().top + this.getPageJQueryElement().height() - this.properties.getPropertyValue('height');
+                let newTop = jQueryElementOffset.top + parseInt(propertyValue, 10);
+                const maxTop = jQueryElementOffset.top + jQueryElementHeight - this.properties.getPropertyValue('height');
                 if (newTop > maxTop) {
                     newTop = maxTop;
                 }
-                if (newTop < this.getPageJQueryElement().offset().top) {
-                    newTop = this.getPageJQueryElement().offset().top;
+                if (newTop < jQueryElementOffset.top) {
+                    newTop = jQueryElementOffset.top;
                 }
 
-                const newTopPropertyValue = newTop - this.getPageJQueryElement().offset().top;
+                const newTopPropertyValue = newTop - jQueryElementOffset.top;
                 this.properties.setPropertyValue('top', newTopPropertyValue);
                 element.style.top =  this.properties.getPropertyValue('top') + 'px';
             }
@@ -82,7 +83,8 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
         this.properties.addPropertyRenderer('width', 'basicRenderer', (propertyValue: any) => {
             const element =  document.getElementById(this.getID());
             const $element = jQuery('#' + this.getID());
-            if (element !== null)
+            const jQueryElementWidth = this.getPageJQueryElement().width();
+            if (element && jQueryElementWidth)
             {
                 let newWidth = parseInt(propertyValue, 10);
 
@@ -90,8 +92,8 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
                     newWidth = 0;
                 }
 
-                if (newWidth > this.getPageJQueryElement().width()) {
-                    newWidth = $element.parent().width();
+                if (newWidth > jQueryElementWidth) {
+                    newWidth = $element.parent().width() || 0;
                 }
 
                 this.properties.setPropertyValue('width', newWidth);
@@ -118,14 +120,15 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
 
         this.properties.addPropertyRenderer('height', 'basicRenderer', (propertyValue: any) => {
             const element =  document.getElementById(this.getID());
-            if (element !== null)
+            const jQueryElementHeight = this.getPageJQueryElement().height();
+            if (element && jQueryElementHeight)
             {
                 let newHeight = parseInt(propertyValue, 10);
                 if (newHeight < 0) {
                     newHeight = 0;
                 }
-                if (newHeight > this.getPageJQueryElement().height()) {
-                    newHeight = this.getPageJQueryElement().height();
+                if (newHeight > jQueryElementHeight) {
+                    newHeight = this.getPageJQueryElement().height() || 0;
                 }
 
                 this.properties.setPropertyValue('height', newHeight);
@@ -161,57 +164,66 @@ export class ObjectWithSpatialProperties extends ObjectWithProperties {
 
     public updateSizePropertiesBasedOn(pageID: string, HTMLElementID: string) {
 
-        const elementID = HTMLElementID;
-        const $element = jQuery('#' + elementID);
+        const $element = jQuery('#' + HTMLElementID);
         const $page = jQuery('#' + pageID);
 
         const oldWidth = this.properties.getPropertyValue('width');
         const oldHeight = this.properties.getPropertyValue('height');
 
-        const maxHeight = $page.height() - ($element.offset().top - $page.offset().top) - 20;
-        const maxWidth = $page.width() - (($element.offset().left - $page.offset().left)) - 20;
+        const pageHeight = $page.height() || 0;
+        const pageWidth = $page.width() || 0;
+        const pageOffset = $page.offset();
+        const elementHeight = $element.height() || 0;
+        const elementWidth = $element.width() || 0;
+        const elementOffset = $element.offset();
+        if (pageOffset && elementOffset) {
+            const maxHeight = pageHeight - (elementOffset.top - pageOffset.top) - 20;
+            const maxWidth = pageWidth - ((elementOffset.left - pageOffset.left)) - 20;
 
-        if ($element.width() > maxWidth) {
-            $element.css('width', maxWidth + 'px');
-        }
-        if ($element.height() > maxHeight) {
-            $element.css('height', maxHeight + 'px');
-        }
-        if ($element.width() < 10) {
-            $element.css('min-width', '10px');
-        }
-        if ($element.height() < 10) {
-            $element.css('min-height', '10px');
-        }
+            if (elementWidth > maxWidth) {
+                $element.css('width', maxWidth + 'px');
+            }
+            if (elementHeight > maxHeight) {
+                $element.css('height', maxHeight + 'px');
+            }
+            if (elementWidth < 10) {
+                $element.css('min-width', '10px');
+            }
+            if (elementHeight < 10) {
+                $element.css('min-height', '10px');
+            }
 
-        this.properties.setPropertyValue('width', $element.width());
-        this.properties.setPropertyValue('height', $element.height());
+            this.properties.setPropertyValue('width', $element.width());
+            this.properties.setPropertyValue('height', $element.height());
 
-        const newWidth = this.properties.getPropertyValue('width');
-        const newHeight = this.properties.getPropertyValue('height');
+            const newWidth = this.properties.getPropertyValue('width');
+            const newHeight = this.properties.getPropertyValue('height');
 
-        // console.log('Updated size properties of ' + elementID + ':');
-        // console.log('Width changed from ' + oldWidth + ' to ' + newWidth);
-        // console.log('Height changed from ' + oldHeight + ' to ' + newHeight);
+            // console.log('Updated size properties of ' + elementID + ':');
+            // console.log('Width changed from ' + oldWidth + ' to ' + newWidth);
+            // console.log('Height changed from ' + oldHeight + ' to ' + newHeight);
+        }
     }
 
     public updatePositionPropertiesBasedOn(pageID: string, HTMLElementID: string)
     {
-         const elementID = HTMLElementID;
-
-         // normally elements are direct childred of the canvas
-         const $element = jQuery('#' + elementID);
+        // normally elements are direct childred of the canvas
+         const $element = jQuery('#' + HTMLElementID);
          const $page = jQuery('#' + pageID);
 
-         const newLeft = ($element.offset().left - $page.offset().left);
-         const newTop = ($element.offset().top - $page.offset().top);
+        const elementOffset = $element.offset();
+        const pageOffset = $page.offset();
+        if (elementOffset && pageOffset) {
+            const newLeft = (elementOffset.left - pageOffset.left);
+            const newTop = (elementOffset.top - pageOffset.top);
 
-         // console.log('updatePositionProperties; newLeft: ' + newLeft);
-         // console.log('updatePositionProperties; newTop: ' + newTop);
+            // console.log('updatePositionProperties; newLeft: ' + newLeft);
+            // console.log('updatePositionProperties; newTop: ' + newTop);
 
-         this.setPropertyValue('left',  newLeft);
-         this.setPropertyValue('top', newTop);
-         // this.showPropertiesOf(elementID);
+            this.setPropertyValue('left',  newLeft);
+            this.setPropertyValue('top', newTop);
+            // this.showPropertiesOf(elementID);
+        }
     }
 
     public getPageHTMLElement()

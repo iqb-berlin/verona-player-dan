@@ -28,7 +28,7 @@ import {ButtonElement} from './elementTypes/ButtonElement.js';
 import {colorsObject} from '../models/Colors.js';
 
 export type SupportedUnitElementType = 'text' | 'image' | 'audio' | 'video' | 'textbox' | 'multilineTextbox' | 'checkbox' |
-'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html' | 'viewpoint' | 'button';
+'multipleChoice' | 'dropdown' | 'table' | 'volumePicker' | 'html' | 'viewpoint' | 'button' | 'tableCell';
 
 export interface NewElementOptions {
     elementID: string;
